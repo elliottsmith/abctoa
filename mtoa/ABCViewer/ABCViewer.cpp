@@ -73,7 +73,7 @@ void CABCViewerTranslator::ProcessRenderFlagsCustom(AtNode* node)
 
     MFnDependencyNode dnode(m_dagPath.node(), &status);
     if (status)
-        AiNodeSetInt(node, "id", DJB2Hash((unsigned char*)dnode.name().asChar()));
+        AiNodeSetUInt(node, "id", DJB2Hash((unsigned char*)dnode.name().asChar()));
 }
 
 void CABCViewerTranslator::Export(AtNode* procedural)

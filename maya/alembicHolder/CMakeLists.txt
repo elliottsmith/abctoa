@@ -6,8 +6,15 @@ find_package(Boost)
 
 add_library(${MAYAPLUGIN} SHARED ${SRC})
 
-target_link_libraries(${MAYAPLUGIN} ${MAYA_LIBRARIES} ${MAYA_LIBRARY_DIRS}/tbb.lib Alembic jsoncpp pystring Iex Half ${Boost_REGEX_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_CHRONO_LIBRARY} ${Boost_DATE_TIME_LIBRARY} ${Boost_THREAD_LIBRARY})
+if(WINDOWS)
+	set(TBB_LIB tbb.lib)
+elseif(DARWIN)
+	set(TBB_LIB tbb.dylib)
+else()
+	set(TBB_LIB libtbb.so)
+endif()
 
+target_link_libraries(${MAYAPLUGIN} ${MAYA_LIBRARIES} ${MAYA_LIBRARY_DIRS}/${TBB_LIB} Alembic jsoncpp pystring Iex Half ${Boost_REGEX_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_CHRONO_LIBRARY} ${Boost_DATE_TIME_LIBRARY} ${Boost_THREAD_LIBRARY})
 
 MAYA_SET_PLUGIN_PROPERTIES(${MAYAPLUGIN})
 set_target_properties(${MAYAPLUGIN} PROPERTIES PREFIX "")

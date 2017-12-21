@@ -11,6 +11,7 @@ include_directories(${MTOA_INCLUDE_DIR})
 include_directories(${ARNOLD_INCLUDE_DIR})
 
 target_link_libraries(${MAYAPLUGIN} Alembic pystring ${MTOA_LIBRARY} ${MAYA_LIBRARIES} ai Iex Half)
+set_target_properties(${MAYAPLUGIN} PROPERTIES PREFIX "")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	install(TARGETS ${MAYAPLUGIN} RUNTIME DESTINATION ${PLUGINS_INSTALL_DIR})

@@ -10,6 +10,7 @@ target_link_libraries(${MAYAPLUGIN} ${MAYA_LIBRARIES} ${MAYA_LIBRARY_DIRS}/tbb.l
 
 
 MAYA_SET_PLUGIN_PROPERTIES(${MAYAPLUGIN})
+set_target_properties(${MAYAPLUGIN} PROPERTIES PREFIX "")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	target_link_libraries(${MAYAPLUGIN} OpenGl32 wbemuuid)

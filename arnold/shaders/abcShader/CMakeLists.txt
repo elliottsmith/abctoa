@@ -21,7 +21,7 @@ link_directories(${ARNOLD_LIBRARY_DIR})
 
 add_library(${SHADER} SHARED ${SRC})
 
-target_link_libraries(${SHADER} ai Alembic pystring_lib_static Iex Half)
+target_link_libraries(${SHADER} ai Alembic pystring Iex Half)
 set_target_properties(${SHADER} PROPERTIES PREFIX "")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")

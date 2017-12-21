@@ -9,11 +9,11 @@ foreach(SUBDIR ${THIRDPARTY_SUB})
 	add_subdirectory(${SUBDIR})
 endforeach()
 
-set_target_properties (pystring_lib_static PROPERTIES
+set_target_properties (pystring PROPERTIES
     FOLDER ThirdParty
 )
 
-set_target_properties (jsoncpp_lib_static PROPERTIES
+set_target_properties (jsoncpp PROPERTIES
     FOLDER ThirdParty
 )
 

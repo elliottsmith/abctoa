@@ -23,7 +23,7 @@ include_directories(${MTOA_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/pystring)
 include_directories(${ARNOLD_INCLUDE_DIR})
 
-target_link_libraries(${MAYAPLUGIN} Alembic pystring_lib_static ${MTOA_LIBRARY} ${MAYA_LIBRARIES} ai Iex Half)
+target_link_libraries(${MAYAPLUGIN} Alembic pystring ${MTOA_LIBRARY} ${MAYA_LIBRARIES} ai Iex Half)
 
 
 

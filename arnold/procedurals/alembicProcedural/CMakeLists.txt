@@ -2,19 +2,7 @@ set(PROC arnoldAlembicProcedural)
 
 file(GLOB SRC "*.cpp" "*h" "../../../common/abcshaderutils.h" "../../../common/abcshaderutils.cpp" "../../../common/PathUtil.h" "../../../common/PathUtil.cpp")
 
-include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/jsoncpp/include)
-include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/pystring)
-include_directories(${CMAKE_SOURCE_DIR}/alembic/lib)
-include_directories(${CMAKE_BINARY_DIR}/alembic/lib)
 include_directories(${ARNOLD_INCLUDE_DIR})
-
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/thirdParty/openEXR/IlmBase/Half)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/thirdParty/openEXR/IlmBase/Iex)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/thirdParty/openEXR/IlmBase/IexMath)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/thirdParty/openEXR/IlmBase/IlmThread)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/thirdParty/openEXR/IlmBase/Imath)
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/thirdParty/openEXR/IlmBase/config)
-
 include_directories(${CMAKE_SOURCE_DIR}/common)
 include_directories(${ALEMBIC_ILMBASE_INCLUDE_DIRECTORY})
 

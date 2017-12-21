@@ -11,30 +11,39 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library.
 
+import os
 import maya.cmds as cmds
+import json
 
 import maya.OpenMayaUI as apiUI
 import shiboken2
-from PySide2 import QtWidgets
+from PySide2 import QtGui, QtWidgets
 
+from alembicHolder.cmds import abcToApi
 
 global _shadermanager
 _shadermanager = None
 
 def getMayaWindow():
     """
-    Get the main Maya window as a QtGui.QMainWindow instance
-    @return: QtGui.QMainWindow instance of the top level Maya windows
+    Get Main window
+    :return: main window 
     """
-    ptr = apiUI.MQtUtil.mainWindow()
-    if ptr is not None:
-        return shiboken2.wrapInstance(long(ptr), QtWidgets.QMainWindow)
+    mainWindow = QtWidgets.QApplication.activeWindow()
+    while True:
+        if mainWindow:
+            parentWin = mainWindow.parent()
+            if parentWin:
+                mainWindow = parentWin
+            else:
+                break
+    return mainWindow
 
-def alembicShaderManager(mayaWindow):
+def shaderManager(mayaWindow):
     global _shadermanager
     import shaderManager
     
-    reload(shaderManager)
+    # reload(shaderManager)
     return shaderManager.manager(mayaWindow)
 
 def reloadShaderManager(mayaWindow):
@@ -45,30 +54,47 @@ def reloadShaderManager(mayaWindow):
         _shadermanager.deleteLater()
     except:
         pass
+    
     reload(shaderManager)
+    reload(abcToApi)
+    
     _shadermanager = shaderManager.manager(mayaWindow)
 
-def createAlembicHolder():
-    x = cmds.createNode('alembicHolder', n="AlembicHolderShape")
-    cmds.setAttr("%s.overrideLevelOfDetail" % x, 1)
-    cmds.setAttr("%s.overrideVisibility" % x, 1) 
-    cmds.setAttr("%s.visibleInRefractions" % x, 1)
-    cmds.setAttr("%s.visibleInReflections" % x, 1)
-    cmds.connectAttr("time1.outTime", "%s.time" % x)
+def exportManager(mayaWindow):
+    ''' export alembic'''
+    global _exportmanager
+    import alembicExport
+    
+    reload(alembicExport)
+    return alembicExport.manager(win=mayaWindow)
 
-def exportAssignations():
+def exportAssignments(mayaWindow):
     ''' export json and shaders'''
-    from alembicHolder.cmds import cachesBaker
-    cachesBaker.writeAbcShaders()
-    cachesBaker.writeJson()
+    global _exportassignments
+    import alembicExport
+    
+    reload(alembicExport)
+    return alembicExport.export_package(win=mayaWindow)
 
-def importAssignations():
-    ''' select a json file, and apply it to a alembicHolder '''
-    from alembicHolder.cmds import cachesBaker
-    cachesBaker.applyAssignations()
+def importPackageManager():
+    ''' import package'''
+
+    singleFilter = "ABC Files (*.abc)"
+    files = cmds.fileDialog2(fileMode=1, caption="Import Alembic File", fileFilter=singleFilter)
+    if files:
+        if len(files) > 0:
+            f = files[0]
+
+        x = cmds.createNode('alembicHolder', n="AlembicHolderShape")
+        cmds.setAttr("%s.overrideLevelOfDetail" % x, 1)
+        cmds.setAttr("%s.overrideVisibility" % x, 1) 
+        cmds.setAttr("%s.visibleInRefractions" % x, 1)
+        cmds.setAttr("%s.visibleInReflections" % x, 1)
+        cmds.connectAttr("time1.outTime", "%s.time" % x)
+
+        cmds.setAttr("%s.cacheFileNames[0]" % x, f, type='string')
 
 def assignTagsFromSetName():
-    import json
     sets = cmds.ls(sl=True, type="objectSet")
 
     for set in sets:
@@ -86,38 +112,120 @@ def assignTagsFromSetName():
                 tags.append(set)
                 cmds.setAttr(s + ".mtoa_constant_tags", json.dumps(tags), type="string")
 
-def assignAttributeMaterial():
-    sel = cmds.ls(sl=1)
-    shapes = cmds.listRelatives(sel, ad=1)
-    if not shapes:
-        shapes=sel
-    if shapes:
-        for s in shapes:
-            mat = cmds.listConnections(s, type="shadingEngine")
-            if mat:
-                mat = mat[0]
-                if not cmds.objExists(s + ".shaderName"):
-                    cmds.addAttr(s, ln='shaderName', dt='string') 
-                cmds.setAttr(s + ".shaderName", mat, type="string") 
+def checkConnected():
+    print "\n"
+    print "*"*100
+    print 'Checking Connections'
+    print "*"*100
+    x = abcToApi.getSelected(cls=True)
+    for i in x:
+        i.checkConnections()
 
-				
+def makeConnected():
+    print "\n"
+    print "*"*100
+    print 'Making Connections'
+    print "*"*100
+    x = abcToApi.getSelected(cls=True)
+    for i in x:
+        i.checkConnections()
+        i.makeConnections()
+
+def breakConnected():
+    print "\n"
+    print "*"*100
+    print 'Breaking Connections'
+    print "*"*100
+    x = abcToApi.getSelected(cls=True)
+    for i in x:
+        i.breakConnections()
+
+def runProcedural():
+    print "\n"
+    print "*"*100
+    print 'Simulate Render'
+    print "*"*100
+    x = abcToApi.getSelected(cls=True)
+    for i in x:
+        i.runProcedural()
+
+def validateDictionaries():
+    print "\n"
+    print "*"*100
+    print 'Checking Dictionaries'
+    print "*"*100
+    x = abcToApi.getSelected(cls=True)
+    for i in x:
+        i.validateDictionaries()
+
+def importJson():
+    print "\n"
+    print "*"*100
+    print 'Importing Json'
+    print "*"*100
+    x = abcToApi.getSelected(cls=True)
+    for i in x:
+        i.importJson()
+
+def importShaders():
+    print "\n"
+    print "*"*100
+    print 'Importing Shaders'
+    print "*"*100
+    x = abcToApi.getSelected(cls=True)
+    for i in x:
+        i.importShaders()
+
+def importAbc():
+    res = cmds.confirmDialog( title='Transform', message='Do you want to parent the incoming geo to the alembicHolder transform?', button=['Yes','No'], defaultButton='Yes', cancelButton='No', dismissString='No' )
+    if res == 'Yes':
+        parent_transform = True
+    else:
+        parent_transform = False
+
+    print "\n"
+    print "*"*100
+    print 'Importing Abc'
+    print "*"*100
+    x = abcToApi.getSelected(cls=True)
+    for i in x:
+        i.importAbc(parent_transform=parent_transform)
+
 def registerAlembicHolder():
     if not cmds.about(b=1):
         mayaWindow = getMayaWindow()
-        global _shadermanager
-        _shadermanager = alembicShaderManager(mayaWindow)        
-        cmds.menu('AlembicHolderMenu', label='Alembic Holder', parent='MayaWindow', tearOff=True )
-        cmds.menuItem('CreateAlembicHolder', label='Create Holder', parent='AlembicHolderMenu', c=lambda *args: createAlembicHolder())
-        cmds.menuItem('AlembicShaderManager', label='Shader Manager', parent='AlembicHolderMenu', c=lambda *args: _shadermanager.show())
         
-        cmds.menuItem( divider=True )
-        cmds.menuItem('exportAssign', label='Export Assignations on selected caches', parent='AlembicHolderMenu', c=lambda *args: exportAssignations())
-        cmds.menuItem('importtAssign', label='Import Assignation on selected caches', parent='AlembicHolderMenu', c=lambda *args: importAssignations())
-        cmds.menuItem( divider=True )
-        cmds.menuItem('assignTagsSets', label='Assign tags from Selected Selection Sets', parent='AlembicHolderMenu', c=lambda *args: assignTagsFromSetName())
-        cmds.menuItem('assignAttrMat', label='Set attribute on Selected objects from shader name', parent='AlembicHolderMenu', c=lambda *args: assignAttributeMaterial())
-        cmds.menuItem( divider=True )
-        cmds.menuItem('ReloadAlembicShaderManager', label='Reload Shader Manager(coding)', parent='AlembicHolderMenu', c=lambda *args: reloadShaderManager(mayaWindow))
-        cmds.menuItem( divider=True )
-        cmds.menuItem('OnlineDocumentation', label='Online Documentation', parent='AlembicHolderMenu', c=lambda *args: cmds.launch(webPage='https://github.com/Gael-Honorez-sb/abctoa/wiki'))
+        global _shadermanager
+        global _exportmanager
+        global _exportassignments
 
+        _shadermanager = shaderManager(mayaWindow)
+        _exportmanager = exportManager(mayaWindow)
+        _exportassignments = exportAssignments(mayaWindow)
+
+        cmds.menu('AlembicHolderMenu', label='AbcToArnold', parent='MayaWindow', tearOff=True )       
+        
+        cmds.menuItem('shaderManager', label='Shader Manager', parent='AlembicHolderMenu', c=lambda *args: _shadermanager.show())
+        cmds.menuItem( divider=True )
+        cmds.menuItem('importAlembic', label='Load Alembic', parent='AlembicHolderMenu', c=lambda *args: importPackageManager())
+        cmds.menuItem('exportAlembic', label='Export Alembic', parent='AlembicHolderMenu', c=lambda *args: _exportmanager.show())
+        cmds.menuItem( divider=True )
+        cmds.menuItem('exportJson', label='Export Shaders / Assignments', parent='AlembicHolderMenu', c=lambda *args: _exportassignments.show())
+        cmds.menuItem( divider=True )
+        cmds.menuItem('AlembicHolderUtilsMenu', label='Utilities', parent='AlembicHolderMenu', sm=1)
+        cmds.menuItem('checkSyntax', label='Validate Dictionaries', parent='AlembicHolderUtilsMenu', c=lambda *args: validateDictionaries())
+        cmds.menuItem( divider=True )
+        cmds.menuItem('checkConnected', label='Check Connections', parent='AlembicHolderUtilsMenu', c=lambda *args: checkConnected())
+        cmds.menuItem('makeConnected', label='Make Connections', parent='AlembicHolderUtilsMenu', c=lambda *args: makeConnected())
+        cmds.menuItem('breakConnected', label='Break Connections', parent='AlembicHolderUtilsMenu', c=lambda *args: breakConnected())
+        cmds.menuItem( divider=True )
+        cmds.menuItem('importJson', label='Import Json', parent='AlembicHolderUtilsMenu', c=lambda *args: importJson())
+        # cmds.menuItem('importMergeJson', label='Import + Merge Json', parent='AlembicHolderUtilsMenu', c=lambda *args: importMergeJson())
+        cmds.menuItem('importShaders', label='Import Shaders', parent='AlembicHolderUtilsMenu', c=lambda *args: importShaders())
+        cmds.menuItem('importAbc', label='Import Abc', parent='AlembicHolderUtilsMenu', c=lambda *args: importAbc())
+        cmds.menuItem( divider=True )
+        cmds.menuItem('assignTagsSets', label='Assign Tags from Selected Selection Sets', parent='AlembicHolderUtilsMenu', c=lambda *args: assignTagsFromSetName())
+        cmds.menuItem('wiki', label='Wiki', parent='AlembicHolderUtilsMenu', c=lambda *args: cmds.launch(webPage='http://wiki/index.php/abcToArnold'))
+        cmds.menuItem( divider=True )
+        cmds.menuItem('reload', label='Reload (coding)', parent='AlembicHolderUtilsMenu', c=lambda *args: reloadShaderManager(mayaWindow))
+        cmds.menuItem('runProcedural', label='Run procedural (beta)', parent='AlembicHolderUtilsMenu', c=lambda *args: runProcedural())

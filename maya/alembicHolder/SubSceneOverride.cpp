@@ -1,4 +1,4 @@
-#include "subSceneOverride.h"
+#include "SubSceneOverride.h"
 
 #include <maya/MDagMessage.h>
 #include <maya/MDGMessage.h>
@@ -403,7 +403,7 @@ bool SubSceneOverride::requiresUpdate(
 
     MDagPath dag_path = MDagPath::getAPathTo(m_object);
     if (!dag_path.isVisible() && !m_is_visible) {
-        // If invisible, and the subSceneOverride has already been updated to
+        // If invisible, and the SubSceneOverride.has already been updated to
         // hide the render items (!m_is_visible), then there's nothing to do.
         return false;
     }

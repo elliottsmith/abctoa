@@ -306,16 +306,17 @@ void CABCViewerTranslator::ExportMotion(AtNode* anode)
 
 void CABCViewerTranslator::NodeInitializer(CAbTranslator context)
 {
+
     CExtensionAttrHelper helper(context.maya, "procedural");
-    CShapeTranslator::MakeCommonAttributes(helper);
 
-    CAttrData data;
+    // disabled due to compiler compatibility with mtoa. it is compiled with gcc 4.8.2, gcc 5/6 will
+    // cause maya to crash when loaded.
 
-
-    data.defaultValue.BOOL() = false;
-    data.name = "overrideGlobalShader";
-    data.shortName = "ogs";
-    helper.MakeInputBoolean(data) ;
-
+    // CShapeTranslator::MakeCommonAttributes(helper);
+    // CAttrData data;
+    // data.defaultValue.BOOL() = false;
+    // data.name = "overrideGlobalShader";
+    // data.shortName = "ogs";
+    // helper.MakeInputBoolean(data) ;
 
 }

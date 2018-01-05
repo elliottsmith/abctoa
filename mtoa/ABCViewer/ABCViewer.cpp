@@ -312,11 +312,11 @@ void CABCViewerTranslator::NodeInitializer(CAbTranslator context)
     // disabled due to compiler compatibility with mtoa. it is compiled with gcc 4.8.2, gcc 5/6 will
     // cause maya to crash when loaded.
 
-    // CShapeTranslator::MakeCommonAttributes(helper);
-    // CAttrData data;
-    // data.defaultValue.BOOL() = false;
-    // data.name = "overrideGlobalShader";
-    // data.shortName = "ogs";
-    // helper.MakeInputBoolean(data) ;
+    CShapeTranslator::MakeCommonAttributes(helper);
+    CAttrData data;
+    data.defaultValue.BOOL() = false;
+    data.name = "overrideGlobalShader";
+    data.shortName = "ogs";
+    helper.MakeInputBoolean(data) ;
 
 }

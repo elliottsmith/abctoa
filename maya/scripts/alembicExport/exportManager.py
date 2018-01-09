@@ -497,7 +497,7 @@ class ExportPackage(QtWidgets.QWidget):
                 # directly from ae template
                 
                 json_return = i.writeJson(merge=False, json_out_path=json_path)
-            return_codes.append(json_return)
+                return_codes.append(json_return)
         
         if shader:
             x = abcToApi.getSelected(cls=True)
@@ -510,7 +510,7 @@ class ExportPackage(QtWidgets.QWidget):
 
                 shader_return = i.writeAbcShaders(merge=False, shader_out_path=shader_path)
             
-            return_codes.append(shader_return)
+                return_codes.append(shader_return)
         
         msg = ''
         for i in return_codes:

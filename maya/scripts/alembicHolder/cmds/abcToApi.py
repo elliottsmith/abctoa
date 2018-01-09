@@ -45,25 +45,25 @@ class abcClass():
     def importJson(self, merge=None):        
         current = {}
 
-        if not cmds.getAttr("%s.shadersAssignation" %(self.data['shapeNode'])) == "":
+        if cmds.getAttr("%s.shadersAssignation" %(self.data['shapeNode'])):
             current['shaders'] = ast.literal_eval(cmds.getAttr("%s.shadersAssignation" %(self.data['shapeNode'])))
-        if not cmds.getAttr("%s.attributes" %(self.data['shapeNode'])) == "":
+        if cmds.getAttr("%s.attributes" %(self.data['shapeNode'])):
             current['attributes'] = ast.literal_eval(cmds.getAttr("%s.attributes" %(self.data['shapeNode'])))
-        if not cmds.getAttr("%s.displacementsAssignation" %(self.data['shapeNode'])) == "":
+        if cmds.getAttr("%s.displacementsAssignation" %(self.data['shapeNode'])):
             current['displacement'] = ast.literal_eval(cmds.getAttr("%s.displacementsAssignation" %(self.data['shapeNode'])))
-        if not cmds.getAttr("%s.layersOverride" %(self.data['shapeNode'])) == "":
+        if cmds.getAttr("%s.layersOverride" %(self.data['shapeNode'])):
             current['layers'] = ast.literal_eval(cmds.getAttr("%s.layersOverride" %(self.data['shapeNode'])))
-        if not cmds.getAttr("%s.shadersNamespace" %(self.data['shapeNode'])) == "":
+        if cmds.getAttr("%s.shadersNamespace" %(self.data['shapeNode'])):
             current['namespace'] = ast.literal_eval(cmds.getAttr("%s.shadersNamespace" %(self.data['shapeNode'])))
 
-        if current != {} and not merge and self.data['jsonFileAttr'] != '':
-            res = cmds.confirmDialog( title='Confirm Merge', message='Attributes already exist for this node.\n\nDo you want to merge the current attributes into the incoming json file?', button=['Yes','No'], defaultButton='Yes', cancelButton='No', dismissString='No' )
-            if res == 'Yes':
-                merge = True
-            else:
-                merge= False
+        # if current != {} and not merge and self.data['jsonFileAttr'] != '':
+        #     res = cmds.confirmDialog( title='Confirm Merge', message='Attributes already exist for this node.\n\nDo you want to merge the current attributes into the incoming json file?', button=['Yes','No'], defaultButton='Yes', cancelButton='No', dismissString='No' )
+        #     if res == 'Yes':
+        #         merge = True
+        #     else:
+        #         merge= False
 
-        if self.data['jsonFileAttr'] != '':
+        if self.data['jsonFileAttr']:
             with open(self.data['jsonFileAttr']) as json_file:
                 json_data = json.load(json_file)
 
@@ -281,7 +281,6 @@ class abcClass():
         dest = "/tmp/tmp.ass"
         command = 'arnoldExportAss -f "%s" -lightLinks 1 -shadowLinks 1 -sf %s -ef %s -fs 1 -ep' % (dest, start, end)
 
-        print command
         mel.eval(command)
  
         # ass = "/shows/tlk2/user/elliott-s/maya/data/test.ass"
@@ -294,6 +293,7 @@ class abcClass():
          
         # this will let you iterate over all camera, driver, and filter nodes in the Arnold universe
         nodeIter = AiUniverseGetNodeIterator(AI_NODE_SHAPE)
+
         while not AiNodeIteratorFinished(nodeIter):
             node = AiNodeIteratorGetNext(nodeIter)
             # deletion_list.append(node)
@@ -393,7 +393,7 @@ class abcClass():
 
         fail = False
 
-        if shader_attr != "":
+        if shader_attr:
             try:
                 shader_dict = json.loads(shader_attr)
                 if shader_dict.has_key('shaders'):
@@ -403,7 +403,7 @@ class abcClass():
                 shaders = e
                 fail = True
 
-        if disp_attr != "":
+        if disp_attr:
             try:
                 disp_dict = json.loads(disp_attr)
                 if disp_dict.has_key('displacement'):
@@ -413,7 +413,7 @@ class abcClass():
                 disp = e
                 fail = True
 
-        if attr_attr != "":
+        if attr_attr:
             try:
                 attr_dict = json.loads(attr_attr)
                 if attr_dict.has_key('attributes'):
@@ -423,7 +423,7 @@ class abcClass():
                 attr = e
                 fail = True
 
-        if layers_attr != "":
+        if layers_attr:
             try:
                 layers_dict = json.loads(layers_attr)
                 if layers_dict.has_key('layers'):
@@ -433,7 +433,7 @@ class abcClass():
                 layers = e
                 fail = True
 
-        if namespace_attr != "":
+        if namespace_attr:
             try:
                 namespace_str = ast.literal_eval(namespace_attr)
                 if type(namespace_attr) == dict:
@@ -523,7 +523,8 @@ class abcClass():
 
         if cmds.nodeType(shape) == "gpuCache" or cmds.nodeType(shape) == "alembicHolder":
 
-            cache = cmds.getAttr("%s.cacheFileName" % shape)
+            caches = cmds.getAttr("%s.cacheFileNames[0]" % shape)
+            print caches
 
             assignations = {}
 
@@ -595,6 +596,7 @@ class abcClass():
                 return msg
     
 def getSelected(cls=False, filter_string=""):
+
     selected = pm.ls(sl=True, visible=True, l=True)
     selected_abc = pm.ls(sl=True, dag=True, leaf=True, visible=True, type='alembicHolder', l=True)
 
@@ -680,7 +682,7 @@ def getSelected(cls=False, filter_string=""):
 
         # read the shaders from the abc file
         data['abcShaderList'] = None
-        if data["abcShadersAttr"] != '':
+        if data["abcShadersAttr"]:
             shaders = []
             archive = cask.Archive(str(data["abcShadersAttr"]))
             keys = archive.top.children['materials'].children.keys()
@@ -690,7 +692,7 @@ def getSelected(cls=False, filter_string=""):
 
         # read the shaders needed for assignment from json file
         data['jsonFileShaders'] = None
-        if data['jsonFileAttr'] != '':
+        if data['jsonFileAttr']:
             temp = []
             with open(str(data['jsonFileAttr'])) as json_file:
                 json_data = json.load(json_file)
@@ -710,7 +712,7 @@ def getSelected(cls=False, filter_string=""):
                 data['actualJsonFileShaders'] = temp
 
         data['assignedShaders'] = None
-        if data['shadersAssignationAttr'] != '':
+        if data['shadersAssignationAttr']:
             temp = []
             try:
                 # x = ast.literal_eval(data['shadersAssignation']).keys()
@@ -732,7 +734,7 @@ def getSelected(cls=False, filter_string=""):
 
         # DISPLACEMENTS
         data['jsonFileDisp'] = None
-        if data['jsonFileAttr'] != '':
+        if data['jsonFileAttr']:
             with open(str(data['jsonFileAttr'])) as json_file:
                 json_data = json.load(json_file)
             if json_data.has_key('displacement'):
@@ -741,7 +743,7 @@ def getSelected(cls=False, filter_string=""):
                 data['jsonFileDisp'] = json_disp
 
         data['displacementsAssignation'] = None
-        if data['displacementsAssignationAttr'] != '':
+        if data['displacementsAssignationAttr'] != None:
             try:
                 json_data = json.loads(data['displacementsAssignationAttr']).keys()
                 json_data = [i.split('.message')[0] for i in json_data]

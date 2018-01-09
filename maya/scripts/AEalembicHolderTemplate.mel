@@ -1,4 +1,3 @@
-
 ////////////////////////////////////////////////////////////////////////
 
 global proc int pioEmAEassignCacheFileCB( string $fileAttribute,
@@ -27,17 +26,18 @@ global proc pioEmAEcacheFileBrowser( string $cmd, string $cacheName )
     string  $workspace = `workspace -q -fn`;
     setWorkingDirectory $workspace "caches" "abc";
 
-    fileBrowser ($cmd, "ABC Cache File", "", 0);
+    fileBrowser ($cmd, "Select File", "", 0);
 } 
 
-global proc alembicABCPathNew(string $cacheName)
+global proc abcpath(string $cacheName)
 {
     setUITemplate -pst attributeEditorTemplate;
         columnLayout -adj true;
-            rowLayout -nc 3 outpathLayout;
+            rowLayout -nc 4 -ad4 2 outpathLayout;
                 text -label "ABC Path" outpathText;
                 textField diskNameField;
                     symbolButton -image "navButtonBrowse.png" browser;
+                    symbolButton -image "download_small.png" -width 15 -height 15 -command "abcImport";
                 setParent ..;
 
         setParent ..;
@@ -46,6 +46,49 @@ global proc alembicABCPathNew(string $cacheName)
     setParent ..;
 
     alembicABCPathReplace( $cacheName );
+    select;
+
+}
+
+global proc jsonpath(string $jsonName)
+{
+    setUITemplate -pst attributeEditorTemplate;
+        columnLayout -adj true;
+            rowLayout -nc 4 -ad4 2 outpathLayout;
+                text -label "Json File [1]" outpathText;
+                textField diskNameField;
+                    symbolButton -image "navButtonBrowse.png" browser;
+                    symbolButton -image "download_small.png" -width 15 -height 15 -command "jsonImport";
+                setParent ..;
+
+        setParent ..;
+
+    setUITemplate -ppt;
+    setParent ..;
+
+    jsonABCPathReplace( $jsonName );
+    select;
+
+}
+
+global proc shaderpath(string $shaderName)
+{
+    setUITemplate -pst attributeEditorTemplate;
+        columnLayout -adj true;
+            rowLayout -nc 4 -ad4 2 outpathLayout;
+                text -label "Abc Shaders [1]" outpathText;
+                textField diskNameField;
+                    symbolButton -image "navButtonBrowse.png" browser;
+                    symbolButton -image "download_small.png" -width 15 -height 15 -command "shadersImport";
+                setParent ..;
+
+        setParent ..;
+
+    setUITemplate -ppt;
+    setParent ..;
+
+    shaderABCPathReplace( $shaderName );
+    select;
 
 }
 
@@ -62,23 +105,112 @@ global proc alembicABCPathReplace(string $cacheName)
   button -e -c ("pioEmAEcacheFileBrowser \"" + $command + "\" " + $nodeName ) browser;
 }
 
+global proc jsonABCPathReplace(string $jsonName)
+{
+    string $fileName = `getAttr $jsonName`;
+    string    $buffer[];
+    tokenize($jsonName, ".", $buffer);
+    string    $nodeName = $buffer[0];
 
+    // Filename Attribute
+  connectControl diskNameField $jsonName;
+  string $command = "pioEmAEassignCacheFileCB " + " " + $jsonName;
+  button -e -c ("pioEmAEcacheFileBrowser \"" + $command + "\" " + $nodeName ) browser;
+}
+
+global proc shaderABCPathReplace(string $shaderName)
+{
+    string $fileName = `getAttr $shaderName`;
+    string    $buffer[];
+    tokenize($shaderName, ".", $buffer);
+    string    $nodeName = $buffer[0];
+
+    // Filename Attribute
+  connectControl diskNameField $shaderName;
+  string $command = "pioEmAEassignCacheFileCB " + " " + $shaderName;
+  button -e -c ("pioEmAEcacheFileBrowser \"" + $command + "\" " + $nodeName ) browser;
+}
+
+global proc jsonImport()
+{
+
+    python("from alembicHolder.cmds import abcToApi");
+    python("for i in abcToApi.getSelected(cls=True): i.importJson()");
+
+}
+
+global proc abcImport()
+{
+
+    python("from alembicHolder.cmds import abcToApi");
+    python("for i in abcToApi.getSelected(cls=True): i.importAbc()");
+}
+
+global proc shadersImport()
+{
+
+    python("from alembicHolder.cmds import abcToApi");
+    python("for i in abcToApi.getSelected(cls=True): i.importShaders()");
+}
+
+global proc geompath_callback()
+{
+
+    python("from alembicHolder.cmds import abcToApi");
+    python("for i in abcToApi.getSelected(cls=True): i.swap_slashes_for_pipes()");
+}
 
 global proc AEalembicHolderTemplate(string $nodeName)
 {
-    editorTemplate -beginScrollLayout;
-    
+    editorTemplate -beginScrollLayout;   
     editorTemplate -beginLayout "Cache File" -collapse false;
-        editorTemplate -label "Caches Paths" -addControl "cacheFileNames";
+        editorTemplate -callCustom "abcpath" "alembicABCPathReplace" "cacheFileNames[0]";
         editorTemplate -label "Geometry Path" -addControl "cacheGeomPath";
+        string $geom = $nodeName + ".cacheGeomPath";
+        scriptJob -ac $geom geompath_callback;
         editorTemplate -label "Selection Path" -addControl "cacheSelectionPath";
-		editorTemplate -label "Attribute for shaders assignation" -addControl "shadersAttribute";
-		editorTemplate -label "bounding Box Extended Mode" -addControl "boundingBoxExtendedMode";
+    editorTemplate -label "Bounding Box Extended Mode" -addControl "boundingBoxExtendedMode";
         editorTemplate -label "Time Offset" -addControl "timeOffset";
-		editorTemplate -label "load At Init" -addControl "loadAtInit";
+    editorTemplate -label "Load At Init" -addControl "loadAtInit";
     editorTemplate -endLayout;
+    
+    editorTemplate -beginLayout "Shaders and Assignments" -collapse false;
+        // editorTemplate -label "Secondary Attributes [3]" -addControl "secondaryAttributes";
+        editorTemplate -label "Shaders Assignation [2]" -addControl "shadersAssignation";
+        editorTemplate -label "Displacements Assignation [2]" -addControl "displacementsAssignation";
+        editorTemplate -label "Attributes [2]" -addControl "attributes";
+        editorTemplate -label "Layers Override [2]" -addControl "layersOverride";
+        editorTemplate -label "Shaders Namespace [2]" -addControl "shadersNamespace";
+        editorTemplate -callCustom "jsonpath" "jsonABCPathReplace" "jsonFile";
+        // editorTemplate -callCustom "secondary_jsonpath" "alembicABCPathReplace" "secondaryJsonFile";
+        editorTemplate -callCustom "shaderpath" "shaderABCPathReplace" "abcShaders";
+    editorTemplate -endLayout;
+    
+    // editorTemplate -beginLayout "Additonal AbcToArnold Attributes" -collapse true;
+    //     editorTemplate -label "Ai User Options" -addControl "aiUserOptions";
+    //     editorTemplate -label "Secondary Json File" -addControl "secondaryJsonFile";
+    //     editorTemplate -label "Uvs Archive" -addControl "uvsArchive";
 
-    editorTemplate -bl "Render Stats" -cl 0;
+    //     editorTemplate -label "Skip Shaders" -addControl "skipShaders";
+    //     editorTemplate -label "Skip Layers" -addControl "skipLayers";
+    //     editorTemplate -label "Skip Displacements" -addControl "skipDisplacements";
+    //     editorTemplate -label "Force Reload" -addControl "forceReload";
+    // editorTemplate -endLayout;
+    // editorTemplate -beginLayout "Other" -collapse true;
+    //     editorTemplate -label "Hidden In Outliner" -addControl "hiddenInOutliner";
+    //     editorTemplate -label "Use Outliner Color" -addControl "useOutlinerColor";
+    //     editorTemplate -label "Outliner Color" -addControl "outlinerColor";
+    //     editorTemplate -label "Object Color RGB" -addControl "objectColorRGB";
+    //     editorTemplate -label "Wire Color RGB" -addControl "wireColorRGB";
+    //     editorTemplate -label "Use Object Color" -addControl "useObjectColor";
+    //     editorTemplate -label "Object Color" -addControl "objectColor";
+    //     editorTemplate -label "Lod Visibility" -addControl "lodVisibility";
+    //     editorTemplate -label "Selection Child Highlighting" -addControl "selectionChildHighlighting";
+    //     editorTemplate -label "Hardware Fog Multiplier" -addControl "hardwareFogMultiplier";
+    //     editorTemplate -label "Hold Out" -addControl "holdOut";
+    // editorTemplate -endLayout;
+
+    editorTemplate -bl "Render Stats" -cl 1;
         editorTemplate -bn;
         editorTemplate -ac "primaryVisibility";
         editorTemplate -ac "aiSelfShadows";
@@ -251,4 +383,5 @@ global proc AEalembicHolderTemplate(string $nodeName)
 
     editorTemplate -addExtraControls;
     editorTemplate -endScrollLayout;
+    select;
 }

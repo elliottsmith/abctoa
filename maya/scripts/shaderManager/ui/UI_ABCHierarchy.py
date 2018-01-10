@@ -15,7 +15,7 @@ class Ui_NAM(object):
     def setupUi(self, NAM):
         NAM.setObjectName("NAM")
         NAM.resize(1600, 730)
-        NAM.setMinimumSize(QtCore.QSize(1600, 0))
+        NAM.setMinimumSize(QtCore.QSize(1280, 0))
         NAM.setBaseSize(QtCore.QSize(1280, 0))
         self.centralwidget = QtWidgets.QWidget(NAM)
         self.centralwidget.setObjectName("centralwidget")

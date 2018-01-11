@@ -32,7 +32,7 @@ node_loader
    {
    case ABCSHADER :
       node->methods     = (AtNodeMethods*) ABCShaderMethods;
-      node->output_type = AI_TYPE_RGB;
+      node->output_type = AI_TYPE_CLOSURE;
       node->name        = "AbcShader";
       node->node_type   = AI_NODE_SHADER;
       break;/*

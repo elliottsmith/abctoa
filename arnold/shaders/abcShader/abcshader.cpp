@@ -11,7 +11,6 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library.*/
 
-
 #include "abcshaderutils.h"
 #include <Alembic/AbcCoreFactory/IFactory.h>
 
@@ -40,13 +39,9 @@ node_parameters
 {
     AiParameterStr("file", "");
     AiParameterStr("shader", "");
-    AiParameterRGB("shaderIn", 1.0f,0,0);
-
+    AiParameterClosure("shaderIn");
     AiMetaDataSetInt(nentry, NULL, "maya.id", 0x70532);
     AiMetaDataSetBool(nentry, NULL, "maya.hide", true);
-
-
-
 }
 
 
@@ -55,29 +50,38 @@ node_initialize
     AiNodeSetLocalData(node, new ShaderData);
     ShaderData* data = reinterpret_cast<ShaderData*>(AiNodeGetLocalData(node));
 
+    AiMsgInfo("[arnoldAlembicShader] Shader: %s:%s", AiNodeGetStr(node, "name").c_str(), AiNodeGetStr(node, "shader").c_str());
+    AiMsgInfo("[arnoldAlembicShader] Shader File: %s", AiNodeGetStr(node, "file").c_str());
+
     Alembic::Abc::IArchive archive;
     Alembic::AbcCoreFactory::IFactory factory;
     factory.setPolicy(Alembic::Abc::ErrorHandler::kQuietNoopPolicy);
     archive = factory.getArchive(AiNodeGetStr(node, "file").c_str());
+
     if (!archive.valid())
     {
-        AiMsgError("[AbcShader] Cannot read file %s", AiNodeGetStr(node, "file"));
+        AiMsgError("[arnoldAlembicShader] Cannot read file %s", AiNodeGetStr(node, "file"));
         return;
     }
+
+    // we have a valid filepath, now check for materials
     Abc::IObject materialsObject(archive.getTop(), "materials");
     if(!materialsObject.valid())
     {
-        AiMsgError("[AbcShader] No material library found");
+        AiMsgError("[arnoldAlembicShader] No material library found");
         return;
     }
+
+    // find the shader name
     const char* shaderFrom = AiNodeGetStr(node, "shader");
     if(shaderFrom == NULL)
     {
-        AiMsgError("no material name given");
+        AiMsgError("[arnoldAlembicShader] no material name given");
         return;
     }
 
     Abc::IObject object = materialsObject.getChild(shaderFrom);
+
     if (Mat::IMaterial::matches(object.getHeader()))
     {
         Mat::IMaterial matObj(object, Abc::kWrapExisting);
@@ -92,7 +96,7 @@ node_initialize
             {
                 std::string nodeType = "<undefined>";
                 abcnode.getNodeType(nodeType);
-                AiMsgDebug("Creating %s node named %s", nodeType.c_str(), abcnode.getName().c_str());
+                AiMsgDebug("[arnoldAlembicShader] creating %s node named %s", nodeType.c_str(), abcnode.getName().c_str());
                 AtNode* aShader = AiNode (nodeType.c_str());
 
                 std::string name = std::string(AiNodeGetStr(node, "name")) + "_" + abcnode.getName();
@@ -119,6 +123,7 @@ node_initialize
                     }
 
                 }
+                AiMsgDebug("[arnoldAlembicShader] new arnold node name: %s", AiNodeGetStr(aShader, "name").c_str());
 
             }
         }
@@ -127,21 +132,28 @@ node_initialize
         for (size_t i = 0, e = matObj.getSchema().getNumNetworkNodes(); i < e; ++i)
         {
             Mat::IMaterialSchema::NetworkNode abcnode = matObj.getSchema().getNetworkNode(i);
+            AiMsgDebug("[arnoldAlembicShader] link node %s", abcnode.getName().c_str());
+
 
             std::string target = "<undefined>";
             abcnode.getTarget(target);
+            AiMsgDebug("[arnoldAlembicShader] link target %s", target.c_str());
+            
             if(target == "arnold")
             {
                 size_t numConnections = abcnode.getNumConnections();
+                auto s = std::to_string(numConnections);
+                AiMsgDebug("[arnoldAlembicShader] link no. connections %s", s.c_str());
+
                 if(numConnections)
                 {
-                    AiMsgDebug("linking nodes");
+                    AiMsgInfo("[arnoldAlembicShader] linking nodes");
                     std::string inputName, connectedNodeName, connectedOutputName;
                     for (size_t j = 0; j < numConnections; ++j)
                     {
                         if (abcnode.getConnection(j, inputName, connectedNodeName, connectedOutputName))
                         {
-                            AiMsgDebug("Linking %s.%s to %s.%s", connectedNodeName.c_str(), connectedOutputName.c_str(), abcnode.getName().c_str(), inputName.c_str());
+                            AiMsgInfo("[arnoldAlembicShader] Linking %s.%s to %s.%s", connectedNodeName.c_str(), connectedOutputName.c_str(), abcnode.getName().c_str(), inputName.c_str());
                             AiNodeLinkOutput(data->aShaders[connectedNodeName.c_str()], connectedOutputName.c_str(), data->aShaders[abcnode.getName().c_str()], inputName.c_str());
                         }
                     }
@@ -156,7 +168,8 @@ node_initialize
         if (matObj.getSchema().getNetworkTerminal(
                     "arnold", "surface", connectedNodeName, connectedOutputName))
         {
-            AiMsgDebug("Linking %s.%s to root", connectedNodeName.c_str(), connectedOutputName.c_str());
+
+            AiMsgInfo("[arnoldAlembicShader] Linking %s.%s to root", connectedNodeName.c_str(), connectedOutputName.c_str());     
             AiNodeLink(data->aShaders[connectedNodeName.c_str()],  "shaderIn", node);
         }
 
@@ -221,7 +234,7 @@ node_update
                             }
                         }
                         else
-                            AiMsgDebug("shader is not linked %s", header.getName().c_str());
+                            AiMsgDebug("[arnoldAlembicShader] shader is not linked %s", header.getName().c_str());
                     }
                     else
                         setUserParameter(node, interfaceName, header, aShader);
@@ -244,7 +257,6 @@ node_finish
 shader_evaluate
 {
     ShaderData* data = reinterpret_cast<ShaderData*>(AiNodeGetLocalData(node));
-
-    sg->out.RGB() = AiShaderEvalParamRGB(p_shader);
+    sg->out.CLOSURE() = AiShaderEvalParamClosure(p_shader);
 }
 

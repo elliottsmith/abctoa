@@ -177,11 +177,11 @@ message("Samples will be installed to: \n\t${INSTALL_DIR}/samples")
 # Set the list of subdirectories to recurse into to find stuff to build
 set(SUBDIRECTORIES 
 		arnold/procedurals/alembicProcedural
-		#arnold/shaders/abcShader
+		arnold/shaders/abcShader
 		arnold/utility/assShadersToAbc
 		maya/alembicHolder
 		mtoa/ABCViewer
-		#mtoa/abcShader
+		mtoa/abcShader
 )
 
 # loop over subdirectories

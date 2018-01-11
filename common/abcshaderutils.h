@@ -2,6 +2,7 @@
 #define ABCSHADERUTILS_H_
 
 #include <ai.h>
+#include <ai_closure.h>
 #include <Alembic/Abc/All.h>
 #include <Alembic/AbcMaterial/IMaterial.h>
 #include <pystring.h>

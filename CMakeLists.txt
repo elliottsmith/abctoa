@@ -160,7 +160,7 @@ endif()
 
 # Set up installation paths
 set(DSO_INSTALL_DIR ${INSTALL_DIR}/procedurals)
-set(TRANSLATOR_INSTALL_DIR ${INSTALL_DIR}/translators)
+set(TRANSLATOR_INSTALL_DIR ${INSTALL_DIR}/extensions)
 set(SHADERS_INSTALL_DIR ${INSTALL_DIR}/shaders)
 set(PLUGINS_INSTALL_DIR ${INSTALL_DIR}/plug-ins)
 set(PYSIDE_INSTALL_DIR ${INSTALL_DIR}/pyside)

@@ -1,10 +1,8 @@
 set(MTOATRANSLATOR abcViewer)
 
 file(GLOB SRC "*.cpp" "*h")
-include_directories(${Boost_INCLUDE_DIR})
 include_directories(${MTOA_INCLUDE_DIR})
 include_directories(${ARNOLD_INCLUDE_DIR})
-link_directories(${ARNOLD_LIBRARY_DIR})
 
 add_library(${MTOATRANSLATOR} SHARED ${SRC})
 link_directories(${ARNOLD_LIBRARY_DIR})

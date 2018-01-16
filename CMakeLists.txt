@@ -178,7 +178,7 @@ message("Samples will be installed to: \n\t${INSTALL_DIR}/samples")
 set(SUBDIRECTORIES 
 		arnold/procedurals/alembicProcedural
 		arnold/shaders/abcShader
-		arnold/utility/assShadersToAbc
+		#arnold/utility/assShadersToAbc
 		maya/alembicHolder
 		mtoa/ABCViewer
 		mtoa/abcShader

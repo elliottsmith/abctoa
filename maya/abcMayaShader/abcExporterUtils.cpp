@@ -714,7 +714,7 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, MString nodeN
         prop.set(AiNodeGetStr(sit, paramName).c_str());
     }
 
-    if(interfacing && strcmp(paramName,"name") != 0 && isDefaultValue(sit, paramName) == false)
+    if(interfacing && strcmp(paramName,"name") != 0)
         if (type == AI_TYPE_BYTE || type == AI_TYPE_INT || type == AI_TYPE_UINT || type == AI_TYPE_ENUM || type == AI_TYPE_FLOAT || type == AI_TYPE_BOOLEAN || type == AI_TYPE_RGB ||type == AI_TYPE_STRING)
         {
 

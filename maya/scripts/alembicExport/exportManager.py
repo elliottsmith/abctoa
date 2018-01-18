@@ -360,6 +360,7 @@ class ExportPackage(QtWidgets.QWidget):
 
         self.json_chk = QtWidgets.QCheckBox('Json')
         self.shader_chk = QtWidgets.QCheckBox('Shaders (Connected)')
+        self.settings_chk = QtWidgets.QCheckBox('Render Options')
         # self.alembic_chk = QtGui.QCheckBox('Alembic')
         # self.merge_chk = QtGui.QCheckBox('Merge Json')
         self.export_btn = QtWidgets.QPushButton('Export')
@@ -381,6 +382,7 @@ class ExportPackage(QtWidgets.QWidget):
         
         self.opt_layout.addWidget(self.json_chk)
         self.opt_layout.addWidget(self.shader_chk)
+        self.opt_layout.addWidget(self.settings_chk)        
         # self.opt_layout.addWidget(self.alembic_chk)
         # self.opt_layout.addWidget(self.merge_chk) 
         self.warning = QtWidgets.QLabel('WARNING : PLEASE BE AWARE THAT YOU ARE ONLY EXPORTING THE SCENE BASED ASSIGNMENTS AND SHADERS.\n\nIF YOU WOULD LIKE TO COMBINE EXISTING JSON / SHADER FILES WITH YOUR SCENE BASED ASSIGNMENTS,\n\nPLEASE IMPORT/IMPORT & MERGE THEM FIRST, THEN EXPORT.')       
@@ -450,6 +452,7 @@ class ExportPackage(QtWidgets.QWidget):
 
         json = self.json_chk.isChecked()
         shader = self.shader_chk.isChecked()
+        settings = self.settings_chk.isChecked()        
         folder = self.folder_chk.isChecked()
 
         project_location=cmds.workspace( q=True, fn=True )
@@ -472,6 +475,7 @@ class ExportPackage(QtWidgets.QWidget):
 
         shader_path = os.path.join(output_directory, output_name) + '.shaders'
         json_path = os.path.join(output_directory, output_name) + '.json'
+        settings_path = os.path.join(output_directory, output_name) + '.settings'        
 
         confirm_msg = ''
 
@@ -511,6 +515,10 @@ class ExportPackage(QtWidgets.QWidget):
                 shader_return = i.writeAbcShaders(merge=False, shader_out_path=shader_path)
             
                 return_codes.append(shader_return)
+
+        if settings:
+            import maya.app.renderSetup.views.renderSetupPreferences as prefs
+            prefs.savePreset(settings_path)
         
         msg = ''
         for i in return_codes:

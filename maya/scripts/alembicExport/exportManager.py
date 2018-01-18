@@ -450,7 +450,7 @@ class ExportPackage(QtWidgets.QWidget):
         #     else:
         #         output_path = os.path.join(output_directory, output_name) + '.json')
 
-        json = self.json_chk.isChecked()
+        jsonn = self.json_chk.isChecked()
         shader = self.shader_chk.isChecked()
         settings = self.settings_chk.isChecked()        
         folder = self.folder_chk.isChecked()
@@ -473,9 +473,9 @@ class ExportPackage(QtWidgets.QWidget):
         if not os.path.isdir(output_directory):
             os.makedirs(output_directory)
 
-        shader_path = os.path.join(output_directory, output_name) + '.shaders'
-        json_path = os.path.join(output_directory, output_name) + '.json'
-        settings_path = os.path.join(output_directory, output_name) + '.settings'        
+        shader_path = os.path.join(output_directory, output_name) + '_shaders.abc'
+        json_path = os.path.join(output_directory, output_name) + '_assignments.json'
+        settings_path = os.path.join(output_directory, output_name) + '_render_settings.json'        
 
         confirm_msg = ''
 
@@ -492,7 +492,7 @@ class ExportPackage(QtWidgets.QWidget):
             else:
                 return
 
-        if json:
+        if jsonn:
             x = abcToApi.getSelected(cls=True)
             for i in x:
                 # were disbaling the merging of json files, even though it works fine
@@ -517,8 +517,9 @@ class ExportPackage(QtWidgets.QWidget):
                 return_codes.append(shader_return)
 
         if settings:
-            import maya.app.renderSetup.views.renderSetupPreferences as prefs
-            prefs.savePreset(settings_path)
+            import maya.app.renderSetup.model.renderSetup as renderSetup
+            with open(settings_path, "w+") as file:
+                json.dump(renderSetup.instance().encode(None), fp=file, indent=2, sort_keys=True)
         
         msg = ''
         for i in return_codes:

@@ -191,6 +191,20 @@ def importAbc():
     for i in x:
         i.importAbc(parent_transform=parent_transform)
 
+def importRenderSetup(filename):
+    import maya.app.renderSetup.model.renderSetup as renderSetup
+    with open(filename, "r") as file:
+        renderSetup.instance().decode(json.load(file), renderSetup.DECODE_AND_OVERWRITE, None)
+
+def importRenderSettings():
+    singleFilter = "JSON Files (*.json)"
+    files = cmds.fileDialog2(fileMode=1, caption="Import Render Settings Json", fileFilter=singleFilter)
+    if files:
+        if len(files) > 0:
+            f = files[0]
+
+        importRenderSetup(f)
+
 def registerAlembicHolder():
     if not cmds.about(b=1):
         mayaWindow = getMayaWindow()
@@ -223,6 +237,7 @@ def registerAlembicHolder():
         # cmds.menuItem('importMergeJson', label='Import + Merge Json', parent='AlembicHolderUtilsMenu', c=lambda *args: importMergeJson())
         cmds.menuItem('importShaders', label='Import Shaders', parent='AlembicHolderUtilsMenu', c=lambda *args: importShaders())
         cmds.menuItem('importAbc', label='Import Abc', parent='AlembicHolderUtilsMenu', c=lambda *args: importAbc())
+        cmds.menuItem('importRenderSettings', label='Import Render Settings', parent='AlembicHolderUtilsMenu', c=lambda *args: importRenderSettings())        
         cmds.menuItem( divider=True )
         # cmds.menuItem('assignTagsSets', label='Assign Tags from Selected Selection Sets', parent='AlembicHolderUtilsMenu', c=lambda *args: assignTagsFromSetName())
         # cmds.menuItem('wiki', label='Wiki', parent='AlembicHolderUtilsMenu', c=lambda *args: cmds.launch(webPage='http://wiki/index.php/abcToArnold'))

@@ -76,7 +76,7 @@ MStatus abcCacheExportCmd::doIt( const MArgList &args)
     renderSession->SetForceTranslateShadingEngines(false);
 
     CMayaScene::Export(NULL);
-    AiASSWrite(pystring::replace(filename.asChar(), ".shaders", ".ass").c_str(), AI_NODE_SHADER, false);
+    AiASSWrite(pystring::replace(filename.asChar(), ".abc", ".ass").c_str(), AI_NODE_SHADER, false);
 
     MItSelectionList iter(list, MFn::kPluginShape);
      for (; !iter.isDone(); iter.next())

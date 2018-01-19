@@ -34,23 +34,7 @@ proc  AEgenericReset()
 
 }  // AEgenericReset //
 
-global proc vioAEcacheFileBrowser( string $cmd, string $cacheName )
-{
-    string  $workspace = `workspace -q -fn`;
-    setWorkingDirectory $workspace "shaders" "shaders";
-
-    fileBrowser ($cmd, "ABC File", "", 0);
-}
-
-global proc vioAEFileBrowser( string $cmd, string $cacheName )
-{
-    string  $workspace = `workspace -q -fn`;
-    setWorkingDirectory $workspace "sourceImages" "image";
-
-    fileBrowser ($cmd, "File", "", 0);
-}
-
-global proc int vioAEassignCacheFileCB( string $fileAttribute,
+global proc int pioEmAEassignCacheFileCB( string $fileAttribute,
                                         string $fileName,
                                         string $fileType )
 {
@@ -58,7 +42,12 @@ global proc int vioAEassignCacheFileCB( string $fileAttribute,
       tokenize $fileAttribute "." $components;
       string $nodeName = $components[0];
 
-    setAttr ($nodeName + ".shader") -type "string" $fileAttribute;
+      setAttr $fileAttribute -type "string" $fileName;
+
+    // This will force an update to display the effects
+    // of the new cachefile.
+    //
+    currentTime `currentTime -q`;
 
   string $currentDir = `workspace -q -dir`;
   retainWorkingDirectory ($currentDir);
@@ -66,24 +55,33 @@ global proc int vioAEassignCacheFileCB( string $fileAttribute,
   return true;
 }
 
-global proc int vioAEassignFileCB( string $attr,
-                                        string $fileName,
-                                        string $fileType )
+global proc pioEmAEcacheFileBrowser( string $cmd, string $cacheName )
 {
-    setAttr $attr -type "string" $fileName;
+    string  $workspace = `workspace -q -fn`;
+    setWorkingDirectory $workspace "caches" "abc";
 
-  string $currentDir = `workspace -q -dir`;
-  retainWorkingDirectory ($currentDir);
+    fileBrowser ($cmd, "Select File", "", 0);
+} 
 
-  return true;
+global proc alembicABCPathReplace(string $cacheName)
+{
+    string $fileName = `getAttr $cacheName`;
+    string    $buffer[];
+    tokenize($cacheName, ".", $buffer);
+    string    $nodeName = $buffer[0];
+
+    // Filename Attribute
+  connectControl diskNameField $cacheName;
+  string $command = "pioEmAEassignCacheFileCB " + " " + $cacheName;
+  button -e -c ("pioEmAEcacheFileBrowser \"" + $command + "\" " + $nodeName ) browser;
 }
 
-global proc vioAEoutpathNew(string $cacheName)
+global proc abcpath(string $cacheName)
 {
     setUITemplate -pst attributeEditorTemplate;
         columnLayout -adj true;
             rowLayout -nc 3 outpathLayout;
-                text -label "ABC Path" outpathText;
+                text -label "ABC Path2" outpathText;
                 textField diskNameField;
                     symbolButton -image "navButtonBrowse.png" browser;
                 setParent ..;
@@ -93,35 +91,24 @@ global proc vioAEoutpathNew(string $cacheName)
     setUITemplate -ppt;
     setParent ..;
 
-    vioAEoutpathReplace( $cacheName );
+    alembicABCPathReplace( $cacheName );
+    select;
+
 }
-
-global proc vioAEoutpathReplace(string $shader)
-{
-    string $fileName = `getAttr $shader`;
-    string    $buffer[];
-    tokenize($shader, ".", $buffer);
-    string    $nodeName = $buffer[0];
-
-    // Filename Attribute
-  connectControl diskNameField $shader;
-  string $command = "vioAEassignCacheFileCB " + " " + $shader;
-  button -e -c ("vioAEcacheFileBrowser \"" + $command + "\" " + $nodeName ) browser;
-}
-
 
 global proc AEabcMayaShaderTemplate( string $nodeName )
 {
     editorTemplate -beginLayout "Global" -collapse 0;
-    editorTemplate -callCustom vioAEoutpathNew vioAEoutpathReplace shader;
+    // editorTemplate -callCustom vioAEoutpathNew vioAEoutpathReplace shader;
+    editorTemplate -callCustom "abcpath" "alembicABCPathReplace" "shader";
     editorTemplate -callCustom "vioVizCustomAttrsManage" "vioVizCustomAttrsManage" $nodeName;
     editorTemplate -endLayout;
     
-    editorTemplate -beginLayout "Attributes" -collapse 0;
-    editorTemplate -callCustom "vioVizCustomAttrs" "vioVizCustomAttrs" $nodeName;
-    editorTemplate -endLayout;
+    // editorTemplate -beginLayout "Attributes" -collapse 0;
+    // editorTemplate -callCustom "vioVizCustomAttrs" "vioVizCustomAttrs" $nodeName;
+    // editorTemplate -endLayout;
     
-    editorTemplate -beginScrollLayout -collapse 1;
+    editorTemplate -beginScrollLayout -collapse 0;
     editorTemplate -addExtraControls;
     editorTemplate -endScrollLayout;
 

@@ -81,7 +81,7 @@ global proc abcpath(string $cacheName)
     setUITemplate -pst attributeEditorTemplate;
         columnLayout -adj true;
             rowLayout -nc 3 outpathLayout;
-                text -label "ABC Path2" outpathText;
+                text -label "ABC Path" outpathText;
                 textField diskNameField;
                     symbolButton -image "navButtonBrowse.png" browser;
                 setParent ..;

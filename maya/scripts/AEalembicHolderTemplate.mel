@@ -55,7 +55,7 @@ global proc jsonpath(string $jsonName)
     setUITemplate -pst attributeEditorTemplate;
         columnLayout -adj true;
             rowLayout -nc 4 -ad4 2 outpathLayout;
-                text -label "Json File [1]" outpathText;
+                text -label "Json File" outpathText;
                 textField diskNameField;
                     symbolButton -image "navButtonBrowse.png" browser;
                     symbolButton -image "download_small.png" -width 15 -height 15 -command "jsonImport";
@@ -76,7 +76,7 @@ global proc shaderpath(string $shaderName)
     setUITemplate -pst attributeEditorTemplate;
         columnLayout -adj true;
             rowLayout -nc 4 -ad4 2 outpathLayout;
-                text -label "Abc Shaders [1]" outpathText;
+                text -label "Abc Shaders" outpathText;
                 textField diskNameField;
                     symbolButton -image "navButtonBrowse.png" browser;
                     symbolButton -image "download_small.png" -width 15 -height 15 -command "shadersImport";
@@ -160,6 +160,8 @@ global proc geompath_callback()
     python("for i in abcToApi.getSelected(cls=True): i.swap_slashes_for_pipes()");
 }
 
+
+
 global proc AEalembicHolderTemplate(string $nodeName)
 {
     editorTemplate -beginScrollLayout;   
@@ -175,40 +177,14 @@ global proc AEalembicHolderTemplate(string $nodeName)
     editorTemplate -endLayout;
     
     editorTemplate -beginLayout "Shaders and Assignments" -collapse false;
-        // editorTemplate -label "Secondary Attributes [3]" -addControl "secondaryAttributes";
-        editorTemplate -label "Shaders Assignation [2]" -addControl "shadersAssignation";
-        editorTemplate -label "Displacements Assignation [2]" -addControl "displacementsAssignation";
-        editorTemplate -label "Attributes [2]" -addControl "attributes";
-        editorTemplate -label "Layers Override [2]" -addControl "layersOverride";
-        editorTemplate -label "Shaders Namespace [2]" -addControl "shadersNamespace";
+        editorTemplate -label "Shaders Assignation" -addControl "shadersAssignation";
+        editorTemplate -label "Displacements Assignation" -addControl "displacementsAssignation";
+        editorTemplate -label "Attributes" -addControl "attributes";
+        editorTemplate -label "Layers Override" -addControl "layersOverride";
+        editorTemplate -label "Shaders Namespace" -addControl "shadersNamespace";
         editorTemplate -callCustom "jsonpath" "jsonABCPathReplace" "jsonFile";
-        // editorTemplate -callCustom "secondary_jsonpath" "alembicABCPathReplace" "secondaryJsonFile";
         editorTemplate -callCustom "shaderpath" "shaderABCPathReplace" "abcShaders";
     editorTemplate -endLayout;
-    
-    // editorTemplate -beginLayout "Additonal AbcToArnold Attributes" -collapse true;
-    //     editorTemplate -label "Ai User Options" -addControl "aiUserOptions";
-    //     editorTemplate -label "Secondary Json File" -addControl "secondaryJsonFile";
-    //     editorTemplate -label "Uvs Archive" -addControl "uvsArchive";
-
-    //     editorTemplate -label "Skip Shaders" -addControl "skipShaders";
-    //     editorTemplate -label "Skip Layers" -addControl "skipLayers";
-    //     editorTemplate -label "Skip Displacements" -addControl "skipDisplacements";
-    //     editorTemplate -label "Force Reload" -addControl "forceReload";
-    // editorTemplate -endLayout;
-    // editorTemplate -beginLayout "Other" -collapse true;
-    //     editorTemplate -label "Hidden In Outliner" -addControl "hiddenInOutliner";
-    //     editorTemplate -label "Use Outliner Color" -addControl "useOutlinerColor";
-    //     editorTemplate -label "Outliner Color" -addControl "outlinerColor";
-    //     editorTemplate -label "Object Color RGB" -addControl "objectColorRGB";
-    //     editorTemplate -label "Wire Color RGB" -addControl "wireColorRGB";
-    //     editorTemplate -label "Use Object Color" -addControl "useObjectColor";
-    //     editorTemplate -label "Object Color" -addControl "objectColor";
-    //     editorTemplate -label "Lod Visibility" -addControl "lodVisibility";
-    //     editorTemplate -label "Selection Child Highlighting" -addControl "selectionChildHighlighting";
-    //     editorTemplate -label "Hardware Fog Multiplier" -addControl "hardwareFogMultiplier";
-    //     editorTemplate -label "Hold Out" -addControl "holdOut";
-    // editorTemplate -endLayout;
 
     editorTemplate -bl "Render Stats" -cl 1;
         editorTemplate -bn;
@@ -383,5 +359,4 @@ global proc AEalembicHolderTemplate(string $nodeName)
 
     editorTemplate -addExtraControls;
     editorTemplate -endScrollLayout;
-    select;
 }

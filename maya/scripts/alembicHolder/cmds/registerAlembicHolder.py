@@ -85,7 +85,8 @@ def importPackageManager():
         if len(files) > 0:
             f = files[0]
 
-        x = cmds.createNode('alembicHolder', n="AlembicHolderShape")
+        transform_name = os.path.split(f)[-1].split('.abc')[0]
+        x = cmds.createNode(transform_name, n="%sShape" % transform_name)
         cmds.setAttr("%s.overrideLevelOfDetail" % x, 1)
         cmds.setAttr("%s.overrideVisibility" % x, 1) 
         cmds.setAttr("%s.visibleInRefractions" % x, 1)

@@ -86,7 +86,7 @@ def importPackageManager():
             f = files[0]
 
         transform_name = os.path.split(f)[-1].split('.abc')[0]
-        x = cmds.createNode(transform_name, n="%sShape" % transform_name)
+        x = cmds.createNode("alembicHolder", n="%sShape" % transform_name)
         cmds.setAttr("%s.overrideLevelOfDetail" % x, 1)
         cmds.setAttr("%s.overrideVisibility" % x, 1) 
         cmds.setAttr("%s.visibleInRefractions" % x, 1)

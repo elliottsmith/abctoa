@@ -499,23 +499,23 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
     def addCBs(self, event=None):
         try:
-            print "adding callbacks"
+            # print "adding callbacks"
             self.renderLayer.currentIndexChanged.connect(self.layerChanged)
             self.NodeNameMsgId  = MNodeMessage.addNameChangedCallback( MObject(), self.nameChangedCB )
             self.newNodeCBMsgId = MDGMessage.addNodeAddedCallback( self.newNodeCB )
             self.delNodeCBMsgId = MDGMessage.addNodeRemovedCallback( self.delNodeCB )
-            print "adding scriptjob"
+            # print "adding scriptjob"
             self.layerChangedJob = cmds.scriptJob( e= ["renderLayerManagerChange",self.setCurrentLayer])
         except:
             pass
 
     def clearCBs(self, event=None):
         try:
-            print "removing scriptjob"
+            # print "removing scriptjob"
             cmds.scriptJob( kill=self.layerChangedJob, force=True)
             for cache in self.ABCViewerNode.values():
                 cache.setSelection("")
-            print "removing callbacks"
+            # print "removing callbacks"
             MMessage.removeCallback( self.newNodeCBMsgId )
             MMessage.removeCallback( self.delNodeCBMsgId )
             MNodeMessage.removeCallback( self.NodeNameMsgId )

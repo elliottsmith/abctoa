@@ -56,8 +56,7 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
 
         self.shaderToAssign = ""
         if len(self.path) == 0:
-
-            self.displayPath = "/%s" % os.path.basename(self.cache.ABCcache)
+            self.displayPath = self.cache.shape.split('|')[1]
         else:
             self.displayPath = self.path[-1]
 

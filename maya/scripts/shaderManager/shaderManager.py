@@ -309,7 +309,24 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             nodeName = nodeFn.name()
             if not cmds.objExists(nodeName):
                 return
+
             if cmds.getClassification(cmds.nodeType(nodeName), satisfies="shader"):
+                # shader manager window isnt open
+                if self.ABCViewerNode == {}:
+                    alembicHolders = cmds.ls(dag=True, leaf=True, visible=True, type='alembicHolder', l=True)
+                    for holder in alembicHolders:
+                        displacement_assignments = cmds.getAttr('%s.displacementsAssignation' % holder)
+
+                        if displacement_assignments:
+                            j = json.loads(displacement_assignments)
+                            for disp in j.keys():
+
+                                if disp.split('.')[0] == prevName:
+                                    j[nodeName + '.message'] = j[disp]
+                                    del j[disp]
+
+                            cmds.setAttr('%s.displacementsAssignation' % holder, json.dumps(j), type='string')
+                    return
 
                 if cmds.nodeType(nodeName) == "displacementShader":
                     items = self.displacementList.findItems(prevName, QtCore.Qt.MatchExactly)
@@ -325,13 +342,26 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                     for item in items:
                         item.setText(nodeName)
 
-            if cmds.nodeType(nodeName) == "shadingEngine":
+            if cmds.nodeType(nodeName) == "shadingEngine" or cmds.nodeType(nodeName) == "aiStandardSurface":
+                # shader manager window isnt open
+                if self.ABCViewerNode == {}:
+                    alembicHolders = cmds.ls(dag=True, leaf=True, visible=True, type='alembicHolder', l=True)
+                    for holder in alembicHolders:
+                        shader_assignments = cmds.getAttr('%s.shadersAssignation' % holder)
+
+                        if shader_assignments:
+                            j = json.loads(shader_assignments)
+                            for shader in j.keys():
+                                if shader == prevName:
+                                    j[nodeName] = j[shader]
+                                    del j[shader]
+                            cmds.setAttr('%s.shadersAssignation' % holder, json.dumps(j), type='string')
+                else:
                     # renaming shaders in caches
                     for cache in self.ABCViewerNode.values():
                         cache.renameShader(prevName, nodeName)
 
                     self.checkShaders()
-
 
     def newNodeCB(self, newNode, data ):
         ''' Callback when creating a new node '''

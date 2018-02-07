@@ -20,7 +20,7 @@ class PropertyWidgetPointer(PropertyWidget):
       self.node = node
       self.paramName = name
 
-      self.widget = QComboBox()
+      self.widget = NoScrollQComboBox(self)
 
       self.widget.addItem("[None]")
       iter = AiUniverseGetNodeIterator(AI_NODE_ALL)

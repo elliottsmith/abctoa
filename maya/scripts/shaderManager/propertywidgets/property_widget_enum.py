@@ -15,7 +15,7 @@ from PySide2.QtGui import *
 from PySide2.QtCore import *
 from PySide2.QtWidgets import *
 from arnold import *
-from property_widget import PropertyWidget
+from property_widget import PropertyWidget, NoScrollQComboBox
 
 class PropertyWidgetEnum(PropertyWidget):
    def __init__(self, controller,  param, parent = None):
@@ -23,7 +23,7 @@ class PropertyWidgetEnum(PropertyWidget):
 
       self.paramName = param["name"]
 
-      self.widget = QComboBox(self)
+      self.widget = NoScrollQComboBox(self)
 
       self.controller = controller
       self.controller.setPropertyValue.connect(self.changed)

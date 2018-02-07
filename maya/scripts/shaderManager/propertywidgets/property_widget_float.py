@@ -16,6 +16,7 @@ from PySide2.QtCore import *
 from PySide2.QtWidgets import *
 from arnold import *
 from property_widget import *
+
 class PropertyWidgetFloat(PropertyWidget):
    def __init__(self, controller,  param, parent = None):
       PropertyWidget.__init__(self, param, parent)
@@ -28,7 +29,8 @@ class PropertyWidgetFloat(PropertyWidget):
 
       self.default = param["value"]
 
-      self.widget = QDoubleSpinBox()
+      self.widget = NoScrollQDoubleSpinBox(self)
+
       self.widget.setValue(self.default)
       self.widget.setSingleStep(0.1)
       self.widget.setMaximum(9999)

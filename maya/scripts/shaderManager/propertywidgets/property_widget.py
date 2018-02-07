@@ -18,6 +18,42 @@ from PySide2.QtWidgets import *
 
 from arnold import *
 
+class NoScrollQDoubleSpinBox(QDoubleSpinBox):
+    def __init__(self, scrollWidget=None, *args, **kwargs):
+        super(NoScrollQDoubleSpinBox, self).__init__(*args, **kwargs)  
+        self.scrollWidget=scrollWidget
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def wheelEvent(self, *args, **kwargs):
+        if self.hasFocus():
+            return QDoubleSpinBox.wheelEvent(self, *args, **kwargs)
+        else:
+            return self.scrollWidget.wheelEvent(*args, **kwargs)
+
+class NoScrollQSpinBox(QSpinBox):
+    def __init__(self, scrollWidget=None, *args, **kwargs):
+        super(NoScrollQSpinBox, self).__init__(*args, **kwargs)  
+        self.scrollWidget=scrollWidget
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def wheelEvent(self, *args, **kwargs):
+        if self.hasFocus():
+            return QSpinBox.wheelEvent(self, *args, **kwargs)
+        else:
+            return self.scrollWidget.wheelEvent(*args, **kwargs)
+
+class NoScrollQComboBox(QComboBox):
+    def __init__(self, scrollWidget=None, *args, **kwargs):
+        super(NoScrollQComboBox, self).__init__(*args, **kwargs)  
+        self.scrollWidget=scrollWidget
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def wheelEvent(self, *args, **kwargs):
+        if self.hasFocus():
+            return QComboBox.wheelEvent(self, *args, **kwargs)
+        else:
+            return self.scrollWidget.wheelEvent(*args, **kwargs)
+
 class PropertyWidget(QFrame):
    BYTE = 0
    INT = 1

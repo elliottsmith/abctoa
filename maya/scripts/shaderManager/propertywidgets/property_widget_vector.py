@@ -22,14 +22,15 @@ class PropertyWidgetVector(PropertyWidget):
       self.node       = node
       self.paramName  = name
       self.vectorType = vectorType
-      self.widget1 = QDoubleSpinBox(self)
+      self.widget1 = NoScrollQDoubleSpinBox()
       self.widget1.valueChanged.connect(self.PropertyChanged)
       self.layout().addWidget(self.widget1)
-      self.widget2 = QDoubleSpinBox(self)
+      self.widget2 = NoScrollQDoubleSpinBox(self)
       self.widget2.valueChanged.connect(self.PropertyChanged)
       self.layout().addWidget(self.widget2)
       if self.vectorType != PropertyWidget.POINT2:
-         self.widget3 = QDoubleSpinBox(self)
+         self.widget3 = NoScrollQDoubleSpinBox(self)
+
          self.widget3.valueChanged.connect(self.PropertyChanged)
          self.layout().addWidget(self.widget3)
       if self.vectorType == PropertyWidget.VECTOR:

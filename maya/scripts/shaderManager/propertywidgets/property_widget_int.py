@@ -32,7 +32,8 @@ class PropertyWidgetInt(PropertyWidget):
       self.default = param["value"]
 
 
-      self.widget = QSpinBox()
+      self.widget = NoScrollQSpinBox(self)
+
       self.widget.setMaximum(65535)
       self.widget.setValue(self.default)
       self.widget.valueChanged.connect(self.ValueChanged)

@@ -176,7 +176,7 @@ global proc AEalembicHolderTemplate(string $nodeName)
     editorTemplate -label "Load At Init" -addControl "loadAtInit";
     editorTemplate -endLayout;
     
-    editorTemplate -beginLayout "Shaders and Assignments" -collapse false;
+    editorTemplate -beginLayout "Shaders and Assignments" -collapse true;
         editorTemplate -label "Shaders Assignation" -addControl "shadersAssignation";
         editorTemplate -label "Displacements Assignation" -addControl "displacementsAssignation";
         editorTemplate -label "Attributes" -addControl "attributes";

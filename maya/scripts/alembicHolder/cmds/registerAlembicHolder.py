@@ -243,5 +243,5 @@ def registerAlembicHolder():
         # cmds.menuItem('assignTagsSets', label='Assign Tags from Selected Selection Sets', parent='AlembicHolderUtilsMenu', c=lambda *args: assignTagsFromSetName())
         # cmds.menuItem('wiki', label='Wiki', parent='AlembicHolderUtilsMenu', c=lambda *args: cmds.launch(webPage='http://wiki/index.php/abcToArnold'))
         # cmds.menuItem( divider=True )
-        # cmds.menuItem('reload', label='Reload (coding)', parent='AlembicHolderUtilsMenu', c=lambda *args: reloadShaderManager(mayaWindow))
+        cmds.menuItem('reload', label='Reload (coding)', parent='AlembicHolderUtilsMenu', c=lambda *args: reloadShaderManager(mayaWindow))
         # cmds.menuItem('runProcedural', label='Run procedural (beta)', parent='AlembicHolderUtilsMenu', c=lambda *args: runProcedural())

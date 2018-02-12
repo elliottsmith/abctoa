@@ -20,7 +20,7 @@ import json
 from arnold import *
 
 from PySide2 import QtWidgets, QtGui, QtCore
-
+import shiboken2
 
 from gpucache import gpucache, treeitem, treeDelegate, treeitemWildcard, treeitemTag
 reload(treeitem)
@@ -36,11 +36,68 @@ from propertywidgets.property_editorByType import PropertyEditor
 from ui import UI_ABCHierarchy
 reload(UI_ABCHierarchy)
 
-
 import maya.cmds as cmds
 import maya.mel as mel
-
 from maya.OpenMaya import MObjectHandle, MDGMessage, MMessage, MNodeMessage, MFnDependencyNode, MObject, MSceneMessage
+from maya.OpenMayaUI import MQtUtil 
+
+class Shader(QtWidgets.QGroupBox):
+    def __init__(self, shader_name, shader_widget):
+        """Shader Widget"""
+        QtWidgets.QGroupBox.__init__(self)
+
+        self.shader = shader_name
+
+        self.layout = QtWidgets.QHBoxLayout()
+        self.layout.setContentsMargins(3, 0, 3, 0)
+
+        self.label = QtWidgets.QLabel("%s" % shader_name)
+        self.layout.addWidget(shader_widget)
+        self.layout.addWidget(self.label)
+        self.setLayout(self.layout)
+
+        self.setMinimumHeight(38)
+        self.setMinimumWidth(100)
+        self.setMaximumHeight(38)
+
+    def renameShader(self, name):
+        """Update the shader name label"""
+        self.label.setText(name)
+
+    def mouseMoveEvent(self, item):
+        """Drag event"""
+
+        shader = self.shader
+
+        itemData = QtCore.QByteArray()
+        dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
+        dataStream << QtCore.QByteArray(str(shader))
+
+        mimeData = QtCore.QMimeData()
+        mimeData.setData("application/x-shader", itemData)
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(mimeData)
+
+        icon = QtGui.QIcon()
+        icon.addFile(os.path.join(d, "../../icons/sg.xpm"), QtCore.QSize(25,25))
+
+        drag.setPixmap(icon.pixmap(50,50))
+        drag.setHotSpot(QtCore.QPoint(0,0))
+        drag.start(QtCore.Qt.MoveAction)
+
+    def mousePressEvent(self, item):
+        """Click event"""
+        shader = self.shader
+        if shader:
+            if cmds.objExists(shader):
+                try:
+                    conn = cmds.connectionInfo(shader +".surfaceShader", sourceFromDestination=True)
+                    if conn:
+                        cmds.select(conn, r=1, ne=1)
+                    else:
+                        cmds.select(shader, r=1, ne=1)
+                except:
+                    cmds.select(shader, r=1, ne=1)
 
 class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
     def __init__(self, parent=None):
@@ -54,16 +111,11 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.displaceFromFile = []
 
         self.curLayer = None
-        # self.listTagsWidget = tagTree(self)
-        # self.tagGroup.layout().addWidget(self.listTagsWidget)
-        #self.tagGroup.setVisible(0)
-
         self.shaderToAssign = None
         self.ABCViewerNode = {}
 
         self.getNode()
         self.getCache()
-        
 
         self.thisTagItem = None
         self.thisTreeItem = None
@@ -104,6 +156,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.curPath = ""
         self.ABCcurPath = ""
 
+        self.shader_layout = QtWidgets.QVBoxLayout()
+        self.scroll.setLayout(self.shader_layout)
+
         self.hierarchyWidget.itemDoubleClicked.connect(self.itemDoubleClicked)
         self.hierarchyWidget.itemExpanded.connect(self.requireItemExpanded)
         self.hierarchyWidget.itemCollapsed.connect(self.requireItemCollapse)
@@ -112,23 +167,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.hierarchyWidget.itemPressed.connect(self.itemPressed)
         self.hierarchyWidget.setExpandsOnDoubleClick(False)
 
-
-
-        self.filterShaderLineEdit.textChanged.connect(self.filterShader)
         self.render.clicked.connect(self.doRender)
         self.ipr.clicked.connect(self.doIpr)
-
-        #self.shadersList.startDrag = self.newshadersListStartDrag
-        self.shadersList.itemDoubleClicked.connect(self.shaderCLicked)
-        self.shadersList.mouseMoveEvent = self.newshadersListmouseMoveEvent
-
-
-        self.displacementList.itemPressed.connect(self.shaderCLicked)
-        self.displacementList.mouseMoveEvent = self.newdisplaceListmouseMoveEvent
-
         self.refreshManagerBtn.pressed.connect(self.reset)
-
-        self.refreshShaders()
 
         self.getLayers()
         self.setCurrentLayer()
@@ -148,7 +189,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         #Widcard management
         self.wildCardButton.pressed.connect(self.addWildCard)
-        self.autoAssignButton.pressed.connect(self.autoAssign)
+
         # render buttons
         render_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvRender.png"))
         ipr_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvIprRender.png"))
@@ -168,10 +209,39 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         """"""
         mel.eval("IPRRenderIntoNewWindow;")
 
+    def clearLayout(self, layout):
+        """Clear a given layout"""
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+    def get_shader(self, shader):
+        """Wrap and return a maya material swatch as a QWidget"""
+        port = cmds.swatchDisplayPort(sn=shader, widthHeight=[32, 32], width=32, height=32, renderSize=32, backgroundColor=[0,0,0])
+        ptr = MQtUtil.findControl(port)
+        qport = shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
+        return qport
+
     def showEvent(self, event):
         self.reset()
         self.isolateCheckbox.setChecked(0)
+        self.updateShaders()
+
         return QtWidgets.QMainWindow.showEvent(self, event)
+
+    def updateShaders(self):
+        """"""
+        self.clearLayout(self.shader_layout)
+        paneLayoutName = cmds.rowLayout() #required even though we never use it
+        shaders = cmds.ls(materials=True)
+        for shader in shaders:
+            widget = self.get_shader(shader)
+            widget.setFixedSize(32, 32)
+            grp_widget = Shader(shader, widget)
+            self.shader_layout.addWidget(grp_widget)
+
+        self.shader_layout.addStretch()        
 
     def hideEvent(self, event):
         self.reset()
@@ -190,8 +260,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             pass
 
         self.hierarchyWidget.clear()
-        self.shadersList.clear()
-        self.displacementList.clear()
         self.propertyEditor.resetToDefault()
 
         self.curPath = ""
@@ -218,30 +286,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.lastClick = -1
 
         self.propertyEditing = False    
-        self.refreshShaders()
 
         self.renderLayer.currentIndexChanged.connect(self.layerChanged)
         self.propertyEditor.propertyChanged.connect(self.propertyChanged)
-        
-
-        
-    def filterShader(self, text):
-        '''
-        Only show shaders matching this string.
-        '''
-
-        for i in range(self.shadersList.count()):
-            item = self.shadersList.item(i)
-            item.setHidden(0)
-            if text != "" and not text.lower() in item.text().lower():
-                item.setHidden(1)
-
-        for i in range(self.displacementList.count()):
-            item = self.displacementList.item(i)
-            item.setHidden(0)
-            if text != "" and not text.lower() in item.text().lower():
-                item.setHidden(1)
-
 
     def isolateCheckboxChanged(self, state):
         ''' activate/desactive isolation'''
@@ -312,8 +359,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         else:
             return SGs[0]
         
-
-
     def nameChangedCB(self, node, prevName, client):
         ''' Callback when a node is renamed '''
 
@@ -333,47 +378,18 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             # shader manager is open
             if self.ABCViewerNode != {}:
 
-                if cmds.nodeType(nodeName) == "displacementShader":
-                    items = self.displacementList.findItems(prevName, QtCore.Qt.MatchExactly)
-                    for item in items:
-                        item.setText(nodeName)
-
+                if cmds.nodeType(nodeName) == "shadingEngine" or cmds.nodeType(nodeName).startswith("ai"):
                     # renaming shaders in caches
                     for cache in self.ABCViewerNode.values():
-                        cache.renameDisplacement(prevName, nodeName)
+                        cache.renameShader(prevName, nodeName)
                     self.checkShaders()
-                else:
-                    items = self.shadersList.findItems(prevName, QtCore.Qt.MatchExactly)
-                    for item in items:
-                        item.setText(nodeName)
-
-                if cmds.nodeType(nodeName) == "shadingEngine" or cmds.nodeType(nodeName) == "aiStandardSurface":
-                        # renaming shaders in caches
-                        for cache in self.ABCViewerNode.values():
-                            cache.renameShader(prevName, nodeName)
-
-                        self.checkShaders()
+                    self.updateShaders()
 
             # shader manager isnt open, update the attributes directly
             else:
                 alembicHolders = cmds.ls(dag=True, leaf=True, visible=True, type='alembicHolder', l=True)
 
-                if cmds.nodeType(nodeName) == "displacementShader":
-
-                    for holder in alembicHolders:
-                        displacement_assignments = cmds.getAttr('%s.displacementsAssignation' % holder)
-
-                        if displacement_assignments:
-                            j = json.loads(displacement_assignments)
-                            for disp in j.keys():
-
-                                if disp.split('.')[0] == prevName:
-                                    j[nodeName + '.message'] = j[disp]
-                                    del j[disp]
-
-                            cmds.setAttr('%s.displacementsAssignation' % holder, json.dumps(j), type='string')
-
-                elif cmds.nodeType(nodeName) == "shadingEngine" or cmds.nodeType(nodeName) == "aiStandardSurface":
+                if cmds.nodeType(nodeName) == "shadingEngine" or cmds.nodeType(nodeName).startswith("ai"):
 
                     for holder in alembicHolders:
                         shader_assignments = cmds.getAttr('%s.shadersAssignation' % holder)
@@ -390,69 +406,25 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
     def newNodeCB(self, newNode, data ):
         ''' Callback when creating a new node '''
-        mobject = MObjectHandle( newNode ).object()
-        nodeFn = MFnDependencyNode ( mobject )
-        if nodeFn.hasUniqueName():
-            nodeName = nodeFn.name()
-            if cmds.getClassification(cmds.nodeType(nodeName), satisfies="shader"):
-                if cmds.nodeType(nodeName) == "displacementShader":
-                    icon = QtGui.QIcon()
-                    icon.addFile(os.path.join(d, "../../icons/sg.xpm"), QtCore.QSize(25,25))
-                    item = QtWidgets.QListWidgetItem(nodeName)
-                    item.setIcon(icon)
-                    self.displacementList.addItem(item)
-                else:
-                    icon = QtGui.QIcon()
-                    icon.addFile(os.path.join(d, "../../icons/sg.xpm"), QtCore.QSize(25,25))
-                    item = QtWidgets.QListWidgetItem(nodeName)
-                    item.setIcon(icon)
-                    self.shadersList.addItem(item)
-
+        self.updateShaders()
 
     def delNodeCB(self, node, data ):
         ''' Callback when a node has been deleted '''
+
         mobject = MObjectHandle( node ).object()
         nodeFn = MFnDependencyNode ( mobject )
         if nodeFn.hasUniqueName():
             nodeName = nodeFn.name()
-
             didSomething = False
 
-            if cmds.nodeType(nodeName) == "displacementShader":
-                items = self.displacementList.findItems(nodeName, QtCore.Qt.MatchExactly)
-                for item in items:
-                    self.displacementList.takeItem(self.displacementList.row(item))   
-
-                # remove shaders from caches
-                for cache in self.ABCViewerNode.values():
-                    didSomething = True
-                    cache.removeDisplacement(nodeName)
-
-            else:
-                items = self.shadersList.findItems(nodeName, QtCore.Qt.MatchExactly)
-                for item in items:
-                    self.shadersList.takeItem(self.shadersList.row(item))
-
-                # remove shaders from caches
-                for cache in self.ABCViewerNode.values():
-                    didSomething = True
-                    cache.removeShader(nodeName)                
+            # remove shaders from caches
+            for cache in self.ABCViewerNode.values():
+                didSomething = True
+                cache.removeShader(nodeName)                
             
             if didSomething:
+                self.updateShaders()
                 self.checkShaders()
-
-    def shaderCLicked(self, item):
-        shader = item.text()
-        if shader:
-            if cmds.objExists(shader):
-                try:
-                    conn = cmds.connectionInfo(shader +".surfaceShader", sourceFromDestination=True)
-                    if conn:
-                        cmds.select(conn, r=1, ne=1)
-                    else:
-                        cmds.select(shader, r=1, ne=1)
-                except:
-                    cmds.select(shader, r=1, ne=1)
 
     def newshadersListmouseMoveEvent(self, event):
         self.newshadersListStartDrag(event)
@@ -478,27 +450,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         drag.setMimeData(mimeData)
 
         drag.setPixmap(self.shadersList.itemAt(event.pos()).icon().pixmap(50,50))
-        drag.setHotSpot(QtCore.QPoint(0,0))
-        drag.start(QtCore.Qt.MoveAction)
-
-    def newdisplaceListStartDrag(self, event):
-        index = self.displacementList.indexAt(event.pos())
-        if not index.isValid():
-            return
-        selected = self.displacementList.itemFromIndex(index)
-
-        self.shaderCLicked(selected)
-
-        itemData = QtCore.QByteArray()
-        dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
-        dataStream << QtCore.QByteArray(str(selected.text()))
-
-        mimeData = QtCore.QMimeData()
-        mimeData.setData("application/x-displacement", itemData)
-        drag = QtGui.QDrag(self)
-        drag.setMimeData(mimeData)
-
-        drag.setPixmap(self.displacementList.itemAt(event.pos()).icon().pixmap(50,50))
         drag.setHotSpot(QtCore.QPoint(0,0))
         drag.start(QtCore.Qt.MoveAction)
 
@@ -554,23 +505,19 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
     def addCBs(self, event=None):
         try:
-            # print "adding callbacks"
             self.renderLayer.currentIndexChanged.connect(self.layerChanged)
             self.NodeNameMsgId  = MNodeMessage.addNameChangedCallback( MObject(), self.nameChangedCB )
             self.newNodeCBMsgId = MDGMessage.addNodeAddedCallback( self.newNodeCB )
             self.delNodeCBMsgId = MDGMessage.addNodeRemovedCallback( self.delNodeCB )
-            # print "adding scriptjob"
             self.layerChangedJob = cmds.scriptJob( e= ["renderLayerManagerChange",self.setCurrentLayer])
         except:
             pass
 
     def clearCBs(self, event=None):
         try:
-            # print "removing scriptjob"
             cmds.scriptJob( kill=self.layerChangedJob, force=True)
             for cache in self.ABCViewerNode.values():
                 cache.setSelection("")
-            # print "removing callbacks"
             MMessage.removeCallback( self.newNodeCBMsgId )
             MMessage.removeCallback( self.delNodeCBMsgId )
             MNodeMessage.removeCallback( self.NodeNameMsgId )
@@ -732,31 +679,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             self.propertyEditor.propertyWidgets[propName].title.setText("<font color='red'>%s</font>" % propName)
         if cacheState == 1:
             self.propertyEditor.propertyWidgets[propName].title.setText("<font color='white'><i>%s</i></font>" % propName)
-
-
-    def fillShaderList(self):
-        self.shadersList.clear()
-        shaders = cmds.ls(materials=True)
-        icon = QtGui.QIcon()
-        icon.addFile(os.path.join(d, "../../icons/sg.xpm"), QtCore.QSize(25,25))
-        for shader in shaders:
-            item = QtWidgets.QListWidgetItem(shader)
-            item.setIcon(icon)
-            self.shadersList.addItem(item)
-
-    def fillDisplacementList(self):
-        self.displacementList.clear()
-        displaces = cmds.ls(type="displacementShader")
-        icon = QtGui.QIcon()
-        icon.addFile(os.path.join(d, "../../icons/displacement.xpm"), QtCore.QSize(25,25))
-        for sg in displaces:
-            item = QtWidgets.QListWidgetItem(sg)
-            item.setIcon(icon)
-            self.displacementList.addItem(item)
-
-    def refreshShaders(self):
-        self.fillShaderList()
-        self.fillDisplacementList()
 
     def getLayer(self):
         if self.curLayer != "defaultRenderLayer":
@@ -1236,8 +1158,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         self.createWildCard(item)
 
-    def autoAssign(self):
-        ''' Assign shaders to selected tags, using their name.'''
-        for item in self.hierarchyWidget.selectedItems():
-            if item.isTag:
-                item.autoAssignShader()
+    # def autoAssign(self):
+    #     ''' Assign shaders to selected tags, using their name.'''
+    #     for item in self.hierarchyWidget.selectedItems():
+    #         if item.isTag:
+    #             item.autoAssignShader()

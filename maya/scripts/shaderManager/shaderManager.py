@@ -168,7 +168,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.hierarchyWidget.setExpandsOnDoubleClick(False)
 
         self.render.clicked.connect(self.doRender)
-        self.ipr.clicked.connect(self.doIpr)
         self.refreshManagerBtn.pressed.connect(self.reset)
 
         self.getLayers()
@@ -192,22 +191,13 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         # render buttons
         render_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvRender.png"))
-        ipr_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvIprRender.png"))
         self.render.setIcon(render_pixmap)
         self.render.setIconSize(QtCore.QSize(32, 32))
         self.render.setStyleSheet('QPushButton{border: 0px solid;}')
 
-        self.ipr.setIcon(ipr_pixmap)
-        self.ipr.setIconSize(QtCore.QSize(32, 32))
-        self.ipr.setStyleSheet('QPushButton{border: 0px solid;}')
-
     def doRender(self):
         """"""
         mel.eval("renderIntoNewWindow render;")
-
-    def doIpr(self):
-        """"""
-        mel.eval("IPRRenderIntoNewWindow;")
 
     def clearLayout(self, layout):
         """Clear a given layout"""

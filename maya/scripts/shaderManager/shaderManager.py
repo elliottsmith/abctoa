@@ -402,7 +402,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                     for cache in self.ABCViewerNode.values():
                         cache.renameShader(prevName, nodeName)
                     self.checkShaders()
-                    self.updateShaders()
+                    self.shaders.update()
 
             # shader manager isnt open, update the attributes directly
             else:
@@ -425,7 +425,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
     def newNodeCB(self, newNode, data ):
         ''' Callback when creating a new node '''
-        self.updateShaders()
+        self.shaders.update()
 
     def delNodeCB(self, node, data ):
         ''' Callback when a node has been deleted '''
@@ -442,7 +442,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 cache.removeShader(nodeName)                
             
             if didSomething:
-                self.updateShaders()
+                self.shaders.update()
                 self.checkShaders()
 
     def newshadersListmouseMoveEvent(self, event):

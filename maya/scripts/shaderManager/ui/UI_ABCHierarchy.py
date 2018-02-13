@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'UI_ABCHierarchy.ui'
+# Form implementation generated from reading ui file 'ui/UI_ABCHierarchy.ui'
 #
-# Created: Mon Feb 12 18:41:11 2018
+# Created: Tue Feb 13 15:41:38 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -128,18 +128,6 @@ class Ui_NAM(object):
         self.render.setObjectName("render")
         self.horizontalLayout.addWidget(self.render)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.scroll = QtGui.QScrollArea(self.centralwidget)
-        self.scroll.setMinimumSize(QtCore.QSize(300, 0))
-        self.scroll.setStyleSheet("border-color: rgb(53, 53, 53);")
-        self.scroll.setFrameShadow(QtGui.QFrame.Plain)
-        self.scroll.setWidgetResizable(True)
-        self.scroll.setObjectName("scroll")
-        self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 298, 598))
-        self.scrollAreaWidgetContents.setStyleSheet("")
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scroll.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout.addWidget(self.scroll)
         self.gridLayout_2.addLayout(self.verticalLayout, 0, 5, 1, 1)
         NAM.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(NAM)

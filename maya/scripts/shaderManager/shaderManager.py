@@ -698,6 +698,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             self.propertyEditor.propertyWidgets[propName].title.setText("<font color='red'>%s</font>" % propName)
         if cacheState == 1:
             self.propertyEditor.propertyWidgets[propName].title.setText("<font color='white'><i>%s</i></font>" % propName)
+        if cacheState == 0:
+            self.propertyEditor.propertyWidgets[propName].title.setText("%s" % propName)
 
     def getLayer(self):
         if self.curLayer != "defaultRenderLayer":

@@ -57,7 +57,7 @@ class Shader(QtWidgets.QGroupBox):
         self.setLayout(self.layout)
 
         self.setMinimumHeight(38)
-        self.setMinimumWidth(240)
+        self.setMinimumWidth(100)
         self.setMaximumHeight(38)
 
     def renameShader(self, name):
@@ -98,62 +98,6 @@ class Shader(QtWidgets.QGroupBox):
                         cmds.select(shader, r=1, ne=1)
                 except:
                     cmds.select(shader, r=1, ne=1)
-
-class ShadersScrollWidget(QtWidgets.QWidget):
-     
-    def __init__(self, parent= None):
-        super(ShadersScrollWidget, self).__init__()
-        self.setMinimumWidth(300)
-         
-        #Container Widget        
-        widget = QtWidgets.QWidget()
-        paneLayoutName = cmds.rowLayout() #required even though we never use it
-        
-        #Layout of Container Widget
-        self.layout = QtWidgets.QVBoxLayout(self)
-        self.update()
-        widget.setLayout(self.layout)
- 
-        #Scroll Area Properties
-        scroll = QtWidgets.QScrollArea()
-        scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        scroll.setWidget(widget)
-         
-        #Scroll Area Layer add 
-        self.vLayout = QtWidgets.QVBoxLayout(self)
-        self.vLayout.addWidget(scroll)
-        self.setLayout(self.vLayout)
-
-    def clearLayout(self, layout):
-        """Clear a given layout"""
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
-
-    def get_shader(self, shader):
-        """Wrap and return a maya material swatch as a QWidget"""
-        port = cmds.swatchDisplayPort(sn=shader, widthHeight=[32, 32], width=32, height=32, renderSize=32, backgroundColor=[0,0,0])
-        ptr = MQtUtil.findControl(port)
-        qport = shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
-        return qport
-
-    def update(self):
-        """Update the layout with current shaders"""
-        # print 'Updating Shaders'
-        paneLayoutName = cmds.rowLayout() #required even though we never use it
-        self.clearLayout(self.layout)
-
-        shaders = cmds.ls(materials=True)
-        for shader in shaders:
-
-            widget = self.get_shader(shader)
-            widget.setFixedSize(32, 32)
-
-            grp_widget = Shader(shader, widget)
-            self.layout.addWidget(grp_widget)
-
-        self.layout.addStretch() 
 
 class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
     def __init__(self, parent=None):
@@ -212,8 +156,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.curPath = ""
         self.ABCcurPath = ""
 
-        self.shaders = ShadersScrollWidget()
-        self.verticalLayout.addWidget(self.shaders)
+        self.shader_layout = QtWidgets.QVBoxLayout()
+        self.scroll.setLayout(self.shader_layout)
 
         self.hierarchyWidget.itemDoubleClicked.connect(self.itemDoubleClicked)
         self.hierarchyWidget.itemExpanded.connect(self.requireItemExpanded)
@@ -255,13 +199,40 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         """"""
         mel.eval("renderIntoNewWindow render;")
 
+    def clearLayout(self, layout):
+        """Clear a given layout"""
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+    def get_shader(self, shader):
+        """Wrap and return a maya material swatch as a QWidget"""
+        port = cmds.swatchDisplayPort(sn=shader, widthHeight=[32, 32], width=32, height=32, renderSize=32, backgroundColor=[0,0,0])
+        ptr = MQtUtil.findControl(port)
+        qport = shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
+        return qport
+
     def showEvent(self, event):
         self.reset()
         self.isolateCheckbox.setChecked(0)
-        self.shaders.update()
+        self.updateShaders()
 
         return QtWidgets.QMainWindow.showEvent(self, event)
-   
+
+    def updateShaders(self):
+        """"""
+        self.clearLayout(self.shader_layout)
+        paneLayoutName = cmds.rowLayout() #required even though we never use it
+        shaders = cmds.ls(materials=True)
+        for shader in shaders:
+            widget = self.get_shader(shader)
+            widget.setFixedSize(32, 32)
+            grp_widget = Shader(shader, widget)
+            self.shader_layout.addWidget(grp_widget)
+
+        self.shader_layout.addStretch()        
+
     def hideEvent(self, event):
         self.reset()
         self.isolateCheckbox.setChecked(0)

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI_ABCHierarchy.ui'
 #
-# Created: Mon Feb 12 18:41:11 2018
+# Created: Mon Feb 12 13:12:06 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -127,6 +127,11 @@ class Ui_NAM(object):
         self.render.setText("")
         self.render.setObjectName("render")
         self.horizontalLayout.addWidget(self.render)
+        self.ipr = QtGui.QPushButton(self.centralwidget)
+        self.ipr.setMaximumSize(QtCore.QSize(16777215, 23))
+        self.ipr.setText("")
+        self.ipr.setObjectName("ipr")
+        self.horizontalLayout.addWidget(self.ipr)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.scroll = QtGui.QScrollArea(self.centralwidget)
         self.scroll.setMinimumSize(QtCore.QSize(300, 0))

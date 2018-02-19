@@ -116,7 +116,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         self.filterShaderLineEdit.textChanged.connect(self.filterShader)
         self.render.clicked.connect(self.doRender)
-        self.ipr.clicked.connect(self.doIpr)
 
         #self.shadersList.startDrag = self.newshadersListStartDrag
         self.shadersList.itemDoubleClicked.connect(self.shaderCLicked)
@@ -149,24 +148,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         #Widcard management
         self.wildCardButton.pressed.connect(self.addWildCard)
         self.autoAssignButton.pressed.connect(self.autoAssign)
-        # render buttons
-        render_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvRender.png"))
-        ipr_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvIprRender.png"))
-        self.render.setIcon(render_pixmap)
-        self.render.setIconSize(QtCore.QSize(32, 32))
-        self.render.setStyleSheet('QPushButton{border: 0px solid;}')
-
-        self.ipr.setIcon(ipr_pixmap)
-        self.ipr.setIconSize(QtCore.QSize(32, 32))
-        self.ipr.setStyleSheet('QPushButton{border: 0px solid;}')
 
     def doRender(self):
-        """"""
         mel.eval("renderIntoNewWindow render;")
-
-    def doIpr(self):
-        """"""
-        mel.eval("IPRRenderIntoNewWindow;")
 
     def showEvent(self, event):
         self.reset()

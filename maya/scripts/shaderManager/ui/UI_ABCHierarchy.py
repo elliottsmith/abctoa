@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'maya/scripts/shaderManager/ui/UI_ABCHierarchy.ui'
 #
-# Created: Mon Feb 19 17:46:55 2018
+# Created: Mon Feb 19 18:06:28 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -155,7 +155,7 @@ class Ui_NAM(object):
         QtCore.QMetaObject.connectSlotsByName(NAM)
 
     def retranslateUi(self, NAM):
-        NAM.setWindowTitle(QtGui.QApplication.translate("NAM", "Nozon Alembic Cache Manager", None, QtGui.QApplication.UnicodeUTF8))
+        NAM.setWindowTitle(QtGui.QApplication.translate("NAM", "Alembic Cache Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideShaders.setText(QtGui.QApplication.translate("NAM", "Override All Shaders", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideDisps.setText(QtGui.QApplication.translate("NAM", "Override all displacement shaders", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideProps.setText(QtGui.QApplication.translate("NAM", "Override all object properties", None, QtGui.QApplication.UnicodeUTF8))

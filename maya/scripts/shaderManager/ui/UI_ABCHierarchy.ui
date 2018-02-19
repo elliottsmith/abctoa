@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1400</width>
+    <width>1600</width>
     <height>730</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1400</width>
+    <width>1600</width>
     <height>0</height>
    </size>
   </property>
@@ -23,11 +23,11 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Alembic Holder Cache Manager</string>
+   <string>Nozon Alembic Cache Manager</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0" colspan="2">
+    <item row="0" column="0" colspan="3">
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="QCheckBox" name="overrideShaders">
@@ -156,11 +156,8 @@ border: none;
           <bool>false</bool>
          </property>
          <property name="columnCount">
-          <number>2</number>
+          <number>3</number>
          </property>
-         <attribute name="headerVisible">
-          <bool>true</bool>
-         </attribute>
          <attribute name="headerVisible">
           <bool>true</bool>
          </attribute>
@@ -172,6 +169,11 @@ border: none;
          <column>
           <property name="text">
            <string>shaders</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>displacement</string>
           </property>
          </column>
         </widget>
@@ -186,7 +188,82 @@ border: none;
       </item>
      </layout>
     </item>
-    <item row="3" column="0">
+    <item row="0" column="3">
+     <widget class="QSplitter" name="splitter_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>true</bool>
+      </property>
+      <widget class="QLineEdit" name="filterShaderLineEdit"/>
+      <widget class="QListWidget" name="shadersList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>300</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::DragOnly</enum>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QListWidget" name="displacementList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>300</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item row="1" column="0">
      <widget class="QPushButton" name="wildCardButton">
       <property name="maximumSize">
        <size>
@@ -199,7 +276,14 @@ border: none;
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
+    <item row="1" column="1">
+     <widget class="QPushButton" name="autoAssignButton">
+      <property name="text">
+       <string>Auto-Assign Shaders to Selected Tags</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
      <spacer name="horizontalSpacer_2">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -212,91 +296,12 @@ border: none;
       </property>
      </spacer>
     </item>
-    <item row="3" column="5">
+    <item row="1" column="3">
      <widget class="QPushButton" name="refreshManagerBtn">
       <property name="text">
        <string>Refresh Manager</string>
       </property>
      </widget>
-    </item>
-    <item row="0" column="5">
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="render">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>23</height>
-           </size>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="ipr">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>23</height>
-           </size>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QScrollArea" name="scroll">
-        <property name="minimumSize">
-         <size>
-          <width>300</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border-color: rgb(53, 53, 53);</string>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="widgetResizable">
-         <bool>true</bool>
-        </property>
-        <widget class="QWidget" name="scrollAreaWidgetContents">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>298</width>
-           <height>598</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-        </widget>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>
@@ -305,8 +310,8 @@ border: none;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1400</width>
-     <height>24</height>
+     <width>1600</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

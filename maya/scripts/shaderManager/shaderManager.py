@@ -38,7 +38,6 @@ reload(UI_ABCHierarchy)
 
 
 import maya.cmds as cmds
-import maya.mel as mel
 
 from maya.OpenMaya import MObjectHandle, MDGMessage, MMessage, MNodeMessage, MFnDependencyNode, MObject, MSceneMessage
 
@@ -115,7 +114,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
 
         self.filterShaderLineEdit.textChanged.connect(self.filterShader)
-        self.render.clicked.connect(self.doRender)
 
         #self.shadersList.startDrag = self.newshadersListStartDrag
         self.shadersList.itemDoubleClicked.connect(self.shaderCLicked)
@@ -149,8 +147,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.wildCardButton.pressed.connect(self.addWildCard)
         self.autoAssignButton.pressed.connect(self.autoAssign)
 
-    def doRender(self):
-        mel.eval("renderIntoNewWindow render;")
 
     def showEvent(self, event):
         self.reset()

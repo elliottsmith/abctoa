@@ -667,20 +667,31 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         if self.lastClick == 1:
 
+            items = []
+            
+            selectedItems = self.hierarchyWidget.selectedItems()
+
             item = self.hierarchyWidget.currentItem()
             if item:
-                curPath = item.getPath()
-                if curPath is None:
+                items.append(item)
+
+            if len(selectedItems) > 1:
+                items = items + selectedItems
+
+            for item in items:
+                if item:
+                    curPath = item.getPath()
+                    if curPath is None:
+                        return
+                else:
                     return
-            else:
-                return
 
-            cache = item.cache
-            layer = self.getLayer()
-            cache.updateOverride(propName, default, value, curPath, layer)
-            self.updatePropertyColor(cache, layer, propName, curPath)
+                cache = item.cache
+                layer = self.getLayer()
+                cache.updateOverride(propName, default, value, curPath, layer)
+                self.updatePropertyColor(cache, layer, propName, curPath)
 
-            self.checkProperties(self.getLayer(), item=item)
+                self.checkProperties(self.getLayer(), item=item)
 
         elif self.lastClick == 2:
             item = self.listTagsWidget.currentItem()

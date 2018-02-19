@@ -38,6 +38,7 @@ reload(UI_ABCHierarchy)
 
 
 import maya.cmds as cmds
+import maya.mel as mel
 
 from maya.OpenMaya import MObjectHandle, MDGMessage, MMessage, MNodeMessage, MFnDependencyNode, MObject, MSceneMessage
 
@@ -114,6 +115,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
 
         self.filterShaderLineEdit.textChanged.connect(self.filterShader)
+        self.render.clicked.connect(self.doRender)
+        self.ipr.clicked.connect(self.doIpr)
 
         #self.shadersList.startDrag = self.newshadersListStartDrag
         self.shadersList.itemDoubleClicked.connect(self.shaderCLicked)
@@ -145,8 +148,29 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         #Widcard management
         self.wildCardButton.pressed.connect(self.addWildCard)
-        self.autoAssignButton.pressed.connect(self.autoAssign)
+        # self.autoAssignButton.pressed.connect(self.autoAssign)
 
+        # render buttons
+        render_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvRender.png"))
+        ipr_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvIprRender.png"))
+        self.render.setIcon(render_pixmap)
+        self.render.setIconSize(QtCore.QSize(32, 32))
+        self.render.setStyleSheet('QPushButton{border: 0px solid;}')
+
+        self.ipr.setIcon(ipr_pixmap)
+        self.ipr.setIconSize(QtCore.QSize(32, 32))
+        self.ipr.setStyleSheet('QPushButton{border: 0px solid;}')
+
+        # self.splitter.setStretchFactor(1, 0)
+        print self.splitter.sizes()
+
+    def doRender(self):
+        """"""
+        mel.eval("renderIntoNewWindow render;")
+
+    def doIpr(self):
+        """"""
+        mel.eval("IPRRenderIntoNewWindow;")
 
     def showEvent(self, event):
         self.reset()

@@ -11,17 +11,13 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library.
 
+# sys libs
+import os, json
 
-import os
-
-d = os.path.dirname(__file__)
-
-import json
-from arnold import *
-
+# pyside
 from PySide2 import QtWidgets, QtGui, QtCore
 
-
+# local imports
 from gpucache import gpucache, treeitem, treeDelegate, treeitemWildcard, treeitemTag
 reload(treeitem)
 reload(treeitemWildcard)
@@ -31,39 +27,43 @@ reload(gpucache)
 
 from propertywidgets import property_editorByType
 reload(property_editorByType)
+
 from propertywidgets.property_editorByType import PropertyEditor
+
+from shaderwidget import shader_widget
+reload(shader_widget)
 
 from ui import UI_ABCHierarchy
 reload(UI_ABCHierarchy)
 
-
+# arnold / maya
+from arnold import *
 import maya.cmds as cmds
 import maya.mel as mel
-
 from maya.OpenMaya import MObjectHandle, MDGMessage, MMessage, MNodeMessage, MFnDependencyNode, MObject, MSceneMessage
+
+d = os.path.dirname(__file__)
 
 class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
     def __init__(self, parent=None):
+        """Shader Manager class"""
         super(ShaderManager, self).__init__(parent)
         
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)        
 
+        # initialise the inherited ui class
         self.setupUi(self)
 
+        # set up some vars
         self.shadersFromFile = []
         self.displaceFromFile = []
 
         self.curLayer = None
-        # self.listTagsWidget = tagTree(self)
-        # self.tagGroup.layout().addWidget(self.listTagsWidget)
-        #self.tagGroup.setVisible(0)
-
         self.shaderToAssign = None
         self.ABCViewerNode = {}
 
         self.getNode()
         self.getCache()
-        
 
         self.thisTagItem = None
         self.thisTreeItem = None
@@ -72,6 +72,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         self.propertyEditing = False
 
+        # properties widget
         self.propertyEditorWindow = QtWidgets.QDockWidget(self)
         self.propertyEditorWindow.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
         self.propertyEditorWindow.setWindowTitle("Properties")
@@ -81,29 +82,26 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.propertyEditor = PropertyEditor(self, self.propertyType, self.propertyEditorWindow)
         self.propertyEditorWindow.setWidget(self.propertyEditor)
 
-
         self.propertyEditor.propertyChanged.connect(self.propertyChanged)
 
+        # hierarchy widget
         self.hierarchyWidget.setColumnWidth(0,600)
         self.hierarchyWidget.setIconSize(QtCore.QSize(22,22))
-
         self.hierarchyWidget.dragEnterEvent = self.newhierarchyWidgetdragEnterEvent
         self.hierarchyWidget.dragMoveEvent = self.newhierarchyWidgetdragMoveEvent
         self.hierarchyWidget.dropEvent = self.newhierarchyWidgetDropEvent
-
         self.hierarchyWidget.setColumnWidth(0,200)
         self.hierarchyWidget.setColumnWidth(1,300)
         self.hierarchyWidget.setColumnWidth(2,300)
-
         self.hierarchyWidget.setItemDelegate(treeDelegate.treeDelegate(self))
 
         self.updateTags()
         self.populate()
-        
 
         self.curPath = ""
         self.ABCcurPath = ""
 
+        # signals, slots and callbacks
         self.hierarchyWidget.itemDoubleClicked.connect(self.itemDoubleClicked)
         self.hierarchyWidget.itemExpanded.connect(self.requireItemExpanded)
         self.hierarchyWidget.itemCollapsed.connect(self.requireItemCollapse)
@@ -112,8 +110,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.hierarchyWidget.itemPressed.connect(self.itemPressed)
         self.hierarchyWidget.setExpandsOnDoubleClick(False)
 
-
-
         self.filterShaderLineEdit.textChanged.connect(self.filterShader)
         self.render.clicked.connect(self.doRender)
         self.ipr.clicked.connect(self.doIpr)
@@ -121,15 +117,10 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         #self.shadersList.startDrag = self.newshadersListStartDrag
         self.shadersList.itemDoubleClicked.connect(self.shaderCLicked)
         self.shadersList.mouseMoveEvent = self.newshadersListmouseMoveEvent
-
-
         self.displacementList.itemPressed.connect(self.shaderCLicked)
         self.displacementList.mouseMoveEvent = self.newdisplaceListmouseMoveEvent
-
         self.refreshManagerBtn.pressed.connect(self.reset)
-
         self.refreshShaders()
-
         self.getLayers()
         self.setCurrentLayer()
         
@@ -143,13 +134,10 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.overrideDisps.stateChanged.connect(self.overrideDispsChanged)
         self.overrideShaders.stateChanged.connect(self.overrideShadersChanged)
         self.overrideProps.stateChanged.connect(self.overridePropsChanged)
-
         self.isolateCheckbox.stateChanged.connect(self.isolateCheckboxChanged)
-
         #Widcard management
         self.wildCardButton.pressed.connect(self.addWildCard)
         # self.autoAssignButton.pressed.connect(self.autoAssign)
-
         # render buttons
         render_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvRender.png"))
         ipr_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/rvIprRender.png"))
@@ -173,16 +161,22 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         mel.eval("IPRRenderIntoNewWindow;")
 
     def showEvent(self, event):
+        """Show the main window"""
+
         self.reset()
         self.isolateCheckbox.setChecked(0)
         return QtWidgets.QMainWindow.showEvent(self, event)
 
     def hideEvent(self, event):
+        """Hide the main window"""
+
         self.reset()
         self.isolateCheckbox.setChecked(0)
         return QtWidgets.QMainWindow.hideEvent(self, event)
 
     def reset(self, *args, **kwargs):
+        """Reset the main window to initial state"""
+
         try:
             self.renderLayer.currentIndexChanged.disconnect()
         except:
@@ -273,6 +267,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.updateTree()
 
     def overrideShadersChanged(self, state):
+        """Override shaders toggle"""
 
         result = True
         if state == 0:
@@ -287,8 +282,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         self.updateTree()
 
-
     def overridePropsChanged(self, state):
+        """Override properties toggle"""
+
         result = True
         if state == 0:
             result = False
@@ -303,6 +299,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.updateTree()
 
     def createSG(self, node):
+        """Create a shading group if node doesn't have one"""
+
         sg = None
 
         SGs = cmds.listConnections( node, d=True, s=False, type="shadingEngine")        
@@ -315,11 +313,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 print "Error creating shading group for node", node
         else:
             return SGs[0]
-        
-
 
     def nameChangedCB(self, node, prevName, client):
-        ''' Callback when a node is renamed '''
+        """Callback when a node is renamed"""
 
         if prevName == "" or not prevName or prevName.startswith("_"):
             return
@@ -393,7 +389,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                             cmds.setAttr('%s.shadersAssignation' % holder, json.dumps(j), type='string')
 
     def newNodeCB(self, newNode, data ):
-        ''' Callback when creating a new node '''
+        """Callback when creating a new node"""
+
         mobject = MObjectHandle( newNode ).object()
         nodeFn = MFnDependencyNode ( mobject )
         if nodeFn.hasUniqueName():
@@ -414,7 +411,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
 
     def delNodeCB(self, node, data ):
-        ''' Callback when a node has been deleted '''
+        """Callback when a node has been deleted"""
+
         mobject = MObjectHandle( node ).object()
         nodeFn = MFnDependencyNode ( mobject )
         if nodeFn.hasUniqueName():
@@ -507,18 +505,24 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         drag.start(QtCore.Qt.MoveAction)
 
     def newhierarchyWidgetdragEnterEvent(self, event):
+        """Enter event"""
+
         if event.mimeData().hasFormat("application/x-shader") or event.mimeData().hasFormat("application/x-displacement"):
             event.accept()
         else:
             event.ignore()
 
     def newhierarchyWidgetdragMoveEvent(self, event):
+        """Move event"""
+
         if event.mimeData().hasFormat("application/x-shader") or event.mimeData().hasFormat("application/x-displacement"):
             event.accept()
         else:
             event.ignore()
 
     def newhierarchyWidgetDropEvent(self, event):
+        """Drop event"""
+
         mime = event.mimeData()
         itemData = None
         mode = 0
@@ -553,41 +557,46 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 item.assignShader()
             elif mode == 1:
                 item.assignDisplacement()
-               
+
         event.accept()
 
     def addCBs(self, event=None):
+        """Add the callbacks"""
+
         try:
-            # print "adding callbacks"
             self.renderLayer.currentIndexChanged.connect(self.layerChanged)
             self.NodeNameMsgId  = MNodeMessage.addNameChangedCallback( MObject(), self.nameChangedCB )
             self.newNodeCBMsgId = MDGMessage.addNodeAddedCallback( self.newNodeCB )
             self.delNodeCBMsgId = MDGMessage.addNodeRemovedCallback( self.delNodeCB )
-            # print "adding scriptjob"
+
             self.layerChangedJob = cmds.scriptJob( e= ["renderLayerManagerChange",self.setCurrentLayer])
         except:
             pass
 
     def clearCBs(self, event=None):
+        """Clear the callbacks"""
+
         try:
-            # print "removing scriptjob"
             cmds.scriptJob( kill=self.layerChangedJob, force=True)
             for cache in self.ABCViewerNode.values():
                 cache.setSelection("")
-            # print "removing callbacks"
+
             MMessage.removeCallback( self.newNodeCBMsgId )
             MMessage.removeCallback( self.delNodeCBMsgId )
             MNodeMessage.removeCallback( self.NodeNameMsgId )
         except:
             pass
 
-
     def closeEvent(self, event):
+        """Main window close event"""
+
         event.ignore()
         self.hide()
         return
 
     def clearing(self):
+        """Clearing method called from maya menu"""
+
         self.clearCBs()
         try:
             MMessage.removeCallback( self.afterNewSceneCBId )
@@ -595,8 +604,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         except:
             pass
 
-
     def setCurrentLayer(self):
+        """Set current layer"""
+
         try:
             curLayer = cmds.editRenderLayerGlobals(query=1, currentRenderLayer=1)
         except:
@@ -606,9 +616,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             self.renderLayer.setCurrentIndex(curLayeridx)
         self.curLayer = curLayer
 
-
     def layerChanged(self, index):
-
+        """Layer changed slot"""
 
         self.curLayer = self.renderLayer.itemText(index)
         if self.curLayer == "defaultRenderLayer":
@@ -624,7 +633,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                     self.overrideShaders.setChecked(over["removeShaders"])
                     self.overrideDisps.setChecked(over["removeDisplacements"])
 
-
         self.updateTree()
         if self.hierarchyWidget.currentItem():
             self.itemCLicked(self.hierarchyWidget.currentItem(), 0, force=True)
@@ -634,9 +642,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         if curLayer != self.curLayer:
             cmds.editRenderLayerGlobals( currentRenderLayer=self.curLayer)
 
-
-
     def updateTree(self):
+        """Update alembic tree"""
+
         items = []
         for i in range(self.hierarchyWidget.topLevelItemCount()):
             self.visitTree(items, self.hierarchyWidget.topLevelItem(i))
@@ -646,25 +654,26 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             item.checkShaders(self.getLayer())
             item.checkProperties(self.getLayer())
 
-
     def visitTree(self, items, treeitem):
+        """Visit alembic tree"""
+
         items.append(treeitem)
         for i in range(treeitem.childCount()):
             self.visitTree(items, treeitem.child(i))
 
-
     def enableLayerOverrides(self):
-        self.overrideDisps.setEnabled(1)
+        """Enable layer override"""
+
         self.overrideShaders.setEnabled(1)
         self.overrideProps.setEnabled(1)
-
 
         self.overrideDisps.setChecked(0)
         self.overrideShaders.setChecked(0)
         self.overrideProps.setChecked(0)
 
-
     def disableLayerOverrides(self):
+        """Disable layer override"""
+
         self.overrideDisps.setEnabled(0)
         self.overrideShaders.setEnabled(0)
         self.overrideProps.setEnabled(0)
@@ -673,8 +682,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.overrideShaders.setChecked(0)
         self.overrideProps.setChecked(0)
 
-
     def getLayers(self):
+        """Get layers"""
+
         self.renderLayer.clear()
         renderLayers = []
         for layer in cmds.ls(type="renderLayer"):
@@ -692,6 +702,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             self.renderLayer.setCurrentIndex(idx)
 
     def propertyChanged(self, prop):
+        """Properry change slot"""
+
         if self.propertyEditing:
             return
         try:
@@ -735,11 +747,11 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             item = self.listTagsWidget.currentItem()
             item.assignProperty(propName, default, value)
 
-
         self.propertyEditor.propertyChanged.connect(self.propertyChanged)
 
-
     def updatePropertyColor(self, cache, layer, propName, curPath):
+        """Update the color of a property"""
+
         cacheState = cache.getPropertyState(layer, propName, curPath)
         if cacheState == 3:
             self.propertyEditor.propertyWidgets[propName].title.setText("<font color='darkRed'>%s</font>" % propName)
@@ -776,11 +788,15 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.fillDisplacementList()
 
     def getLayer(self):
+        """Get current layer"""
+
         if self.curLayer != "defaultRenderLayer":
             return self.curLayer
         return None
 
-    def itemCLicked(self, item, col, force=False) :
+    def itemCLicked(self, item, col, force=False):
+        """Hierarchy item click"""
+
         self.propertyEditing = True
         try:
             self.propertyEditor.propertyChanged.disconnect()
@@ -843,19 +859,12 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         cache.setSelection(allSelected)
 
-        if self.isolateCheckbox.checkState() == QtCore.Qt.Checked:
-            cache.setToPath(curPath)
-
         self.propertyEditor.resetToDefault()
-
         self.updateAttributeEditor()
-
         self.propertyEditing = False
 
-        
-
     def updateAttributeEditor(self):
-        ''' this will update what is inside the attribute editor (red text,....)'''
+        """Update what is inside the attribute editor (red text,....)"""
 
         try:
             self.propertyEditor.propertyChanged.disconnect()
@@ -895,26 +904,31 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         except:
             pass
 
-    def itemPressed(self, item, col) :
+    def itemPressed(self, item, col):
+        """Item clicked event"""
+
         self.lastClick = 1
         if QtWidgets.QApplication.mouseButtons()  == QtCore.Qt.RightButton:
             item.pressed()
 
-
     def itemSelectionChanged(self):
+        """Item selection"""
+
         if len(self.hierarchyWidget.selectedItems()) == 0:
             for cache in self.ABCViewerNode.values():
                 cache.setSelection("")
 
-
     def requireItemCollapse(self, item):
         pass
 
-    def requireItemExpanded(self, item) :
+    def requireItemExpanded(self, item):
+        """"""
+
         self.expandItem(item)
 
     def itemDoubleClicked(self, item, column) :
-        '''  An item on the hierarchy is double clicked'''
+        """Hierarchy item double click slot"""
+
         if column == 0:
             if item.isWildCard:
                 if not item.protected:
@@ -939,8 +953,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 if shader["fromfile"] == False:
                     cmds.select(shader["shader"], r=1, ne=1)
 
+    def expandItem(self, item):
+        """Expand hierarchy tree"""
 
-    def expandItem(self, item) :
         expandAll = False
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if modifiers == QtCore.Qt.ShiftModifier:
@@ -957,14 +972,11 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             
             return
 
-
         item.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.DontShowIndicator)
 
     def createBranch(self, parentItem, abcchild, hierarchy = False, p = "/") :
-        ''' 
-        createBranch
-        This function will create a branch inside the cache hierarchy
-        '''
+        """Create a branch inside the cache hierarchy"""
+
         createdItems = []
         for item in abcchild :
             itemType = item["type"]
@@ -1002,7 +1014,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         return createdItems
 
-    def populate(self) :
+    def populate(self):
+        """Populate the hierarchy tree"""
+
         for cache in self.ABCViewerNode.values():
             if cache.cache != "":
                 firstLevel = cache.getHierarchy(cache.ABCcurPath or "/")
@@ -1046,6 +1060,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                             self.createTag(root, tag, False)
 
     def getShader(self):
+        """Get selected shader"""
+
         x = cmds.ls(mat=1, sl=1)
         if len(x) == 0:
             return None
@@ -1056,8 +1072,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         else:
             return self.createSG(x[0])
 
-
     def checkShaders(self, layer=None, item=None):
+        """Check shaders"""
 
         if item is None or item.isWildCard == True:
             # we check every single item.
@@ -1074,6 +1090,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 self.checkShaders(layer, item.child(i))
 
     def checkProperties(self, layer=None, item=None):
+        """Check properties"""
 
         if item is None or item.isWildCard == True:
             # we check every single item.
@@ -1087,10 +1104,10 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             numChildren = item.childCount()
             for i in range(numChildren):
                 self.checkProperties(layer, item.child(i))
-                    
 
     def cleanAssignations(self):
-        ''' This function will remove any assignation that no longer exists in the cache'''
+        """Clear any assignation that no longer exists in the cache"""
+
         for shape in self.ABCViewerNode:
             assignations = self.ABCViewerNode[shape].getAssignations()
             shaders = assignations.getAllShaderPaths()
@@ -1109,6 +1126,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
 
     def getNode(self):
+        """Load selected alembicHolder node into cache manager"""
+
         tr = cmds.ls( type= 'transform', sl=1, l=1) + cmds.ls(type= 'alembicHolder', sl=1, l=1)
         if len(tr) == 0:
             return
@@ -1194,17 +1213,16 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                     if not cmds.objExists(str(shape) + ".skip%s" % attr):
                         cmds.addAttr(shape, ln='skip%s' % attr, at='bool')
 
-        
-
     def getCache(self):
+        """Update and clean cache"""
+
         for shape in self.ABCViewerNode:
             self.ABCViewerNode[shape].updateCache()
 
         self.cleanAssignations()
 
-
     def createWildCard(self, parentItem, wildcard="*", protected=False) :
-        ''' Create a wilcard assignation item '''
+        """Create a wilcard assignation item"""
 
         newItem = treeitemWildcard.wildCardItem(parentItem.cache, wildcard, self)
         parentItem.cache.itemsTree.append(newItem)
@@ -1217,7 +1235,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         newItem.protected = protected
 
     def createTag(self, parentItem, tag, protected=False) :
-        ''' Create a wilcard assignation item '''
+        """Create a tag item"""
 
         newItem = treeitemTag.tagItem(parentItem.cache, tag, self)
         parentItem.cache.itemsTree.append(newItem)
@@ -1229,14 +1247,14 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         newItem.protected = protected
 
-
-
     def updateTags(self):
+        """Update tags"""
+
         for shape in self.ABCViewerNode:
             self.ABCViewerNode[shape].updateTags() 
 
     def addWildCard(self):
-        ''' Add a widldcard expression to the current cache'''
+        """Add a widldcard expression to the current cache"""
         
         # first get the current cache
         item = self.hierarchyWidget.currentItem()
@@ -1252,9 +1270,3 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 item = pitem
 
         self.createWildCard(item)
-
-    def autoAssign(self):
-        ''' Assign shaders to selected tags, using their name.'''
-        for item in self.hierarchyWidget.selectedItems():
-            if item.isTag:
-                item.autoAssignShader()

@@ -80,7 +80,7 @@ class ShadersDockWidget(QtWidgets.QWidget):
         """
         Shaders dock widget, with scroll area for shaders, buttons for render and refresh, plus filter box
         """
-        super(ShadersScrollWidget, self).__init__()
+        super(ShadersDockWidget, self).__init__()
         self.parent = parent
          
         #Container Widget        

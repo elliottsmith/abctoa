@@ -32,20 +32,9 @@ class PropertyWidgetColor(PropertyWidget):
       self.layout().addWidget(self.widget)
 
       self.default = params["value"]
-
-      color = QColor(self.default[0] * 255, self.default[1] * 255, self.default[2]* 255)
-
+      self.default_color = QColor(self.default[0] * 255, self.default[1] * 255, self.default[2]* 255)
       self.colorDialog = QColorDialog(self)
-      self.ColorChanged(color)
-      ##data = AtColor()
-      #if AiMetaDataGetRGB(nentry, name, "default", byref(data)):
-         #data = data.clamp(0, 1)
-         #color = QColor(data.r * 255, data.g * 255, data.b * 255)
-         #self.ColorChanged(color)
-      #else:
-         #self.__ReadFromArnold()
-
-      #self.widget.stateChanged.connect(self.PropertyChanged)
+      self.ColorChanged(self.default_color)
 
    def ColorChanged(self, color):
       palette = QPalette()
@@ -81,6 +70,6 @@ class PropertyWidgetColor(PropertyWidget):
 
 
    def resetValue(self):
-    self.widget.setValue(self.default)
+    self.ValueChanged(self.default_color)
 
 

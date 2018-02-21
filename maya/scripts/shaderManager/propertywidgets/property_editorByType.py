@@ -145,8 +145,7 @@ class PropertyEditor(QWidget):
         self.mainLayout.addLayout(labelLayout)
         self.switch = QPushButton(self)
         self.switch.pressed.connect(self.switchPressed)
-        self.label = QLabel("Node: %s" % self.name)
-        labelLayout.addWidget(self.label)
+
         labelLayout.addWidget(self.switch)
         labelLayout.addStretch()
 
@@ -190,7 +189,6 @@ class PropertyEditor(QWidget):
           else:
             self.switch.setVisible(0)
 
-          self.label.setText("Node: %s" % self.name)
           frameLayout = QVBoxLayout()
           self.scrollArea = QScrollArea()
           self.scrollArea.setWidgetResizable(True)

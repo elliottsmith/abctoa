@@ -16,24 +16,33 @@ from PySide2.QtCore import *
 from PySide2.QtWidgets import *
 from arnold import *
 from property_widget import *
+
 class PropertyWidgetString(PropertyWidget):
    def __init__(self, controller, param, parent = None):
       PropertyWidget.__init__(self, param, parent)
-      #self.node = node
+      self.controller = controller
       self.paramName = param["name"]
 
       self.widget = QLineEdit(self)
       self.default = param["value"]
+      self.default = ""
 
-
-
-      self.widget.returnPressed.connect(self.TextChanged)
+      self.widget.textEdited.connect(self.TextChanged)
       self.layout().addWidget(self.widget)
-   def TextChanged(self):
 
-      self.propertyChanged.emit(self.paramName)
+   def changed(self, val):
+      self.TextChanged()
+
+   def TextChanged(self):
+      self.controller.mainEditor.propertyChanged(dict(propname=self.paramName, default=self.widget.text() == self.default, value=self.widget.text()))
+
    def __ReadFromArnold(self):
       value = AiNodeGetStr(self.node, self.paramName)
       self.widget.setText(value if value else '')
+
    def __WriteToArnold(self):
       AiNodeSetStr(self.node, self.paramName, str(self.widget.text()))
+
+   def resetValue(self):
+      self.widget.setText(self.default)
+      self.TextChanged()

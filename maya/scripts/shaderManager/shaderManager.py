@@ -281,6 +281,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                                     del j[shader]
 
                             cmds.setAttr('%s.shadersAssignation' % holder, json.dumps(j), type='string')
+                    self.shaderEditor.renameShader(prevName, nodeName)
 
     def newNodeCB(self, newNode, data ):
         """Callback when creating a new node"""

@@ -131,6 +131,43 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.overrideShaders.stateChanged.connect(self.overrideShadersChanged)
         self.overrideProps.stateChanged.connect(self.overridePropsChanged)
         self.wildCardButton.pressed.connect(self.addWildCard)
+        self.geoFilter.textChanged.connect(self.geoFilterChanged)
+        self.transform_check.stateChanged.connect(self.geoFilterChanged)
+        self.shape_check.stateChanged.connect(self.geoFilterChanged)
+
+    def geoFilterChanged(self):
+        """Geo filter callback, selects matching items"""
+
+        # get the filter string
+        filter_string = self.geoFilter.text()
+        types = []
+        if self.transform_check.isChecked():
+            types.append('Transform')
+        if self.shape_check.isChecked():
+            types.append('Shape')
+
+        # expand the hierarchy so it is iterable
+        self.hierarchyWidget.expandAll()
+        _iter = QtWidgets.QTreeWidgetItemIterator(self.hierarchyWidget)
+
+        index = 0
+        while(_iter.value()):
+            item = _iter.value()
+
+            if filter_string != "" and len(filter_string) > 1:
+
+                if filter_string in str(item.text(0)):
+                    if item.itemType in types:
+                        item.setSelected(True)
+                    else:
+                        item.setSelected(False)
+                else:
+                    item.setSelected(False)
+            else:
+                item.setSelected(False)
+
+            index += 1
+            _iter += 1
 
     def showEvent(self, event):
         """Show the main window"""

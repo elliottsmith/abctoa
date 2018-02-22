@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1600</width>
+    <width>1300</width>
     <height>730</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1600</width>
+    <width>1300</width>
     <height>0</height>
    </size>
   </property>
@@ -29,33 +29,6 @@
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="1" column="0" colspan="2">
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="overrideShaders">
-        <property name="text">
-         <string>Override All Shaders</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="overrideProps">
-        <property name="text">
-         <string>Override all object properties</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="3">
        <widget class="QComboBox" name="renderLayer">
         <property name="minimumSize">
@@ -66,20 +39,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QPushButton" name="wildCardButton">
-        <property name="maximumSize">
-         <size>
-          <width>200</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Add WildCard Assignation</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="4">
+      <item row="1" column="0" colspan="4">
        <widget class="QSplitter" name="splitter">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -183,6 +143,88 @@ border: none;
         </widget>
        </widget>
       </item>
+      <item row="2" column="3">
+       <widget class="QPushButton" name="wildCardButton">
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Add WildCard Assignation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QCheckBox" name="transform_check">
+          <property name="text">
+           <string>Xform</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="shape_check">
+          <property name="text">
+           <string>Shape</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Filter:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLineEdit" name="geoFilter">
+        <property name="minimumSize">
+         <size>
+          <width>350</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="overrideProps">
+          <property name="text">
+           <string>Override all object properties</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="overrideShaders">
+          <property name="text">
+           <string>Override All Shaders</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </item>
    </layout>
@@ -192,7 +234,7 @@ border: none;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1600</width>
+     <width>1300</width>
      <height>24</height>
     </rect>
    </property>

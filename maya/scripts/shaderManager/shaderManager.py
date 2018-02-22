@@ -330,6 +330,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             if cmds.getClassification(cmds.nodeType(nodeName), satisfies="shader"):
                 # add shader to scroller
                 self.shaderEditor.addShader(nodeName)
+            elif nodeFn.typeName() == 'renderLayer':
+                self.renderLayer.addItems([nodeName])                
 
     def delNodeCB(self, node, data ):
         """Callback when a node has been deleted"""
@@ -471,7 +473,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 if over:
                     self.overrideProps.setChecked(over["removeProperties"])
                     self.overrideShaders.setChecked(over["removeShaders"])
-                    self.overrideDisps.setChecked(over["removeDisplacements"])
 
         self.updateTree()
         if self.hierarchyWidget.currentItem():

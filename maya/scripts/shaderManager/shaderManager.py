@@ -44,6 +44,16 @@ from maya.OpenMaya import MObjectHandle, MDGMessage, MMessage, MNodeMessage, MFn
 
 d = os.path.dirname(__file__)
 
+def debugger(text, wait=0):
+    """debugger"""
+    if 'time' not in globals().keys():
+        import time
+    
+    if os.environ.has_key('ABCTOA_DEBUG'):
+        if os.environ['ABCTOA_DEBUG']:
+            print "[Debug] %s" % text
+            time.sleep(wait)
+
 class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
     def __init__(self, parent=None):
         """Shader Manager class"""

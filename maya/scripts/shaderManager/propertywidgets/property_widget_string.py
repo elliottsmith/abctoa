@@ -25,7 +25,6 @@ class PropertyWidgetString(PropertyWidget):
 
       self.widget = QLineEdit(self)
       self.default = param["value"]
-      self.default = ""
 
       self.widget.textEdited.connect(self.TextChanged)
       self.layout().addWidget(self.widget)

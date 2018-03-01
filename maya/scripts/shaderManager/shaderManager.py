@@ -145,6 +145,106 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.transform_check.stateChanged.connect(self.geoFilterChanged)
         self.shape_check.stateChanged.connect(self.geoFilterChanged)
 
+        settings_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/layerEditor.png"))        
+        self.layerUtilities.setIcon(settings_pixmap)
+        self.layerUtilities.setIconSize(QtCore.QSize(32, 32))
+        self.layerUtilities.setStyleSheet('QPushButton{border: 0px solid;}')
+        self.layerUtilities.pressed.connect(self.openLayerUtils)
+
+    def openLayerUtils(self):
+        """Open Layer Utilities dialog"""
+
+        def combo_changed(index):
+            """Combo changed slot"""
+            if source_combo.currentText() != target_combo.currentText():
+                confirm_copy.setEnabled(True)
+            else:
+                confirm_copy.setEnabled(False)
+
+        def copy_assignments():
+            """Copy Assignments function"""
+
+            source = source_combo.currentText()
+            target = target_combo.currentText()
+
+            for cache in self.ABCViewerNode:
+
+                if source == "defaultRenderLayer":
+
+                    source_shaders = cmds.getAttr("%s.shadersAssignation" % self.ABCViewerNode[cache].shape)
+                    source_attribs = cmds.getAttr("%s.attributes" % self.ABCViewerNode[cache].shape)                        
+                
+                else:
+                    try:
+                        source_attr = json.loads(cmds.getAttr("%s.layersOverride" % self.ABCViewerNode[cache].shape))
+                    except:
+                        source_attr = {}
+
+                    source_shaders = source_attr[source]["shaders"]
+                    source_attribs = source_attr[source]["properties"]
+
+
+                if target == "defaultRenderLayer":
+
+                    cmds.setAttr('%s.shadersAssignation' % self.ABCViewerNode[cache].shape, json.dumps(source_shaders), type='string')  
+                    cmds.setAttr('%s.attributes' % self.ABCViewerNode[cache].shape, json.dumps(source_attribs), type='string')  
+
+                else:
+                    try:
+                        target_attr = json.loads(cmds.getAttr("%s.layersOverride" % self.ABCViewerNode[cache].shape))
+                    except:
+                        target_attr = {}
+
+
+                    attrs = {}
+                    attrs["shaders"] = source_shaders
+                    attrs["properties"] = source_attribs
+
+                    target_attr[target] = attrs
+
+                    cmds.setAttr('%s.layersOverride' % self.ABCViewerNode[cache].shape, json.dumps(target_attr), type='string')
+
+            self.reset()
+
+            utils.close()
+
+        utils = QtWidgets.QDialog(self)
+        utils.setWindowTitle("Layer Utilities")
+        mainLayout = QtWidgets.QVBoxLayout()
+
+        # copy assignments
+        copy_layer_assignmnets_layout = QtWidgets.QHBoxLayout()
+
+        source_group = QtWidgets.QGroupBox("Source Layer")
+        source_layout = QtWidgets.QHBoxLayout()
+        source_combo = QtWidgets.QComboBox()
+        source_layout.addWidget(source_combo)
+        source_group.setLayout(source_layout)
+
+        target_group = QtWidgets.QGroupBox("Target Layer")
+        target_layout = QtWidgets.QHBoxLayout()
+        target_combo = QtWidgets.QComboBox()
+        target_layout.addWidget(target_combo)
+        target_group.setLayout(target_layout)
+
+        confirm_copy = QtWidgets.QPushButton("Copy Assignments")
+        confirm_copy.setEnabled(False)
+
+        for i in range(self.renderLayer.count()):
+            source_combo.addItem(self.renderLayer.itemText(i))
+            target_combo.addItem(self.renderLayer.itemText(i))
+
+        copy_layer_assignmnets_layout.addWidget(source_group)
+        copy_layer_assignmnets_layout.addWidget(target_group)
+        copy_layer_assignmnets_layout.addWidget(confirm_copy)
+        mainLayout.addLayout(copy_layer_assignmnets_layout)
+        utils.setLayout(mainLayout)
+
+        confirm_copy.clicked.connect(copy_assignments)
+        source_combo.currentIndexChanged.connect(combo_changed)
+        target_combo.currentIndexChanged.connect(combo_changed)
+
+        utils.show()
     def geoFilterChanged(self):
         """Geo filter callback, selects matching items"""
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/UI_ABCHierarchy.ui'
+# Form implementation generated from reading ui file 'shaderManager/ui/UI_ABCHierarchy.ui'
 #
-# Created: Thu Feb 22 13:15:28 2018
+# Created: Wed Feb 28 15:50:51 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,10 +21,6 @@ class Ui_NAM(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.gridLayout = QtGui.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
-        self.renderLayer = QtGui.QComboBox(self.centralwidget)
-        self.renderLayer.setMinimumSize(QtCore.QSize(150, 0))
-        self.renderLayer.setObjectName("renderLayer")
-        self.gridLayout.addWidget(self.renderLayer, 0, 3, 1, 1)
         self.splitter = QtGui.QSplitter(self.centralwidget)
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName("splitter")
@@ -91,11 +87,11 @@ class Ui_NAM(object):
         self.hierarchyWidget.setColumnCount(2)
         self.hierarchyWidget.setObjectName("hierarchyWidget")
         self.hierarchyWidget.header().setVisible(True)
-        self.gridLayout.addWidget(self.splitter, 1, 0, 1, 4)
+        self.gridLayout.addWidget(self.splitter, 1, 0, 1, 5)
         self.wildCardButton = QtGui.QPushButton(self.centralwidget)
         self.wildCardButton.setMaximumSize(QtCore.QSize(200, 16777215))
         self.wildCardButton.setObjectName("wildCardButton")
-        self.gridLayout.addWidget(self.wildCardButton, 2, 3, 1, 1)
+        self.gridLayout.addWidget(self.wildCardButton, 2, 4, 1, 1)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.transform_check = QtGui.QCheckBox(self.centralwidget)
@@ -110,9 +106,22 @@ class Ui_NAM(object):
         self.horizontalLayout.addWidget(self.label)
         self.gridLayout.addLayout(self.horizontalLayout, 2, 0, 1, 1)
         self.geoFilter = QtGui.QLineEdit(self.centralwidget)
-        self.geoFilter.setMinimumSize(QtCore.QSize(350, 0))
+        self.geoFilter.setMinimumSize(QtCore.QSize(250, 0))
         self.geoFilter.setObjectName("geoFilter")
         self.gridLayout.addWidget(self.geoFilter, 2, 2, 1, 1)
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.renderLayer = QtGui.QComboBox(self.centralwidget)
+        self.renderLayer.setMinimumSize(QtCore.QSize(150, 0))
+        self.renderLayer.setObjectName("renderLayer")
+        self.horizontalLayout_3.addWidget(self.renderLayer)
+        self.layerUtilities = QtGui.QPushButton(self.centralwidget)
+        self.layerUtilities.setMinimumSize(QtCore.QSize(32, 32))
+        self.layerUtilities.setMaximumSize(QtCore.QSize(32, 32))
+        self.layerUtilities.setText("")
+        self.layerUtilities.setObjectName("layerUtilities")
+        self.horizontalLayout_3.addWidget(self.layerUtilities)
+        self.gridLayout.addLayout(self.horizontalLayout_3, 0, 4, 1, 1)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)

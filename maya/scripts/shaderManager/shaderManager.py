@@ -139,6 +139,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.disableLayerOverrides()
 
         self.overrideShaders.stateChanged.connect(self.overrideShadersChanged)
+        self.overrideDisps.stateChanged.connect(self.overrideDispsChanged)        
         self.overrideProps.stateChanged.connect(self.overridePropsChanged)
         self.wildCardButton.pressed.connect(self.addWildCard)
         self.geoFilter.textChanged.connect(self.geoFilterChanged)
@@ -149,102 +150,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.layerUtilities.setIcon(settings_pixmap)
         self.layerUtilities.setIconSize(QtCore.QSize(32, 32))
         self.layerUtilities.setStyleSheet('QPushButton{border: 0px solid;}')
-        self.layerUtilities.pressed.connect(self.openLayerUtils)
 
-    def openLayerUtils(self):
-        """Open Layer Utilities dialog"""
-
-        def combo_changed(index):
-            """Combo changed slot"""
-            if source_combo.currentText() != target_combo.currentText():
-                confirm_copy.setEnabled(True)
-            else:
-                confirm_copy.setEnabled(False)
-
-        def copy_assignments():
-            """Copy Assignments function"""
-
-            source = source_combo.currentText()
-            target = target_combo.currentText()
-
-            for cache in self.ABCViewerNode:
-
-                if source == "defaultRenderLayer":
-
-                    source_shaders = cmds.getAttr("%s.shadersAssignation" % self.ABCViewerNode[cache].shape)
-                    source_attribs = cmds.getAttr("%s.attributes" % self.ABCViewerNode[cache].shape)                        
-                
-                else:
-                    try:
-                        source_attr = json.loads(cmds.getAttr("%s.layersOverride" % self.ABCViewerNode[cache].shape))
-                    except:
-                        source_attr = {}
-
-                    source_shaders = source_attr[source]["shaders"]
-                    source_attribs = source_attr[source]["properties"]
-
-
-                if target == "defaultRenderLayer":
-
-                    cmds.setAttr('%s.shadersAssignation' % self.ABCViewerNode[cache].shape, json.dumps(source_shaders), type='string')  
-                    cmds.setAttr('%s.attributes' % self.ABCViewerNode[cache].shape, json.dumps(source_attribs), type='string')  
-
-                else:
-                    try:
-                        target_attr = json.loads(cmds.getAttr("%s.layersOverride" % self.ABCViewerNode[cache].shape))
-                    except:
-                        target_attr = {}
-
-
-                    attrs = {}
-                    attrs["shaders"] = source_shaders
-                    attrs["properties"] = source_attribs
-
-                    target_attr[target] = attrs
-
-                    cmds.setAttr('%s.layersOverride' % self.ABCViewerNode[cache].shape, json.dumps(target_attr), type='string')
-
-            self.reset()
-
-            utils.close()
-
-        utils = QtWidgets.QDialog(self)
-        utils.setWindowTitle("Layer Utilities")
-        mainLayout = QtWidgets.QVBoxLayout()
-
-        # copy assignments
-        copy_layer_assignmnets_layout = QtWidgets.QHBoxLayout()
-
-        source_group = QtWidgets.QGroupBox("Source Layer")
-        source_layout = QtWidgets.QHBoxLayout()
-        source_combo = QtWidgets.QComboBox()
-        source_layout.addWidget(source_combo)
-        source_group.setLayout(source_layout)
-
-        target_group = QtWidgets.QGroupBox("Target Layer")
-        target_layout = QtWidgets.QHBoxLayout()
-        target_combo = QtWidgets.QComboBox()
-        target_layout.addWidget(target_combo)
-        target_group.setLayout(target_layout)
-
-        confirm_copy = QtWidgets.QPushButton("Copy Assignments")
-        confirm_copy.setEnabled(False)
-
-        for i in range(self.renderLayer.count()):
-            source_combo.addItem(self.renderLayer.itemText(i))
-            target_combo.addItem(self.renderLayer.itemText(i))
-
-        copy_layer_assignmnets_layout.addWidget(source_group)
-        copy_layer_assignmnets_layout.addWidget(target_group)
-        copy_layer_assignmnets_layout.addWidget(confirm_copy)
-        mainLayout.addLayout(copy_layer_assignmnets_layout)
-        utils.setLayout(mainLayout)
-
-        confirm_copy.clicked.connect(copy_assignments)
-        source_combo.currentIndexChanged.connect(combo_changed)
-        target_combo.currentIndexChanged.connect(combo_changed)
-
-        utils.show()
     def geoFilterChanged(self):
         """Geo filter callback, selects matching items"""
 
@@ -356,6 +262,22 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         self.updateTree()
 
+    def overrideDispsChanged(self, state):
+        result = True
+        if state == 0:
+            result = False
+
+
+        if self.getLayer() == None:
+            return
+
+        for shape in self.ABCViewerNode:
+            assignations = self.ABCViewerNode[shape].getAssignations()
+            assignations.setRemovedDisplace(self.getLayer(), result)
+
+        self.updateTree()
+
+
     def overridePropsChanged(self, state):
         """Override properties toggle"""
 
@@ -406,14 +328,19 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
             # shader manager is open
             if self.ABCViewerNode != {}:
-
                 if cmds.nodeType(nodeName) == "shadingEngine" or cmds.nodeType(nodeName) == "aiStandardSurface":
-                        # renaming shaders in caches
-                        for cache in self.ABCViewerNode.values():
-                            cache.renameShader(prevName, nodeName)
+                    # renaming shaders in caches
+                    for cache in self.ABCViewerNode.values():
+                        cache.renameShader(prevName, nodeName)
+                    self.shaderEditor.renameShader(prevName, nodeName)
+                    self.checkShaders()
 
-                        self.shaderEditor.renameShader(prevName, nodeName)
-                        self.checkShaders()
+                if cmds.nodeType(nodeName) == "displacementShader":
+                    # renaming shaders in caches
+                    for cache in self.ABCViewerNode.values():
+                        cache.renameDisplacement(prevName, nodeName)
+                    self.shaderEditor.renameShader(prevName, nodeName)
+                    self.checkShaders()
 
             # shader manager isnt open, update the attributes directly
             else:
@@ -433,6 +360,22 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                                     del j[shader]
 
                             cmds.setAttr('%s.shadersAssignation' % holder, json.dumps(j), type='string')
+                    self.shaderEditor.renameShader(prevName, nodeName)
+
+                if cmds.nodeType(nodeName) == "displacementShader":
+
+                    for holder in alembicHolders:
+                        disp_assignments = cmds.getAttr('%s.displacementsAssignation' % holder)
+
+                        if disp_assignments:
+                            j = json.loads(disp_assignments)
+                            for disp in j.keys():
+                                
+                                if disp == prevName:
+                                    j[nodeName] = j[disp]
+                                    del j[disp]
+
+                            cmds.setAttr('%s.displacementsAssignation' % holder, json.dumps(j), type='string')
                     self.shaderEditor.renameShader(prevName, nodeName)
 
     def newNodeCB(self, newNode, data ):
@@ -469,7 +412,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
     def newhierarchyWidgetdragEnterEvent(self, event):
         """Enter event"""
 
-        if event.mimeData().hasFormat("application/x-shader"):
+        if event.mimeData().hasFormat("application/x-shader") or event.mimeData().hasFormat("application/x-displacement"):
             event.accept()
         else:
             event.ignore()
@@ -477,7 +420,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
     def newhierarchyWidgetdragMoveEvent(self, event):
         """Move event"""
 
-        if event.mimeData().hasFormat("application/x-shader"):
+        if event.mimeData().hasFormat("application/x-shader") or event.mimeData().hasFormat("application/x-displacement"):
             event.accept()
         else:
             event.ignore()
@@ -492,6 +435,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         if mime.hasFormat("application/x-shader"):
             mode = 0
             itemData = mime.data("application/x-shader")
+        elif mime.hasFormat("application/x-displacement"):
+            mode = 1
+            itemData = mime.data("application/x-displacement")            
 
         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.ReadOnly)
 
@@ -514,6 +460,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             item.shaderToAssign = shader
             if mode == 0:
                 item.assignShader()
+            elif mode == 1:
+                item.assignDisplacement()                
 
         event.accept()
 
@@ -588,6 +536,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 if over:
                     self.overrideProps.setChecked(over["removeProperties"])
                     self.overrideShaders.setChecked(over["removeShaders"])
+                    self.overrideDisps.setChecked(over["removeDisplacements"])
 
         self.updateTree()
         if self.hierarchyWidget.currentItem():
@@ -621,18 +570,22 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         """Enable layer override"""
 
         self.overrideShaders.setEnabled(1)
+        self.overrideDisps.setEnabled(1)        
         self.overrideProps.setEnabled(1)
 
         self.overrideShaders.setChecked(0)
+        self.overrideDisps.setChecked(0)        
         self.overrideProps.setChecked(0)
 
     def disableLayerOverrides(self):
         """Disable layer override"""
 
         self.overrideShaders.setEnabled(0)
+        self.overrideDisps.setEnabled(0)        
         self.overrideProps.setEnabled(0)
 
         self.overrideShaders.setChecked(0)
+        self.overrideDisps.setChecked(0)        
         self.overrideProps.setChecked(0)
 
     def getLayers(self):

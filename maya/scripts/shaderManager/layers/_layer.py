@@ -58,7 +58,7 @@ class layer(object):
         self.assignation.addOverrides(overrides)
 
     def addDisplacements(self, displacements):
-        self.assignation.AddDisplacements(displacements)
+        self.assignation.addDisplacements(displacements)
 
     def getAssignation(self):
         return self.assignation

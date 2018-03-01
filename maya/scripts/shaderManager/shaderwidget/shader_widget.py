@@ -49,13 +49,17 @@ class Shader(QtWidgets.QGroupBox):
         dataStream << QtCore.QByteArray(str(shader))
 
         mimeData = QtCore.QMimeData()
-        mimeData.setData("application/x-shader", itemData)
+        icon = QtGui.QIcon()
+
+        if cmds.nodeType(shader) == 'displacementShader':
+            mimeData.setData("application/x-displacement", itemData)
+            icon.addFile(os.path.join(d, "../../../icons/sgblue.xpm"), QtCore.QSize(25,25))
+        else:
+            mimeData.setData("application/x-shader", itemData)
+            icon.addFile(os.path.join(d, "../../../icons/sg.xpm"), QtCore.QSize(25,25))
+
         drag = QtGui.QDrag(self)
         drag.setMimeData(mimeData)
-
-        icon = QtGui.QIcon()
-        icon.addFile(os.path.join(d, "../../../icons/sg.xpm"), QtCore.QSize(25,25))
-
         drag.setPixmap(icon.pixmap(50,50))
         drag.setHotSpot(QtCore.QPoint(0,0))
         drag.start(QtCore.Qt.MoveAction)

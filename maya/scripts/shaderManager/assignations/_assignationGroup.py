@@ -217,9 +217,9 @@ class assignationGroup(object):
 
     def renameDisplacement(self, oldname, newname):
         ''' rename a displacement shader  '''
-        if oldname in self.displacements:
-            self.displacements[newname] = self.displacements[oldname]
-            del self.displacements[oldname]
+        if oldname + '.message' in self.displacements:
+            self.displacements[newname + '.message'] = self.displacements[oldname + '.message']
+            del self.displacements[oldname + '.message']
 
     def assignShader(self, path, shader):
         toRemove = []

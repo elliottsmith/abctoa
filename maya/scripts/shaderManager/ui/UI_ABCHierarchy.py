@@ -152,7 +152,7 @@ class Ui_NAM(object):
         self.wildCardButton.setText(QtGui.QApplication.translate("NAM", "Add WildCard Assignation", None, QtGui.QApplication.UnicodeUTF8))
         self.transform_check.setText(QtGui.QApplication.translate("NAM", "Xform", None, QtGui.QApplication.UnicodeUTF8))
         self.shape_check.setText(QtGui.QApplication.translate("NAM", "Shape", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("NAM", "Filter:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("NAM", "Select:", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideProps.setText(QtGui.QApplication.translate("NAM", "Override properties", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideShaders.setText(QtGui.QApplication.translate("NAM", "Override shaders", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideDisps.setText(QtGui.QApplication.translate("NAM", "Override displacements", None, QtGui.QApplication.UnicodeUTF8))

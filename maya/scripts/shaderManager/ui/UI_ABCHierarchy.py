@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'shaderManager/ui/UI_ABCHierarchy.ui'
 #
-# Created: Thu Mar  1 17:45:25 2018
+# Created: Fri Mar  2 10:27:55 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -48,12 +48,6 @@ class Ui_NAM(object):
         self.renderLayer.setMinimumSize(QtCore.QSize(150, 0))
         self.renderLayer.setObjectName("renderLayer")
         self.horizontalLayout_3.addWidget(self.renderLayer)
-        self.layerUtilities = QtGui.QPushButton(self.centralwidget)
-        self.layerUtilities.setMinimumSize(QtCore.QSize(32, 32))
-        self.layerUtilities.setMaximumSize(QtCore.QSize(32, 32))
-        self.layerUtilities.setText("")
-        self.layerUtilities.setObjectName("layerUtilities")
-        self.horizontalLayout_3.addWidget(self.layerUtilities)
         self.gridLayout.addLayout(self.horizontalLayout_3, 0, 4, 1, 1)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")

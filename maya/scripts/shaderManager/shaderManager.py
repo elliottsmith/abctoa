@@ -146,11 +146,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.transform_check.stateChanged.connect(self.geoFilterChanged)
         self.shape_check.stateChanged.connect(self.geoFilterChanged)
 
-        settings_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/layerEditor.png"))        
-        self.layerUtilities.setIcon(settings_pixmap)
-        self.layerUtilities.setIconSize(QtCore.QSize(32, 32))
-        self.layerUtilities.setStyleSheet('QPushButton{border: 0px solid;}')
-
     def geoFilterChanged(self):
         """Geo filter callback, selects matching items"""
 

@@ -42,8 +42,6 @@
 #include "json/json.h"
 #include "json/value.h"
 
-
-
 void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std::string>& tags, ProcArgs & args)
 {
     bool foundInPath = false;
@@ -87,21 +85,45 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
         {
             for( Json::ValueIterator itr = overrides.begin() ; itr != overrides.end() ; itr++ )
             {
-                std::string attribute = itr.key().asString();
-                
+                std::string attribute = itr.key().asString();                
                 const AtNodeEntry* nodeEntry = AiNodeGetNodeEntry(node);
                 const AtParamEntry* paramEntry = AiNodeEntryLookUpParameter(nodeEntry, attribute.c_str());
 
                 if ( paramEntry != NULL)
                 {
                     Json::Value val = args.attributesRoot[*it][itr.key().asString()];
-                    if( val.isString() )
+
+                    if( val.isString() ) 
+                    {
                         AiNodeSetStr(node, attribute.c_str(), val.asCString());
-                    else if( val.isBool() )
+                    } else if( val.isArray() ) 
+                    {
+                        // build array
+                        int size_of_array = val.size();
+                        float data[size_of_array];
+                        for(unsigned int index=0; index<val.size(); ++index) 
+                        {
+                            data[index] = val[index].asDouble();
+                        }
+
+                        int data_length = sizeof(data)/sizeof(*data);
+                        int typeEntry = AiParamGetType(paramEntry);
+                      
+                        if(typeEntry == AI_TYPE_ARRAY)
+                            AiNodeSetArray(node, attribute.c_str(), AiArrayConvert(data_length, 1, AI_TYPE_FLOAT, data));
+                        else if (typeEntry == AI_TYPE_RGB)
+                            AiNodeSetRGB(node, attribute.c_str(), data[0], data[1], data[2]);                        
+                        else if (typeEntry == AI_TYPE_RGBA)
+                            AiNodeSetRGBA(node, attribute.c_str(), data[0], data[1], data[2], data[3]);    
+
+
+                    } else if( val.isBool() ) 
+                    {
                         AiNodeSetBool(node, attribute.c_str(), val.asBool());
-                    else if ( val.type() == Json::realValue )
+                    } else if ( val.type() == Json::realValue )
+                    {
                         AiNodeSetFlt(node, attribute.c_str(), val.asDouble());
-                    else if( val.isInt() )
+                    } else if( val.isInt() )
                     {
                         //make the difference between Byte & int!
                         int typeEntry = AiParamGetType(paramEntry);
@@ -165,11 +187,13 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
                             AiNodeSetInt(node, attribute.c_str(), val.asInt());
                     }
                     else if( val.isUInt() )
+                    {
                         AiNodeSetUInt(node, attribute.c_str(), val.asUInt());
+                    }
                 }
             }
         }
-    }
+    }    
 }
 
 AtNode* getShader(const std::string& name, const std::vector<std::string>& tags, ProcArgs & args)
@@ -231,6 +255,7 @@ AtNode* getShaderByName(const std::string& name, ProcArgs & args)
 
 bool ApplyShaders(const std::string& name, AtNode* node, const std::vector<std::string>& tags, ProcArgs & args)
 {
+
     AtNode* appliedShader = getShader(name, tags, args);
 
     if(ApplyShader(name, node, appliedShader))
@@ -240,8 +265,10 @@ bool ApplyShaders(const std::string& name, AtNode* node, const std::vector<std::
     else
     {
         AtArray* shaders = AiNodeGetArray(args.proceduralNode, "shader");
-        if (AiArrayGetNumElements(shaders) != 0)
+
+        if (AiArrayGetNumElements(shaders) != 0) {
             AiNodeSetArray(node, "shader", AiArrayCopy(shaders));
+        }
 		return false;
     }
 }

@@ -79,7 +79,9 @@ PROPERTY_ADD_LIST = {
                     {'name' :'velocity_multiplier', 'type': AI_TYPE_FLOAT, 'value' : 1.0}
                     ],                    
 'mesh_light'    :  [
-                    {'name' :'convert_to_mesh_light', 'type': AI_TYPE_BOOLEAN, 'value' : False}
+                    {'name' :'convert_to_mesh_light', 'type': AI_TYPE_BOOLEAN, 'value' : False},
+                    {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
+                    {'name' :'color_temperature', 'type': AI_TYPE_FLOAT, 'value' : 6500}                    
                    ],               
 'point_light'    :  [
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},

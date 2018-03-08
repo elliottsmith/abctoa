@@ -2129,7 +2129,12 @@
                 "name": "cast_volumetric_shadows", 
                 "type": 3, 
                 "value": true
-            }, 
+            },
+            {
+                "name": "light_visible", 
+                "type": 3, 
+                "value": false
+            },             
             {
                 "name": "shadow_density", 
                 "type": 4, 

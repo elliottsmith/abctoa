@@ -185,8 +185,10 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         windowname = "hyperShadePanel1Window"
         if cmds.window(windowname, exists=True):
-            cmds.deleteUI(windowname)
-        mel.eval("HypershadeWindow;")
+            pass
+        else:
+            print 'Opening Hypershade'
+            mel.eval("HypershadeWindow;")
 
         self.reset()
         return QtWidgets.QMainWindow.showEvent(self, event)

@@ -200,8 +200,12 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.reset()
         return QtWidgets.QMainWindow.hideEvent(self, event)
 
-    def reset(self, *args, **kwargs):
+    def reset(self, shape=None, *args, **kwargs):
         """Reset the main window to initial state"""
+
+        if shape:
+            if cmds.objExists(shape):
+                cmds.select(shape)
 
         try:
             self.renderLayer.currentIndexChanged.disconnect()

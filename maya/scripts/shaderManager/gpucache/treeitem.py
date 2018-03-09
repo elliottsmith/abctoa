@@ -338,6 +338,8 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
             layerOverrides = self.cacheAssignations.getLayerOverrides(layer)
             if not layerOverrides:
                 layerOverrides = dict(removeDisplacements=False, removeProperties=False, removeShaders=False)
+        else:
+            layerOverrides = dict(removeDisplacements=False, removeProperties=False, removeShaders=False)
 
         if not shader and layer != None and layerOverrides["removeShaders"] == False:
             shader = self.cacheAssignations.getShader(path, None)

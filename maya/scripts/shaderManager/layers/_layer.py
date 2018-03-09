@@ -101,3 +101,7 @@ class layer(object):
 
     def getAllTags(self):
         return self.gpucache.getAllTags()
+
+    def renameLayer(self, layername):
+        self.layerName = layername
+        self.assignation.fromLayer = layername

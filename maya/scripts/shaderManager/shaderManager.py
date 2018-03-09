@@ -279,7 +279,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         self.updateTree()
 
-
     def overridePropsChanged(self, state):
         """Override properties toggle"""
 
@@ -346,57 +345,44 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             if not cmds.objExists(nodeName):
                 return
 
-            # shader manager is open
+            if self.ABCViewerNode == {}:
+                # if empty, select all alembicHolder nodes and load them
+                cmds.select(cmds.ls(type= 'alembicHolder'))
+                self.getNode()
+
             if self.ABCViewerNode != {}:
-                if cmds.nodeType(nodeName) == "shadingEngine" or cmds.nodeType(nodeName) == "aiStandardSurface":
+                # Shader Manager is open
+                if cmds.getClassification(cmds.nodeType(nodeName), satisfies="shader"):
+
+                    if cmds.nodeType(nodeName) == "displacementShader":
+                        # renaming shaders in caches
+                        for cache in self.ABCViewerNode.values():
+                            cache.renameDisplacement(prevName, nodeName)
+                        self.shaderEditor.renameShader(prevName, nodeName)                        
+                        self.checkShaders()
+                    else:
+                        # renaming shaders in caches
+                        for cache in self.ABCViewerNode.values():
+                            cache.renameShader(prevName, nodeName)
+                        self.shaderEditor.renameShader(prevName, nodeName)                        
+                        self.checkShaders()
+
+                elif cmds.nodeType(nodeName) == "shadingEngine":
                     # renaming shaders in caches
                     for cache in self.ABCViewerNode.values():
                         cache.renameShader(prevName, nodeName)
                     self.shaderEditor.renameShader(prevName, nodeName)
                     self.checkShaders()
 
-                if cmds.nodeType(nodeName) == "displacementShader":
-                    # renaming shaders in caches
+                elif cmds.nodeType(nodeName) == "renderLayer":
+
                     for cache in self.ABCViewerNode.values():
-                        cache.renameDisplacement(prevName, nodeName)
-                    self.shaderEditor.renameShader(prevName, nodeName)
-                    self.checkShaders()
+                        cache.assignations.layers.renameLayer(prevName, nodeName)
+                        cache.assignations.writeLayer()
 
-            # shader manager isnt open, update the attributes directly
-            else:
-                alembicHolders = cmds.ls(dag=True, leaf=True, visible=True, type='alembicHolder', l=True)
-
-                if cmds.nodeType(nodeName) == "shadingEngine" or cmds.nodeType(nodeName) == "aiStandardSurface":
-
-                    for holder in alembicHolders:
-                        shader_assignments = cmds.getAttr('%s.shadersAssignation' % holder)
-
-                        if shader_assignments:
-                            j = json.loads(shader_assignments)
-                            for shader in j.keys():
-                                
-                                if shader == prevName:
-                                    j[nodeName] = j[shader]
-                                    del j[shader]
-
-                            cmds.setAttr('%s.shadersAssignation' % holder, json.dumps(j), type='string')
-                    self.shaderEditor.renameShader(prevName, nodeName)
-
-                if cmds.nodeType(nodeName) == "displacementShader":
-
-                    for holder in alembicHolders:
-                        disp_assignments = cmds.getAttr('%s.displacementsAssignation' % holder)
-
-                        if disp_assignments:
-                            j = json.loads(disp_assignments)
-                            for disp in j.keys():
-                                
-                                if disp == prevName:
-                                    j[nodeName] = j[disp]
-                                    del j[disp]
-
-                            cmds.setAttr('%s.displacementsAssignation' % holder, json.dumps(j), type='string')
-                    self.shaderEditor.renameShader(prevName, nodeName)
+                    # update the layers combo
+                    self.getLayers()
+                    self.setLayer(nodeName)
 
     def newNodeCB(self, newNode, data ):
         """Callback when creating a new node"""
@@ -529,6 +515,13 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         except:
             pass
 
+    def setLayer(self, layername):
+        """"""
+        idx = self.renderLayer.findText(layername)
+        if idx != -1:
+            self.renderLayer.setCurrentIndex(idx)
+        self.curLayer = layername       
+
     def setCurrentLayer(self):
         """Set current layer"""
 
@@ -545,6 +538,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         """Layer changed slot"""
 
         self.curLayer = self.renderLayer.itemText(index)
+
         if self.curLayer == "defaultRenderLayer":
             self.disableLayerOverrides()
         else:
@@ -559,13 +553,15 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                     self.overrideDisps.setChecked(over["removeDisplacements"])
 
         self.updateTree()
+
         if self.hierarchyWidget.currentItem():
             self.itemCLicked(self.hierarchyWidget.currentItem(), 0, force=True)
 
         # change it in maya too
         curLayer = cmds.editRenderLayerGlobals(query=1, currentRenderLayer=1)
-        if curLayer != self.curLayer:
-            cmds.editRenderLayerGlobals( currentRenderLayer=self.curLayer)
+        if self.curLayer:
+            if curLayer != self.curLayer:
+                cmds.editRenderLayerGlobals( currentRenderLayer=self.curLayer)
 
     def updateTree(self):
         """Update alembic tree"""

@@ -38,6 +38,11 @@ class Layers(object):
             if "removeDisplacements" in layerdata:
                 self.layers[layername].setRemovedDisplace(layerdata["removeDisplacements"])
 
+    def renameLayer(self, oldname, newname):
+        if oldname in self.layers:
+            self.layers[oldname].renameLayer(newname)
+            self.layers[newname] = self.layers.pop(oldname)
+
     def addLayers(self, layers, fromfile=False):
         for layer in layers:
             self.addLayer(layer, layers[layer])

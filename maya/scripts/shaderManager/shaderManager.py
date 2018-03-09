@@ -141,6 +141,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.overrideShaders.stateChanged.connect(self.overrideShadersChanged)
         self.overrideDisps.stateChanged.connect(self.overrideDispsChanged)        
         self.overrideProps.stateChanged.connect(self.overridePropsChanged)
+        self.soloSelected.stateChanged.connect(self.soloSelectedChanged)        
         self.wildCardButton.pressed.connect(self.addWildCard)
         self.geoFilter.textChanged.connect(self.geoFilterChanged)
         self.transform_check.stateChanged.connect(self.geoFilterChanged)
@@ -290,6 +291,24 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             assignations.setRemovedProperties(self.getLayer(), result)
 
         self.updateTree()
+
+    def soloSelectedChanged(self, state):
+        """Solo selected toggle"""
+
+        if state == 0:
+            for cache in self.ABCViewerNode.values():
+                cache.setSelection([])
+        else:
+            for cache in self.ABCViewerNode.values():
+
+                allSelected = []
+                for item in self.hierarchyWidget.selectedItems():
+                    if item.isTag == False and item.isWildCard == False:
+                        allSelected.append(item.getPath())
+
+                if "/" in allSelected:
+                    allSelected = []
+                cache.setSelection(allSelected)
 
     def createSG(self, node):
         """Create a shading group if node doesn't have one"""
@@ -735,7 +754,10 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         if "/" in allSelected:
             allSelected = []
 
-        cache.setSelection(allSelected)
+        if self.soloSelected.isChecked():
+            cache.setSelection(allSelected)
+        else:
+            cache.setSelection([])
 
         self.propertyEditor.resetToDefault()
         self.updateAttributeEditor()

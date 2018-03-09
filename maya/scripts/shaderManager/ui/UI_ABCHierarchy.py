@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'shaderManager/ui/UI_ABCHierarchy.ui'
+# Form implementation generated from reading ui file 'maya/scripts/shaderManager/ui/UI_ABCHierarchy.ui'
 #
-# Created: Fri Mar  2 10:27:55 2018
+# Created: Fri Mar  9 14:53:04 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -60,6 +60,11 @@ class Ui_NAM(object):
         self.overrideDisps = QtGui.QCheckBox(self.centralwidget)
         self.overrideDisps.setObjectName("overrideDisps")
         self.horizontalLayout_2.addWidget(self.overrideDisps)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem)
+        self.soloSelected = QtGui.QCheckBox(self.centralwidget)
+        self.soloSelected.setObjectName("soloSelected")
+        self.horizontalLayout_2.addWidget(self.soloSelected)
         self.gridLayout.addLayout(self.horizontalLayout_2, 0, 2, 1, 1)
         self.splitter = QtGui.QSplitter(self.centralwidget)
         self.splitter.setOrientation(QtCore.Qt.Vertical)
@@ -150,6 +155,7 @@ class Ui_NAM(object):
         self.overrideProps.setText(QtGui.QApplication.translate("NAM", "Override properties", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideShaders.setText(QtGui.QApplication.translate("NAM", "Override shaders", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideDisps.setText(QtGui.QApplication.translate("NAM", "Override displacements", None, QtGui.QApplication.UnicodeUTF8))
+        self.soloSelected.setText(QtGui.QApplication.translate("NAM", "Solo Selected", None, QtGui.QApplication.UnicodeUTF8))
         self.hierarchyWidget.setSortingEnabled(False)
         self.hierarchyWidget.headerItem().setText(0, QtGui.QApplication.translate("NAM", "ABC Hierarchy", None, QtGui.QApplication.UnicodeUTF8))
         self.hierarchyWidget.headerItem().setText(1, QtGui.QApplication.translate("NAM", "shaders", None, QtGui.QApplication.UnicodeUTF8))

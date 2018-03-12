@@ -345,27 +345,28 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             if not cmds.objExists(nodeName):
                 return
 
-            if self.ABCViewerNode == {}:
-                # if empty, select all alembicHolder nodes and load them
-                cmds.select(cmds.ls(type= 'alembicHolder'))
-                self.getNode()
+            # we need to ensure that we are updating all the caches, not just the one selected
+            current_selection = cmds.ls(sl=True)
+            cmds.select(cmds.ls(type= 'alembicHolder'))
+            self.getNode()
 
             if self.ABCViewerNode != {}:
-                # Shader Manager is open
+
                 if cmds.getClassification(cmds.nodeType(nodeName), satisfies="shader"):
 
                     if cmds.nodeType(nodeName) == "displacementShader":
                         # renaming shaders in caches
                         for cache in self.ABCViewerNode.values():
                             cache.renameDisplacement(prevName, nodeName)
-                        self.shaderEditor.renameShader(prevName, nodeName)                        
-                        self.checkShaders()
+                            self.reset(shape=cache.shape)
+                        self.shaderEditor.renameShader(prevName, nodeName)
+
                     else:
                         # renaming shaders in caches
                         for cache in self.ABCViewerNode.values():
                             cache.renameShader(prevName, nodeName)
-                        self.shaderEditor.renameShader(prevName, nodeName)                        
-                        self.checkShaders()
+                            self.reset(shape=cache.shape)
+                        self.shaderEditor.renameShader(prevName, nodeName)
 
                 elif cmds.nodeType(nodeName) == "shadingEngine":
                     # renaming shaders in caches
@@ -383,6 +384,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                     # update the layers combo
                     self.getLayers()
                     self.setLayer(nodeName)
+
+            cmds.select(current_selection)
 
     def newNodeCB(self, newNode, data ):
         """Callback when creating a new node"""

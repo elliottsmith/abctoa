@@ -90,7 +90,6 @@ class Layers(object):
             return self.layers[layer].getOverrideValue(path, propname)
         return None
 
-
     def updateOverride(self, propName, default, value, curPath, layer):
         if layer in self.layers:
             self.layers[layer].updateOverride(propName, default, value, curPath)
@@ -102,7 +101,6 @@ class Layers(object):
                 properties[curPath][propName] = value
                 self.addLayer(layer, dict(properties=properties))
                 self.writeLayer()
-
 
     def removeShader(self, shader):
         ''' remove a shader '''
@@ -134,8 +132,6 @@ class Layers(object):
 
         self.writeLayer()
 
-
-
     def assignDisplacement(self, layer, path, shader):
         if layer in self.layers:
             self.layers[layer].assignDisplacement(path, shader)
@@ -145,7 +141,6 @@ class Layers(object):
             self.addLayer(layer, dict(displacements=shaders))
 
         self.writeLayer()
-
 
     def removeOverride(self, layer, curPath, propName):
         if layer in self.layers:

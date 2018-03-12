@@ -11,9 +11,8 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library.
 
-from pprint import pprint
 import fnmatch
-import re
+import re, copy
 
 class assignationGroup(object):
     def __init__(self, parent=None, gpucache=None, fromFile = False, fromlayer = None):
@@ -44,7 +43,6 @@ class assignationGroup(object):
 
             if len(self.overrides[curPath]) == 0:
                 del self.overrides[curPath]
-
 
     def updateOverride(self, propName, default, value, curPath):
         if not default:
@@ -78,7 +76,6 @@ class assignationGroup(object):
 
 
         return validPath
-
 
     def getShaderFromPath(self, path):
         for shader in self.shaders:
@@ -151,7 +148,6 @@ class assignationGroup(object):
     def getOverrides(self):
         return self.overrides
 
-
     def getOverridesFromPath(self, path, onlyInherited=False):
         ''' Get all overrides of a path (inherited included) '''
 
@@ -192,7 +188,6 @@ class assignationGroup(object):
                 return self.overrides[path][prop]
         return None
 
-
     def createShaderEntity(self, shader, inherited= False):
         return dict(shader=shader, fromfile=self.fromFile, inherited = inherited, fromlayer=self.fromLayer)
 
@@ -212,7 +207,7 @@ class assignationGroup(object):
     def renameShader(self, oldname, newname):
         ''' rename a shader  '''
         if oldname in self.shaders:
-            self.shaders[newname] = self.shaders[oldname]
+            self.shaders[newname] = copy.copy(self.shaders[oldname])
             del self.shaders[oldname]
 
     def renameDisplacement(self, oldname, newname):
@@ -277,7 +272,6 @@ class assignationGroup(object):
         for shaderToRemove in toRemove:
             del self.displacements[shaderToRemove]
 
-
     def getShaders(self):
         return self.shaders
 
@@ -319,7 +313,6 @@ class assignationGroup(object):
                     if not path in wilds:
                         wilds.append(dict(name=path, fromfile=self.fromFile))
         return wilds
-
 
     def getDisplacements(self):
         return self.displacements

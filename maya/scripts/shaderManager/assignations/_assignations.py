@@ -26,7 +26,6 @@ class cacheAssignations(object):
         self.layers = Layers(self, self.gpucache)
         self.layersFromFile = Layers(self, self.gpucache, fromFile=True)
 
-
     def writeLayer(self):
         fromfiledict = self.layersFromFile.getLayerDict()
         layerdict = self.layers.getLayerDict()
@@ -97,7 +96,6 @@ class cacheAssignations(object):
             self.layers.addLayers(layers, fromFile)
         else:
             self.layersFromFile.addLayers(layers, fromFile)
-
 
     def getShader(self, path, layer):
         shader = None
@@ -189,14 +187,12 @@ class cacheAssignations(object):
 
         return overrides
 
-
     def getLayerOverrides(self, layer):
         layerOverrides = None
         layerOverrides = self.layers.getLayerOverrides(layer)
         if not layerOverrides:
             layerOverrides = self.layersFromFile.getLayerOverrides(layer)
         return layerOverrides
-
 
     def setRemovedShader(self, layer, state):
         self.layers.setRemovedShader(layer, state)
@@ -206,7 +202,6 @@ class cacheAssignations(object):
 
     def setRemovedProperties(self, layer, state):
         self.layers.setRemovedProperties(layer, state)
-
 
     def getPropertyState(self, layer, propName, curPath):
 
@@ -229,7 +224,6 @@ class cacheAssignations(object):
 
         return 0
 
-
     def updateOverride(self, propName, default, value, curPath, layer):
         ''' Update overrides'''
         valueInherited = None
@@ -241,7 +235,6 @@ class cacheAssignations(object):
 
             if fromFile or inherited:
                 valueInherited = attributes[propName].get("override", value)
-
 
         if valueInherited != None:
             if valueInherited != value:
@@ -271,8 +264,6 @@ class cacheAssignations(object):
 
         self.parent.updateConnections()
 
-
-
     def assignDisplacement(self, layer, path, shader):
         if layer == None:
             self.mainAssignations.assignDisplacement(path, shader)
@@ -301,9 +292,9 @@ class cacheAssignations(object):
     def renameShader(self, oldname, newname):
         ''' rename a shader '''
         self.mainAssignations.renameShader(oldname, newname)
-        self.layers.renameShader(oldname, newname)
-
+        self.layers.renameShader(oldname, newname)        
         self.parent.updateShaders(self.mainAssignations.getShaders())
+        self.parent.updateLayerOverrides(self.layers.getLayerDict())
         self.parent.updateConnections()
 
     def renameDisplacement(self, oldname, newname):
@@ -312,4 +303,5 @@ class cacheAssignations(object):
         self.layers.renameDisplacement(oldname, newname)
         
         self.parent.updateDisplacements(self.mainAssignations.getDisplacements())
+        self.parent.updateLayerOverrides(self.layers.getLayerDict())        
         self.parent.updateConnections()        

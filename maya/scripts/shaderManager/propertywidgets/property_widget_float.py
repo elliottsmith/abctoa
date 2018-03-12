@@ -26,38 +26,24 @@ class PropertyWidgetFloat(PropertyWidget):
       self.controller = controller
       self.controller.setPropertyValue.connect(self.changed)
       self.controller.reset.connect(self.resetValue)
-
       self.default = param["value"]
 
       self.widget = NoScrollQDoubleSpinBox(self)
-
-      self.widget.setValue(self.default)
       self.widget.setSingleStep(0.1)
       self.widget.setMaximum(9999)
       self.widget.setMinimum(-999)
-      # if AiMetaDataGetFlt(nentry, name, "min", byref(data)):
-      #    self.widget.setMinimum(data.value)
-      # if AiMetaDataGetFlt(nentry, name, "max", byref(data)):
-      #    self.widget.setMaximum(data.value)
-      # if AiMetaDataGetFlt(nentry, name, "self.default", byref(data)):
-      #    self.widget.setValue(data.value)
-      #    self.ValueChanged(data.value)
-      # else:
-      #    self.__ReadFromArnold()
-
-      #self.widget.editingFinished.connect(self.ValueChanged)
+      self.widget.setValue(self.default)      
       self.widget.valueChanged.connect(self.ValueChanged)
 
       self.layout().addWidget(self.widget)
+
    def ValueChanged(self, value):
       self.controller.mainEditor.propertyChanged(dict(propname=self.paramName, default=value == self.default, value=value))
-
 
    def changed(self, message):
 
       value = message["value"]
       self.widget.setValue(value)
-
 
    def resetValue(self):
       self.widget.setValue(self.default)

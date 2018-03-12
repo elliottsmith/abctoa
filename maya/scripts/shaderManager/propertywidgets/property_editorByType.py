@@ -145,14 +145,31 @@ class PropertyEditor(QWidget):
         self.scrollArea = None
         labelLayout = QHBoxLayout()
         self.mainLayout.addLayout(labelLayout)
-        self.switch = QPushButton(self)
-        self.switch.pressed.connect(self.switchPressed)
 
-        labelLayout.addWidget(self.switch)
-        labelLayout.addStretch()
+        self.attributes = QPushButton("Poly Mesh Attributes")
+        self.attributes.pressed.connect(self.attributesPressed)
+        self.attributes.setEnabled(False)
+
+        self.mesh_attributes = QPushButton("Mesh Light Attributes")
+        self.mesh_attributes.pressed.connect(self.meshAttributesPressed)
+
+        labelLayout.addWidget(self.attributes)
+        labelLayout.addWidget(self.mesh_attributes)
 
         self.propertyWidgets = {}
         self.resetTo(nodetype)
+
+    def attributesPressed(self):
+      """"""
+      self.attributes.setEnabled(False)
+      self.mesh_attributes.setEnabled(True)
+      self.resetTo("polymesh")
+
+    def meshAttributesPressed(self):
+      """"""
+      self.attributes.setEnabled(True)
+      self.mesh_attributes.setEnabled(False)
+      self.resetTo("mesh_light")
 
     def propertyValue(self, message):
       param = message["paramname"]
@@ -181,15 +198,6 @@ class PropertyEditor(QWidget):
       self.node = self.nodes[self.name]
 
       if self.node:
-          if nodetype == "polymesh":
-            #for polymesh, we are adding meshlight.
-            self.switch.setText("Mesh Light")
-            self.switch.setVisible(1)
-          elif nodetype == "mesh_light":
-            self.switch.setText("Polymesh")
-            self.switch.setVisible(1)
-          else:
-            self.switch.setVisible(0)
 
           frameLayout = QVBoxLayout()
           self.scrollArea = QScrollArea()
@@ -263,11 +271,3 @@ class PropertyEditor(QWidget):
       if widget and userData:
          widget.setBackgroundRole(QPalette.Base)
       return widget
-
-    def switchPressed(self):
-      if self.name == "polymesh":
-        self.switch.setText("Polymesh")
-        self.resetTo("mesh_light")
-      else:
-        self.switch.setText("Mesh Light")
-        self.resetTo("polymesh")

@@ -95,7 +95,7 @@ class abcClass():
 
         if self.data['abcShadersAttr'] != '':
             abcfile = self.data['abcShadersAttr']
-            mayafile = abcfile + '.ma'
+            mayafile = abcfile.replace('.abc', '.ma')
 
             if os.path.isfile(mayafile):
                 if not namespace:

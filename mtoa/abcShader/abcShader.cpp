@@ -158,3 +158,7 @@ void CAbcShaderTranslator::Export(AtNode* shader)
 
 
 }
+
+void CAbcShaderTranslator::NodeInitializer(CAbTranslator context){
+
+}

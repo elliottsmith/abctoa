@@ -302,3 +302,8 @@ void CABCViewerTranslator::ExportMotion(AtNode* anode)
 
     ExportMatrix(anode);
 }
+
+
+void CABCViewerTranslator::NodeInitializer(CAbTranslator context){
+
+}

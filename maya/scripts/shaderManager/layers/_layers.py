@@ -22,6 +22,7 @@ class Layers(object):
         self.layers = {}
 
     def addLayer(self, layername, layerdata):
+
         if not layername in self.layers:
             self.layers[layername] = layer(self, self.gpucache, layername, self.fromFile)
             if "shaders" in layerdata:

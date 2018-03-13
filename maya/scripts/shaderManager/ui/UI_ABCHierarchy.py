@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'maya/scripts/shaderManager/ui/UI_ABCHierarchy.ui'
 #
-# Created: Fri Mar  9 14:53:04 2018
+# Created: Mon Mar 12 17:27:54 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -48,6 +48,12 @@ class Ui_NAM(object):
         self.renderLayer.setMinimumSize(QtCore.QSize(150, 0))
         self.renderLayer.setObjectName("renderLayer")
         self.horizontalLayout_3.addWidget(self.renderLayer)
+        self.layers_btn = QtGui.QPushButton(self.centralwidget)
+        self.layers_btn.setMinimumSize(QtCore.QSize(20, 20))
+        self.layers_btn.setMaximumSize(QtCore.QSize(20, 20))
+        self.layers_btn.setText("")
+        self.layers_btn.setObjectName("layers_btn")
+        self.horizontalLayout_3.addWidget(self.layers_btn)
         self.gridLayout.addLayout(self.horizontalLayout_3, 0, 4, 1, 1)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")

@@ -42,7 +42,6 @@ class gpucache(object):
         ''' check if this cache is still valid'''
         return cmds.objExists(self.shape)
 
-
     def getNamedObj(self, iObjTop, objectPath=""):
         nextChildHeader = iObjTop.getHeader()
         nextParentObject = iObjTop
@@ -173,7 +172,6 @@ class gpucache(object):
             if self.ABCcache:
                 self.archive = IArchive(self.ABCcache)
 
-
     def getShadersAttributes(self):
         results = []
         if self.archive:
@@ -231,8 +229,6 @@ class gpucache(object):
             allowedTags.append(shAttr)
         self.tags = {}
         self.visitShaderAttributeAndTags(aTop, allowedTags, self.tags)
-
-
 
     def updateShaders(self, shaders):
         if self.isValid():

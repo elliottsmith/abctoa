@@ -36,6 +36,9 @@ reload(shader_widget)
 from ui import UI_ABCHierarchy
 reload(UI_ABCHierarchy)
 
+from alembicExport import exportManager
+reload(exportManager)
+
 # arnold / maya
 from arnold import *
 import maya.cmds as cmds
@@ -119,6 +122,10 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.curPath = ""
         self.ABCcurPath = ""
 
+        self.layers_pixmap = QtGui.QPixmap(os.path.join(d, "../../icons/layerEditor.png"))
+        self.layers_btn.setIconSize(QtCore.QSize(18, 18))
+        self.layers_btn.setIcon(self.layers_pixmap)
+
         # signals, slots and callbacks
         self.hierarchyWidget.itemDoubleClicked.connect(self.itemDoubleClicked)
         self.hierarchyWidget.itemExpanded.connect(self.requireItemExpanded)
@@ -146,6 +153,12 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.geoFilter.textChanged.connect(self.geoFilterChanged)
         self.transform_check.stateChanged.connect(self.geoFilterChanged)
         self.shape_check.stateChanged.connect(self.geoFilterChanged)
+        self.layers_btn.clicked.connect(self.layers_clicked)
+
+    def layers_clicked(self):
+        """"""
+        layers_copy = exportManager.CopyLayers(self)
+        layers_copy.show()
 
     def geoFilterChanged(self):
         """Geo filter callback, selects matching items"""

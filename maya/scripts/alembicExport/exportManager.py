@@ -121,7 +121,7 @@ class CopyLayers(QtWidgets.QWidget):
             # reload the shader manager
             self.shaderManager.reset(shape=cache.shape)         
 
-
+        self.shaderManager.setLayer(target)
         self.close()
 
     def get_layers(self):

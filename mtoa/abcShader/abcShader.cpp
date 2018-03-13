@@ -158,9 +158,3 @@ void CAbcShaderTranslator::Export(AtNode* shader)
 
 
 }
-
-void CAbcShaderTranslator::NodeInitializer(CAbTranslator context)
-{
-   CExtensionAttrHelper helper(context.maya, "AbcShader");
-
-}

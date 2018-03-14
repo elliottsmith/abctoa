@@ -24,35 +24,31 @@ class PropertyWidgetBool(PropertyWidget):
     PropertyWidget.__init__(self, param, parent)
 
     self.paramName = param["name"]
+    
     self.controller = controller
     self.controller.setPropertyValue.connect(self.changed)
     self.controller.reset.connect(self.resetValue)
 
     self.widget = QCheckBox(self)
     self.widget.setTristate(False)
-
     self.default = param["value"]
-
     self.widget.setChecked(self.default)
-    #self.PropertyChanged(self.default)
-
     self.widget.stateChanged.connect(self.PropertyChanged)
     self.layout().addWidget(self.widget)
-
-
 
   def PropertyChanged(self, state):
     if state == 2:
       value = True
     else:
       value = False
-    self.controller.mainEditor.propertyChanged(dict(propname=self.paramName, default=value == self.default, value=value))
 
+    self.controller.mainEditor.propertyChanged(dict(propname=self.paramName, default=value == self.default, value=value))
+    if self.paramName == 'convert_to_mesh_light':
+      self.controller.mainEditor.propertyChanged(dict(propname='color', default=False, value=[1.0, 1.0, 1.0]))
 
   def changed(self, message):
     value = message["value"]
     self.widget.setChecked(value)
-
 
   def resetValue(self):
     self.widget.setChecked(self.default)

@@ -35,37 +35,41 @@ class PropertyWidgetColor(PropertyWidget):
 
       self.default = params["value"]
       self.default_color = QColor(self.default[0] * 255, self.default[1] * 255, self.default[2]* 255)
-      self.ColorChanged(self.default_color)
+      self.updatePalette(self.default_color)
 
-   def ColorChanged(self, color):
+   def updatePalette(self, color):
+      """Update palette with given QColor"""
       palette = QPalette()
       palette.setColor(QPalette.Button, color)
       self.widget.setPalette(palette)
 
    def mayaColorPicker(self):
-      """"""
+      """Open maya color picker"""
       cmds.colorEditor()
       if cmds.colorEditor(query=True, result=True):
          value = []
          values = cmds.colorEditor(query=True, rgb=True)
-
          value.append( values[0])
          value.append( values[1])
          value.append( values[2])
-
-         if  self.colorType == PropertyWidget.RGBA:
+         
+         if self.colorType == PropertyWidget.RGBA:
             value.append( color.alphaF())
-         self.controller.mainEditor.propertyChanged(dict(propname=self.paramName, default=value == self.default, value=value))
 
+         self.controller.mainEditor.propertyChanged(dict(propname=self.paramName, default=False, value=value))
          color = QColor(value[0]*255, value[1]*255, value[2]*255)
-         self.ColorChanged(color)        
+         self.updatePalette(color)        
 
    def changed(self, message):
+      """Change color"""
       value = message["value"]
       color = QColor(value[0]*255, value[1]*255, value[2]*255)
-      self.ColorChanged(color)
+      self.controller.mainEditor.propertyChanged(dict(propname=self.paramName, default=False, value=value))
+      self.updatePalette(color)
 
    def resetValue(self):
-      self.ColorChanged(self.default_color)
+      """Reset color"""
+      self.controller.mainEditor.propertyChanged(dict(propname=self.paramName, default=False, value=self.default))
+      self.updatePalette(self.default_color)
 
 

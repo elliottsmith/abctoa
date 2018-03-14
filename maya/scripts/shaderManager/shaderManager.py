@@ -369,7 +369,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 if cmds.getClassification(cmds.nodeType(nodeName), satisfies="shader"):
 
                     if cmds.nodeType(nodeName) == "displacementShader":
-                        # renaming shaders in caches
+                        # renaming displacements in caches
                         for cache in self.ABCViewerNode.values():
                             cache.renameDisplacement(prevName, nodeName)
                             self.reset(shape=cache.shape)
@@ -386,6 +386,8 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                     # renaming shaders in caches
                     for cache in self.ABCViewerNode.values():
                         cache.renameShader(prevName, nodeName)
+                        self.reset(shape=cache.shape)
+
                     self.shaderEditor.renameShader(prevName, nodeName)
                     self.checkShaders()
 
@@ -394,6 +396,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                     for cache in self.ABCViewerNode.values():
                         cache.assignations.layers.renameLayer(prevName, nodeName)
                         cache.assignations.writeLayer()
+                        self.reset(shape=cache.shape)
 
                     # update the layers combo
                     self.getLayers()

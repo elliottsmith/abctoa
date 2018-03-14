@@ -205,13 +205,25 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             print 'Opening Hypershade'
             mel.eval("HypershadeWindow;")
 
-        self.reset()
+        current_selection = cmds.ls(sl=True)
+        if self.ABCViewerNode != {}:
+            self.reset(self.ABCViewerNode.values()[0].shape)
+        else:
+            self.reset()
+        cmds.select(current_selection)
+
         return QtWidgets.QMainWindow.showEvent(self, event)
 
     def hideEvent(self, event):
         """Hide the main window"""
 
-        self.reset()
+        current_selection = cmds.ls(sl=True)
+        if self.ABCViewerNode != {}:
+            self.reset(self.ABCViewerNode.values()[0].shape)
+        else:
+            self.reset()
+        cmds.select(current_selection)            
+
         return QtWidgets.QMainWindow.hideEvent(self, event)
 
     def reset(self, shape=None, *args, **kwargs):

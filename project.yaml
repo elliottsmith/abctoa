@@ -1,6 +1,6 @@
 NAME:          abctoa
 DESCRIPTION:   Alembic to Arnold Suite
-VERSION:       3.0.2.23.milkdev
+VERSION:       3.0.2.23
 DISTRIBUTIONS: [ "centos6" ]
 
 TARGETS:

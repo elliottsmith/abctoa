@@ -62,15 +62,17 @@ echo ""
 make install
 
 export MOD_FILE=$PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa.mod
-echo ""
-echo "Writing maya module file :" $MOD_FILE
-echo ""
+if [ ! -f $MOD_FILE ]; then
+	echo ""
+	echo "Writing maya module file :" $MOD_FILE
+	echo ""
 
-echo "+ abctoa any $PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/\$ABCTOAVER" > $MOD_FILE
-echo "PATH +:=procedurals" >> $MOD_FILE
-echo "ARNOLD_PLUGIN_PATH +:=procedurals" >> $MOD_FILE
-echo "MTOA_EXTENSIONS_PATH +:=extensions" >> $MOD_FILE
-echo "SAMPLES +:=samples" >> $MOD_FILE
+	echo "+ abctoa any $PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/\$ABCTOAVER" > $MOD_FILE
+	echo "PATH +:=procedurals" >> $MOD_FILE
+	echo "ARNOLD_PLUGIN_PATH +:=procedurals" >> $MOD_FILE
+	echo "MTOA_EXTENSIONS_PATH +:=extensions" >> $MOD_FILE
+	echo "SAMPLES +:=samples" >> $MOD_FILE
+fi
 
 cd ..
 rm -rf BUILD

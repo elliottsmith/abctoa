@@ -1,0 +1,9 @@
+NAME:          abctoa
+DESCRIPTION:   Alembic to Arnold Suite
+VERSION:       3.0.2.23.milkdev
+DISTRIBUTIONS: [ "centos6" ]
+
+TARGETS:
+  - TYPE     : abctoa
+    SOURCES  : dist
+    MAYA_VERSIONS: [ "2018" ]

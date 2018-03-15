@@ -16,7 +16,7 @@ IF(NOT MTOA_VERSION AND NOT $ENV{MTOA_VERSION} STREQUAL "")
 ENDIF()
 
 
-set(CMAKE_BUILD_TYPE RELEASE)
+set(CMAKE_BUILD_TYPE $ENV{CMAKE_BUILD_TYPE})
 set(CMAKE_VERBOSE_MAKEFILE FALSE)
 set(CMAKE_SKIP_RPATH TRUE)
 
@@ -100,7 +100,8 @@ ENDIF()
 IF ("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
     ADD_DEFINITIONS(-DDEBUG=1 -UNDEBUG)
     IF (NOT WINDOWS)
-        ADD_DEFINITIONS(-Wall -Werror -Wextra -Wno-unused-parameter)
+        # ADD_DEFINITIONS(-Wall -Werror -Wextra -Wno-unused-parameter)
+        ADD_DEFINITIONS(-Wall -Wno-error -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-format -Wno-ignored-qualifiers -Wno-unused-function -Wno-reorder -Wno-unused-but-set-variable)
     ENDIF()
 ELSEIF ("${CMAKE_BUILD_TYPE}" MATCHES "Release")
     ADD_DEFINITIONS(-DNDEBUG=1 -UDEBUG)

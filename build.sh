@@ -13,9 +13,10 @@ export ARNOLDVER=5.0.2.3
 export MTOAVER=2.1.1
 export MTOAVER_=2.1.1
 
+# sys argv
 export PREFIX=$1
+export VERSION=$2
 export CENTRAL=/milk/code/central
-export VERSION=dev
 
 export LDFLAGS="-L$CENTRAL/lib/$DISTRIBUTION/$COMPILER"
 export CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0 -I$CENTRAL/include/$DISTRIBUTION/$COMPILER -I$CENTRAL/include/$DISTRIBUTION/$COMPILER/OpenEXR"

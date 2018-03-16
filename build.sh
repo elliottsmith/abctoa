@@ -10,6 +10,7 @@ export PYTHONVER=2.7.5
 export MAYAVER=2018.2
 export MAYASHORT=_2018
 export ARNOLDVER=5.0.2.3
+export ARNOLD_SHORT=5.0
 export MTOAVER=2.1.1
 export MTOAVER_=2.1.1
 
@@ -74,6 +75,13 @@ if [ ! -f $MOD_FILE ]; then
 	echo "MTOA_EXTENSIONS_PATH +:=extensions" >> $MOD_FILE
 	echo "SAMPLES +:=samples" >> $MOD_FILE
 fi
+
+# copy the procedurals to central arnold shaders
+echo ""
+echo "Installing procedurals"
+echo ""
+mkdir -p $PREFIX/addons/$DISTRIBUTION/arnold$ARNOLD_SHORT/AbcToA-$VERSION
+cp $PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/$VERSION/procedurals/* $PREFIX/addons/$DISTRIBUTION/arnold$ARNOLD_SHORT/AbcToA-$VERSION/
 
 cd ..
 rm -rf BUILD

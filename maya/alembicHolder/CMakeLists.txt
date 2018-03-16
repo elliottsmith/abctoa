@@ -1,6 +1,7 @@
 set(MAYAPLUGIN alembicHolder)
 
 file(GLOB SRC "*.cpp" "*h" "cmds/*.cpp" "cmds/*.h" "../../common/PathUtil.cpp" "../../common/PathUtil.h")
+include_directories(${CMAKE_BINARY_DIR}/maya/alembicHolder)
 
 find_package(Boost)
 

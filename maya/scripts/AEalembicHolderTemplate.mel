@@ -157,7 +157,7 @@ global proc geompath_callback()
 {
 
     python("from alembicHolder.cmds import abcToApi");
-    python("for i in abcToApi.getSelected(cls=True): i.swap_slashes_for_pipes()");
+    python("for i in abcToApi.getSelected(cls=True): i.slashesToPipes()");
 }
 
 

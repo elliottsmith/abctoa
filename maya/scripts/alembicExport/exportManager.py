@@ -11,6 +11,7 @@ from shiboken2 import wrapInstance
 import numpy
 import os, json
 from alembicHolder.cmds import abcToApi
+reload(abcToApi)
 
 class CopyLayers(QtWidgets.QWidget):    
     def __init__(self, win):        
@@ -628,7 +629,7 @@ class ExportPackage(QtWidgets.QWidget):
                 # instead we moved the merge logic into the import side, so artist can import json and shaders
                 # directly from ae template
                 
-                json_return = i.writeJson(merge=False, json_out_path=json_path)
+                json_return = i.writeJson(json_out_path=json_path)
                 return_codes.append(json_return)
         
         if shader:
@@ -640,7 +641,7 @@ class ExportPackage(QtWidgets.QWidget):
 
                 # merge is false for now
 
-                shader_return = i.writeAbcShaders(merge=False, shader_out_path=shader_path)
+                shader_return = i.writeAbcShaders(shader_out_path=shader_path)
             
                 return_codes.append(shader_return)
 

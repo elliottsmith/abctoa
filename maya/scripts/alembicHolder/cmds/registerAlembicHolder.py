@@ -141,15 +141,6 @@ def breakConnected():
     for i in x:
         i.breakConnections()
 
-def runProcedural():
-    print "\n"
-    print "*"*100
-    print 'Simulate Render'
-    print "*"*100
-    x = abcToApi.getSelected(cls=True)
-    for i in x:
-        i.runProcedural()
-
 def validateDictionaries():
     print "\n"
     print "*"*100

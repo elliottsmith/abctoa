@@ -259,7 +259,7 @@ MSyntax abcContainersExportCmd::mySyntax() {
   MSyntax syntax;
 
   //syntax.addFlag( "-ls", "-listShader");
-  syntax.addFlag( "-sl", "-selection", MSyntax::kString);
+  syntax.addFlag( "-ls", "-selection", MSyntax::kString);
   syntax.addFlag( "-f", "-file", MSyntax::kString);
 
   return syntax;

@@ -42,8 +42,6 @@ def getMayaWindow():
 def shaderManager(mayaWindow):
     global _shadermanager
     import shaderManager
-    
-    # reload(shaderManager)
     return shaderManager.manager(mayaWindow)
 
 def reloadShaderManager(mayaWindow):
@@ -95,52 +93,6 @@ def importPackageManager():
 
         cmds.setAttr("%s.cacheFileNames[0]" % x, f, type='string')
 
-def assignTagsFromSetName():
-    sets = cmds.ls(sl=True, type="objectSet")
-
-    for set in sets:
-        for s in cmds.sets( set, q=True ):
-            tags = []
-            if not cmds.objExists(s + ".mtoa_constant_tags"): 
-                cmds.addAttr(s, ln='mtoa_constant_tags', dt='string') 
-            else:
-                try:
-                    tags = json.loads(cmds.getAttr(s + ".mtoa_constant_tags"))
-                except:
-                    pass
-
-            if not set in tags:
-                tags.append(set)
-                cmds.setAttr(s + ".mtoa_constant_tags", json.dumps(tags), type="string")
-
-def checkConnected():
-    print "\n"
-    print "*"*100
-    print 'Checking Connections'
-    print "*"*100
-    x = abcToApi.getSelected(cls=True)
-    for i in x:
-        i.checkConnections()
-
-def makeConnected():
-    print "\n"
-    print "*"*100
-    print 'Making Connections'
-    print "*"*100
-    x = abcToApi.getSelected(cls=True)
-    for i in x:
-        i.checkConnections()
-        i.makeConnections()
-
-def breakConnected():
-    print "\n"
-    print "*"*100
-    print 'Breaking Connections'
-    print "*"*100
-    x = abcToApi.getSelected(cls=True)
-    for i in x:
-        i.breakConnections()
-
 def validateDictionaries():
     print "\n"
     print "*"*100
@@ -150,52 +102,15 @@ def validateDictionaries():
     for i in x:
         i.validateDictionaries()
 
-def importJson():
+def importLookdev():
     print "\n"
     print "*"*100
-    print 'Importing Json'
+    print 'Importing Lookdev'
     print "*"*100
     x = abcToApi.getSelected(cls=True)
     for i in x:
-        i.importJson()
-
-def importShaders():
-    print "\n"
-    print "*"*100
-    print 'Importing Shaders'
-    print "*"*100
-    x = abcToApi.getSelected(cls=True)
-    for i in x:
-        i.importShaders()
-
-def importAbc():
-    res = cmds.confirmDialog( title='Transform', message='Do you want to parent the incoming geo to the alembicHolder transform?', button=['Yes','No'], defaultButton='Yes', cancelButton='No', dismissString='No' )
-    if res == 'Yes':
-        parent_transform = True
-    else:
-        parent_transform = False
-
-    print "\n"
-    print "*"*100
-    print 'Importing Abc'
-    print "*"*100
-    x = abcToApi.getSelected(cls=True)
-    for i in x:
-        i.importAbc(parent_transform=parent_transform)
-
-def importRenderSetup(filename):
-    import maya.app.renderSetup.model.renderSetup as renderSetup
-    with open(filename, "r") as file:
-        renderSetup.instance().decode(json.load(file), renderSetup.DECODE_AND_OVERWRITE, None)
-
-def importRenderSettings():
-    singleFilter = "JSON Files (*.json)"
-    files = cmds.fileDialog2(fileMode=1, caption="Import Render Settings Json", fileFilter=singleFilter)
-    if files:
-        if len(files) > 0:
-            f = files[0]
-
-        importRenderSetup(f)
+        namespace = i.data['shapeNode'] + '_lookdev'
+        i.importLookdev(namespace)
 
 def registerAlembicHolder():
     if not cmds.about(b=1):
@@ -220,19 +135,6 @@ def registerAlembicHolder():
         cmds.menuItem( divider=True )
         cmds.menuItem('AlembicHolderUtilsMenu', label='Utilities', parent='AlembicHolderMenu', sm=1)
         cmds.menuItem('checkSyntax', label='Validate Dictionaries', parent='AlembicHolderUtilsMenu', c=lambda *args: validateDictionaries())
+        cmds.menuItem('importJson', label='Import Lookdev', parent='AlembicHolderUtilsMenu', c=lambda *args: importLookdev())
         cmds.menuItem( divider=True )
-        cmds.menuItem('checkConnected', label='Check Connections', parent='AlembicHolderUtilsMenu', c=lambda *args: checkConnected())
-        cmds.menuItem('makeConnected', label='Make Connections', parent='AlembicHolderUtilsMenu', c=lambda *args: makeConnected())
-        cmds.menuItem('breakConnected', label='Break Connections', parent='AlembicHolderUtilsMenu', c=lambda *args: breakConnected())
-        cmds.menuItem( divider=True )
-        cmds.menuItem('importJson', label='Import Json', parent='AlembicHolderUtilsMenu', c=lambda *args: importJson())
-        # cmds.menuItem('importMergeJson', label='Import + Merge Json', parent='AlembicHolderUtilsMenu', c=lambda *args: importMergeJson())
-        cmds.menuItem('importShaders', label='Import Shaders', parent='AlembicHolderUtilsMenu', c=lambda *args: importShaders())
-        cmds.menuItem('importAbc', label='Import Abc', parent='AlembicHolderUtilsMenu', c=lambda *args: importAbc())
-        cmds.menuItem('importRenderSettings', label='Import Render Settings', parent='AlembicHolderUtilsMenu', c=lambda *args: importRenderSettings())        
-        cmds.menuItem( divider=True )
-        # cmds.menuItem('assignTagsSets', label='Assign Tags from Selected Selection Sets', parent='AlembicHolderUtilsMenu', c=lambda *args: assignTagsFromSetName())
-        # cmds.menuItem('wiki', label='Wiki', parent='AlembicHolderUtilsMenu', c=lambda *args: cmds.launch(webPage='http://wiki/index.php/abcToArnold'))
-        # cmds.menuItem( divider=True )
         cmds.menuItem('reload', label='Reload (coding)', parent='AlembicHolderUtilsMenu', c=lambda *args: reloadShaderManager(mayaWindow))
-        # cmds.menuItem('runProcedural', label='Run procedural (beta)', parent='AlembicHolderUtilsMenu', c=lambda *args: runProcedural())

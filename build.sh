@@ -80,8 +80,8 @@ fi
 echo ""
 echo "Installing procedurals"
 echo ""
-mkdir -p $PREFIX/addons/$DISTRIBUTION/arnold$ARNOLD_SHORT/AbcToA-$VERSION
-cp $PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/$VERSION/procedurals/* $PREFIX/addons/$DISTRIBUTION/arnold$ARNOLD_SHORT/AbcToA-$VERSION/
+mkdir -p $PREFIX/addons/$DISTRIBUTION/arnold$ARNOLD_SHORT/abcToA-$VERSION
+cp $PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/$VERSION/procedurals/* $PREFIX/addons/$DISTRIBUTION/arnold$ARNOLD_SHORT/abcToA-$VERSION/
 
 cd ..
 rm -rf BUILD

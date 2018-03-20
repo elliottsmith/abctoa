@@ -136,6 +136,12 @@ MBoundingBox nozAlembicHolder::boundingBox() const
 
 void* nozAlembicHolder::creator()
 {
+    MStatus status;
+    status = MGlobal::executePythonCommandOnIdle(MString("import maya.cmds as cmds; cmds.refreshEditorTemplates()" ), false);
+    if (!status) 
+    {
+        status.perror("Initialising alembicHolder");
+    } 
     return new nozAlembicHolder();
 }
 

@@ -164,9 +164,6 @@ class AEalembicHolderTemplate(BaseTemplate):
         """
         Build the body of the attribute editor template according to shotgun context
         """
-        context = get_context()
-        print 'SG Context: %s' % context
-
         self.beginLayout(name="Cache File", collapse=False)
         self.callCustom(self._abcWidget, self._abcConnect, "cacheFileNames")
         self.addControl(control="cacheGeomPath", label="Geometry Path")
@@ -182,8 +179,18 @@ class AEalembicHolderTemplate(BaseTemplate):
         self.addControl(control="attributes", label="Attributes")
         self.addControl(control="layersOverride", label="Layers Override")
         self.addControl(control="shadersNamespace", label="Shaders Namespace")
-        self.callCustom(self._jsonWidget, self._jsonConnect, "jsonFile")
-        self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")             
+
+        if get_context().task != None:
+            # if we have a context task
+            if get_context().task['name'] == 'lighting':
+                self.callCustom(self._jsonWidget, self._jsonConnect, "jsonFile")
+                self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")
+            else:
+                self.suppress("jsonFile")
+                self.suppress("abcShaders")
+        else:
+            self.callCustom(self._jsonWidget, self._jsonConnect, "jsonFile")
+            self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")            
         self.endLayout()
 
         render_attrs = ["primaryVisibility", "aiSelfShadows", "castsShadows", "receiveShadows", "motionBlur", "aiVisibleInDiffuse", "aiVisibleInGlossy", "visibleInRefractions", "visibleInReflections", "aiOpaque", "aiMatte", "overrideGlobalShader", "aiTraceSets", "aiSssSetname"]

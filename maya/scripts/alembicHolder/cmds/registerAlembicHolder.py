@@ -125,14 +125,10 @@ def registerAlembicHolder():
         _exportassignments = exportAssignments(mayaWindow)
 
         cmds.menu('AlembicHolderMenu', label='AbcToArnold', parent='MayaWindow', tearOff=True )       
-        
         cmds.menuItem('shaderManager', label='Shader Manager', parent='AlembicHolderMenu', c=lambda *args: _shadermanager.show())
         cmds.menuItem( divider=True )
         cmds.menuItem('importAlembic', label='Load Alembic', parent='AlembicHolderMenu', c=lambda *args: importPackageManager())
-        cmds.menuItem('exportAlembic', label='Export Alembic', parent='AlembicHolderMenu', c=lambda *args: _exportmanager.show())
-        cmds.menuItem( divider=True )
-        cmds.menuItem('exportJson', label='Export Shaders / Assignments', parent='AlembicHolderMenu', c=lambda *args: _exportassignments.show())
-        cmds.menuItem( divider=True )
+        cmds.menuItem( divider=True )        
         cmds.menuItem('AlembicHolderUtilsMenu', label='Utilities', parent='AlembicHolderMenu', sm=1)
         cmds.menuItem('checkSyntax', label='Validate Dictionaries', parent='AlembicHolderUtilsMenu', c=lambda *args: validateDictionaries())
         cmds.menuItem('importJson', label='Import Lookdev', parent='AlembicHolderUtilsMenu', c=lambda *args: importLookdev())

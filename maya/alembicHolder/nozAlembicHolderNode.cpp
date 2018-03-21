@@ -141,7 +141,7 @@ void* nozAlembicHolder::creator()
     if (!status) 
     {
         status.perror("Initialising alembicHolder");
-    } 
+    };
     return new nozAlembicHolder();
 }
 

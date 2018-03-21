@@ -86,6 +86,12 @@ void* abcMayaShader::creator()
 //        a new object of this type
 //
 {
+    MStatus status;
+    status = MGlobal::executePythonCommandOnIdle(MString("import maya.cmds as cmds; cmds.refreshEditorTemplates()" ), false);
+    if (!status) 
+    {
+        status.perror("Initialising abcMayaShader");
+    };
     abcMayaShader *ret = new abcMayaShader;
     sNodeList.push_back(ret);
     return ret;

@@ -115,7 +115,7 @@ DLLEXPORT MStatus initializePlugin( MObject obj )
 
 
 
-        status = MGlobal::executePythonCommandOnIdle(MString("import alembicHolder.cmds.registerAlembicHolder;alembicHolder.cmds.registerAlembicHolder.registerAlembicHolder(); import AEalembicHolderTemplate"), false);
+        status = MGlobal::executePythonCommandOnIdle(MString("import alembicHolder.cmds.registerAlembicHolder;alembicHolder.cmds.registerAlembicHolder.registerAlembicHolder(); import AEalembicHolderTemplate; import AEabcMayaShaderTemplate"), false);
         if (!status) 
 		{
             status.perror("registerMenu");

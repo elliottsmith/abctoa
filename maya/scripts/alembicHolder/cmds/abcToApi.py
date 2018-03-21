@@ -145,12 +145,10 @@ class alembicHolderClass():
                 assignations["layers"] = json.loads(layersOverride)
 
         # fix the attribute editor
-        fixed = {}
+        fixed = {'shaders' : {}, 'displacement' : {}, 'layers' : {}}
         attrs_to_connect = []
         if assignations.has_key('shaders'):
             for shader in assignations['shaders']:
-                if not fixed.has_key('shaders'):
-                    fixed['shaders'] = {}
                 if namespace != ':':
                     fixed['shaders']['%s:%s' % (namespace, shader)] = assignations['shaders'][shader]
                     attrs_to_connect.append('%s:%s' % (namespace, shader))
@@ -160,8 +158,6 @@ class alembicHolderClass():
         
         if assignations.has_key('displacement'):
             for disp in assignations['displacement']:
-                if not fixed.has_key('displacement'):
-                    fixed['displacement'] = {}
                 if namespace != ':':
                     fixed['displacement']['%s:%s' % (namespace, disp)] = assignations['displacement'][disp]
                     attrs_to_connect.append('%s:%s' % (namespace, disp))
@@ -171,8 +167,6 @@ class alembicHolderClass():
 
         if assignations.has_key('layers'):
             for layer in assignations['layers']:
-                if not fixed.has_key('layers'):
-                    fixed['layers'] = {}
                 if not fixed['layers'].has_key(layer):
                     fixed['layers'][layer] = {'shaders' : {}, 'displacements' : {}}
                 

@@ -55,7 +55,7 @@ class AEalembicHolderTemplate(BaseTemplate):
         cmds.text(label="ABC Path")
         cmds.textField("abcpathNameField")
         cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._abcBrowser)
-        cmds.symbolButton(image="download_small.png", width=15, height=15, command=self._abcImport)
+        # cmds.symbolButton(image="download_small.png", width=15, height=15, command=self._abcImport)
         cmds.setParent('..')
         cmds.setUITemplate(popTemplate=True)
         cmds.setParent('..')
@@ -94,7 +94,7 @@ class AEalembicHolderTemplate(BaseTemplate):
         cmds.text(label="Json Path")
         cmds.textField("jsonpathNameField")
         cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._jsonBrowser)
-        cmds.symbolButton(image="download_small.png", width=15, height=15, command=self._jsonImport)
+        # cmds.symbolButton(image="download_small.png", width=15, height=15, command=self._jsonImport)
         cmds.setParent('..')
         cmds.setUITemplate(popTemplate=True)
         cmds.setParent('..')
@@ -133,7 +133,7 @@ class AEalembicHolderTemplate(BaseTemplate):
         cmds.text(label="Shaders Path")
         cmds.textField("shaderspathNameField")
         cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._shadersBrowser)
-        cmds.symbolButton(image="download_small.png", width=15, height=15, command=self._shadersImport)
+        # cmds.symbolButton(image="download_small.png", width=15, height=15, command=self._shadersImport)
         cmds.setParent('..')
         cmds.setUITemplate(popTemplate=True)
         cmds.setParent('..')
@@ -179,19 +179,23 @@ class AEalembicHolderTemplate(BaseTemplate):
         self.addControl(control="attributes", label="Attributes")
         self.addControl(control="layersOverride", label="Layers Override")
         self.addControl(control="shadersNamespace", label="Shaders Namespace")
+        self.endLayout()        
 
         if get_context().task != None:
             # if we have a context task
             if get_context().task['name'] == 'lighting':
+                self.beginLayout(name="Published Lookdev", collapse=False)
                 self.callCustom(self._jsonWidget, self._jsonConnect, "jsonFile")
                 self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")
+                self.endLayout()
             else:
                 self.suppress("jsonFile")
                 self.suppress("abcShaders")
         else:
+            self.beginLayout(name="Published Lookdev", collapse=False)
             self.callCustom(self._jsonWidget, self._jsonConnect, "jsonFile")
-            self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")            
-        self.endLayout()
+            self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")
+            self.endLayout()            
 
         render_attrs = ["primaryVisibility", "aiSelfShadows", "castsShadows", "receiveShadows", "motionBlur", "aiVisibleInDiffuse", "aiVisibleInGlossy", "visibleInRefractions", "visibleInReflections", "aiOpaque", "aiMatte", "overrideGlobalShader", "aiTraceSets", "aiSssSetname"]
         self.beginLayout(name="Render Stats", collapse=True)

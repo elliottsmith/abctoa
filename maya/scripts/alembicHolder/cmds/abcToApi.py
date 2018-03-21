@@ -2,6 +2,7 @@ import pymel.core as pm
 import maya.cmds as cmds
 import maya.mel as mel
 import cask, json, ast, os, logging, sys, copy
+from mayautils.v1_2.tank import find_shader_package_from_shader_file
 
 class alembicHolderClass():
     def __init__(self, data, logger):
@@ -84,11 +85,16 @@ class alembicHolderClass():
 
         if self.data['abcShadersAttr']:
 
-            # real simple way of finding the associated maya file
             abcfile = self.data['abcShadersAttr']
-
-            # TODO
-            mayafile = abcfile.replace('.abc', '.ma')
+            
+            # shotgun query for maya file
+            mayafile = find_shader_package_from_shader_file(file_path=abcfile, file_type='ma')
+            if mayafile != {}:
+                mayafile = mayafile['ma']
+                self.logger.debug("Found maya shader file: %s" % mayafile)
+            else:
+                self.logger.error("Missing file : %s" % self.data['abcShadersAttr'])
+                return False
 
             if os.path.isfile(mayafile):
                 try:                

@@ -73,7 +73,6 @@ if [ ! -f $MOD_FILE ]; then
 	echo "PATH +:=procedurals" >> $MOD_FILE
 	echo "ARNOLD_PLUGIN_PATH +:=procedurals" >> $MOD_FILE
 	echo "MTOA_EXTENSIONS_PATH +:=extensions" >> $MOD_FILE
-	echo "SAMPLES +:=samples" >> $MOD_FILE
 fi
 
 # copy the procedurals to central arnold shaders

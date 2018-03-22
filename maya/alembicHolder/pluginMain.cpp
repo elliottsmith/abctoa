@@ -113,9 +113,7 @@ DLLEXPORT MStatus initializePlugin( MObject obj )
             return status;
         }
 
-
-
-        status = MGlobal::executePythonCommandOnIdle(MString("import alembicHolder.cmds.registerAlembicHolder;alembicHolder.cmds.registerAlembicHolder.registerAlembicHolder(); import AEalembicHolderTemplate; import AEabcMayaShaderTemplate"), false);
+        status = MGlobal::executePythonCommandOnIdle(MString("import AEalembicHolderTemplate; import AEabcMayaShaderTemplate"), false);
         if (!status) 
 		{
             status.perror("registerMenu");
@@ -178,12 +176,6 @@ DLLEXPORT MStatus uninitializePlugin( MObject obj)
             return MS::kFailure;
         }
 
-
-        status = MGlobal::executePythonCommandOnIdle(MString("import alembicHolder.cmds.unregisterAlembicHolder;alembicHolder.cmds.unregisterAlembicHolder.unregisterAlembicHolder()"), false);
-        if (!status) {
-            status.perror("unregisterMenu");
-            return status;
-        }
     }
 
     return status;

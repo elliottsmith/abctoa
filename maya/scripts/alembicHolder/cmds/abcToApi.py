@@ -1,7 +1,16 @@
+
+# sys libs
+import json
+import ast
+import os
+import logging
+
+# maya libs
 import pymel.core as pm
 import maya.cmds as cmds
 import maya.mel as mel
-import cask, json, ast, os, logging, sys, copy
+
+# milk libs
 from mayautils.v1_2.tank import find_shader_package_from_shader_file
 
 class alembicHolderClass():

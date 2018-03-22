@@ -173,7 +173,6 @@ message("MtoA Translators will be installed to: \n\t${TRANSLATOR_INSTALL_DIR}")
 message("Icons will be installed to: \n\t${INSTALL_DIR}/icons")
 message("Scripts will be installed to: \n\t${INSTALL_DIR}/scripts")
 message("PySide will be installed to: \n\t${PYSIDE_INSTALL_DIR}")
-message("Samples will be installed to: \n\t${INSTALL_DIR}/samples")
 
 # Set the list of subdirectories to recurse into to find stuff to build
 set(SUBDIRECTORIES 
@@ -202,8 +201,6 @@ INSTALL(FILES README INSTALL DESTINATION ${INSTALL_DIR})
 # add scripts & icons
 INSTALL(DIRECTORY icons DESTINATION ${INSTALL_DIR})
 INSTALL(DIRECTORY maya/scripts DESTINATION ${INSTALL_DIR})
-INSTALL(DIRECTORY maya/samples DESTINATION ${INSTALL_DIR})
-
 
 # configure other files with version numbers etc.
 

@@ -102,8 +102,13 @@ class alembicHolderClass():
                 mayafile = mayafile['ma']
                 self.logger.debug("Found maya shader file: %s" % mayafile)
             else:
-                self.logger.error("Missing file : %s" % self.data['abcShadersAttr'])
-                return False
+                localfile = abcfile.replace('.abc', '.ma')
+                if os.path.isfile(localfile):
+                    mayafile = localfile
+                    self.logger.debug("Found maya shader file: %s" % mayafile)
+                else:
+                    self.logger.error("Missing file : %s" % self.data['abcShadersAttr'])
+                    return False
 
             if os.path.isfile(mayafile):
                 try:                

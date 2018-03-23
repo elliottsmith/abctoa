@@ -36,9 +36,6 @@ reload(shader_widget)
 from ui import UI_ABCHierarchy
 reload(UI_ABCHierarchy)
 
-from alembicExport import exportManager
-reload(exportManager)
-
 # arnold / maya
 from arnold import *
 import maya.cmds as cmds

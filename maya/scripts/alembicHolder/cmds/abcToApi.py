@@ -131,6 +131,16 @@ class alembicHolderClass():
             self.logger.info("Empty attribute : %s.abcShadersAttr" % self.data['shapeNode'])
             return False
 
+    def breakConnections(self):
+        """
+        Break shader connections to the alembicHolder node
+        """
+        for connections in pm.listConnections(self.data['shapeNode'], plugs=True, connections=True):
+            # if connections[-1].nodeType() in ['shadingEngine', 'displacementShader']:
+            if cmds.getClassification(connections[-1].nodeType(), satisfies="shader"):
+                pm.disconnectAttr(str(connections[-1]), str(connections[0]))
+                self.logger.info("Break Connection : %s > %s" % (str(connections[-1]), str(connections[0])))
+
     def reconnectLookdev(self, namespace):
         """
         The json file and alembic shaders have been imported, now connect the imported shaders to the alembicHolder node
@@ -140,6 +150,9 @@ class alembicHolderClass():
             namespace (str): namespace
         """
         self.logger.debug("Reconnecting imported lookev")
+
+        # lets break connections first
+        self.breakConnections()
 
         assignations = {}
 

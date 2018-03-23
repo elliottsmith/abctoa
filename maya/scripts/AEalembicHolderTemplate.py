@@ -4,6 +4,9 @@ import maya.cmds as cmds
 from milk.shotgun.v1_1.tank import get_context
 from alembicHolder.cmds import abcToApi
 
+RED = (1.0, 0.2, 0.2)
+GREEN = (0.4, 1.0, 0.4)
+
 class LocalizedTemplate(ui.AETemplate):
     """
     Automatically apply language localizations to template arguments
@@ -42,6 +45,18 @@ class AEalembicHolderTemplate(BaseTemplate):
     Alembic Holder Template
     """
 
+    def _refresh(self, *args):
+        """
+        """
+        if os.path.isfile(args[0]):
+            bg_color = GREEN
+            enable = True
+        else:
+            bg_color = RED
+            enable = False
+
+        cmds.button("%s" % (self.btn), backgroundColor=bg_color, edit=True, enable=enable)       
+
     def _abcWidget(self, cacheName):
         """
         ABC Path widgets
@@ -73,7 +88,8 @@ class AEalembicHolderTemplate(BaseTemplate):
         Open file dialog and set the cache attribute
         """
         ret = cmds.fileDialog2(fileFilter="Alembic (*.abc)", fileMode=1, dialogStyle=2, caption="Select Alembic File")
-        cmds.setAttr(self.cache, ret[0], type="string")
+        if ret:
+            cmds.setAttr(self.cache, ret[0], type="string")
 
     def _abcImport(self, args):
         """
@@ -92,7 +108,8 @@ class AEalembicHolderTemplate(BaseTemplate):
         cmds.columnLayout(adjustableColumn=True)
         cmds.rowLayout(numberOfColumns=4, adjustableColumn4=2)
         cmds.text(label="Json Path")
-        cmds.textField("jsonpathNameField")
+        # cmds.textField("jsonpathNameField", editable=False, enable=False, enterCommand=self._refresh, changeCommand=self._refresh, textChangedCommand=self._refresh)
+        cmds.textField("jsonpathNameField", editable=False, enable=False, textChangedCommand=self._refresh)        
         cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._jsonBrowser)
         # cmds.symbolButton(image="download_small.png", width=15, height=15, command=self._jsonImport)
         cmds.setParent('..')
@@ -112,7 +129,9 @@ class AEalembicHolderTemplate(BaseTemplate):
         Open file dialog and set the jsonFile attribute
         """
         ret = cmds.fileDialog2(fileFilter="Json (*.json)", fileMode=1, dialogStyle=2, caption="Select Json File")
-        cmds.setAttr(self.json, ret[0], type="string")
+        if ret:
+            cmds.setAttr(self.json, ret[0], type="string")
+            cmds.refreshEditorTemplates()
 
     def _jsonImport(self, args):
         """
@@ -131,9 +150,8 @@ class AEalembicHolderTemplate(BaseTemplate):
         cmds.columnLayout(adjustableColumn=True)
         cmds.rowLayout(numberOfColumns=4, adjustableColumn4=2)
         cmds.text(label="Shaders Path")
-        cmds.textField("shaderspathNameField")
+        cmds.textField("shaderspathNameField", editable=False, enable=False, textChangedCommand=self._refresh)
         cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._shadersBrowser)
-        # cmds.symbolButton(image="download_small.png", width=15, height=15, command=self._shadersImport)
         cmds.setParent('..')
         cmds.setUITemplate(popTemplate=True)
         cmds.setParent('..')
@@ -151,7 +169,9 @@ class AEalembicHolderTemplate(BaseTemplate):
         Open file dialog and set the shaders attribute
         """
         ret = cmds.fileDialog2(fileFilter="Alembic (*.abc)", fileMode=1, dialogStyle=2, caption="Select Alembic File")
-        cmds.setAttr(self.shaders, ret[0], type="string")
+        if ret:
+            cmds.setAttr(self.shaders, ret[0], type="string")
+            cmds.refreshEditorTemplates()
 
     def _shadersImport(self, args):
         """
@@ -159,6 +179,47 @@ class AEalembicHolderTemplate(BaseTemplate):
         """
         for i in abcToApi.getSelectedAlembicHolder(cls=True):
             i.importShaders()
+
+    def _localiseLookdevWidget(self, loader):
+        """
+        """
+
+        self.loader = loader
+        cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
+        cmds.columnLayout(adjustableColumn=True)
+        cmds.rowLayout(numberOfColumns=2, adjustableColumn2=1)
+
+        if not cmds.getAttr("%sjsonFile" % self.loader) or not cmds.getAttr("%sabcShaders" % self.loader):
+            bg_color = RED
+            enable = False
+        else:
+            bg_color = GREEN
+            enable = True
+
+        self.btn = cmds.button(label='Localise Lookdev', command=self._localiseLookdevImport, enableBackground=True, backgroundColor=bg_color, enable=enable)
+        cmds.setParent('..')
+        cmds.setUITemplate(popTemplate=True)
+        cmds.setParent('..')
+        self._localiseLookdevConnect(loader)
+        cmds.select()
+
+    def _localiseLookdevConnect(self, json):
+        """
+        Connect the new control to existing control
+        """
+        pass
+
+    def _localiseLookdevImport(self, args):
+        """
+        """
+        ret = cmds.promptDialog(title='Namespace', message='Enter Name:', button=['Ok', 'Cancel'], defaultButton='Ok', cancelButton='Cancel', dismissString='Cancel', text='root')
+        if ret == 'Ok':
+            namespace = cmds.promptDialog(query=True, text=True)
+            if namespace == 'root':
+                namespace = ':'
+
+            for i in abcToApi.getSelectedAlembicHolder(cls=True):
+                i.importLookdev(namespace)
 
     def buildBody(self, nodeName):
         """
@@ -182,20 +243,13 @@ class AEalembicHolderTemplate(BaseTemplate):
         self.endLayout()        
 
         if get_context().task != None:
-            # if we have a context task
-            if get_context().task['name'] == 'lighting':
+            # if we are in a lighting context, create a section for the attrs to live
+            if get_context().task['name'].lower() == 'lighting':
                 self.beginLayout(name="Published Lookdev", collapse=False)
                 self.callCustom(self._jsonWidget, self._jsonConnect, "jsonFile")
                 self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")
+                self.callCustom(self._localiseLookdevWidget, self._localiseLookdevConnect, "")
                 self.endLayout()
-            else:
-                self.suppress("jsonFile")
-                self.suppress("abcShaders")
-        else:
-            self.beginLayout(name="Published Lookdev", collapse=False)
-            self.callCustom(self._jsonWidget, self._jsonConnect, "jsonFile")
-            self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")
-            self.endLayout()            
 
         render_attrs = ["primaryVisibility", "aiSelfShadows", "castsShadows", "receiveShadows", "motionBlur", "aiVisibleInDiffuse", "aiVisibleInGlossy", "visibleInRefractions", "visibleInReflections", "aiOpaque", "aiMatte", "overrideGlobalShader", "aiTraceSets", "aiSssSetname"]
         self.beginLayout(name="Render Stats", collapse=True)

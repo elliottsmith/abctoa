@@ -74,7 +74,8 @@ class AEabcMayaShaderTemplate(BaseTemplate):
         Open file dialog and set the cache attribute
         """
         ret = cmds.fileDialog2(fileFilter="Alembic (*.abc)", fileMode=1, dialogStyle=2, caption="Select Alembic File")
-        cmds.setAttr(self.cache, ret[0], type="string")
+        if ret:
+            cmds.setAttr(self.cache, ret[0], type="string")
 
     def _setDropDown(self, nodeName):
         """

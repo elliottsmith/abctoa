@@ -196,7 +196,7 @@ IF(NOT DARWIN)
 ENDIF()
 
 # add top-level files
-INSTALL(FILES README INSTALL DESTINATION ${INSTALL_DIR})
+INSTALL(FILES DESTINATION ${INSTALL_DIR})
 
 # add scripts & icons
 INSTALL(DIRECTORY icons DESTINATION ${INSTALL_DIR})
@@ -212,11 +212,6 @@ configure_file (
 configure_file (
 "${CMAKE_SOURCE_DIR}/abcToA.mod.in"
 "${CMAKE_BINARY_DIR}/abcToA.mod"
-)
-
-configure_file(
-    "${CMAKE_SOURCE_DIR}/INSTALL.in"
-    "${CMAKE_BINARY_DIR}/INSTALL"
 )
   
 # 

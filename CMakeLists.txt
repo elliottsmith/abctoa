@@ -8,7 +8,7 @@ project(abcToA)
 
 set(ABCTOA_MAJOR_VERSION 3)
 set(ABCTOA_MINOR_VERSION 1)
-set(ABCTOA_PATCH_VERSION 0)
+set(ABCTOA_PATCH_VERSION 6)
 set(ABCTOA_VERSION "${ABCTOA_MAJOR_VERSION}.${ABCTOA_MINOR_VERSION}.${ABCTOA_PATCH_VERSION}")
 
 IF(NOT MTOA_VERSION AND NOT $ENV{MTOA_VERSION} STREQUAL "")
@@ -208,12 +208,5 @@ configure_file (
   "${CMAKE_SOURCE_DIR}/maya/alembicHolder/version.h.in"
   "${CMAKE_BINARY_DIR}/maya/alembicHolder/version.h"
   )
-
-configure_file (
-"${CMAKE_SOURCE_DIR}/abcToA.mod.in"
-"${CMAKE_BINARY_DIR}/abcToA.mod"
-)
   
 # 
-
-

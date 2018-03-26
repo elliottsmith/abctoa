@@ -36,6 +36,8 @@ reload(shader_widget)
 from ui import UI_ABCHierarchy
 reload(UI_ABCHierarchy)
 
+from shaderManagerUtils import CopyLayers
+
 # arnold / maya
 from arnold import *
 import maya.cmds as cmds
@@ -155,7 +157,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
     def layers_clicked(self):
         """"""
-        layers_copy = exportManager.CopyLayers(self)
+        layers_copy = CopyLayers(self)
         layers_copy.show()
 
     def geoFilterChanged(self):

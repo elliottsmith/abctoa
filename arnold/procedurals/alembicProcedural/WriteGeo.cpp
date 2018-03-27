@@ -365,7 +365,9 @@ std::string getHash( const std::string& name, const std::string& originalName, p
                         || attribute=="disp_zero_value"
                         || attribute=="disp_autobump"
                         || attribute=="sss_setname"
-                        || attribute=="invert_normals")
+                        || attribute=="invert_normals"
+                        || attribute=="step_size"
+                        || attribute=="volume_padding")
                     {
                         Json::Value val = args.attributesRoot[*it][itr.key().asString()];
 
@@ -683,7 +685,9 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                             || attribute=="disp_zero_value"
                             || attribute=="disp_autobump"
                             || attribute=="sss_setname"
-                            || attribute=="invert_normals")
+                            || attribute=="invert_normals"
+                            || attribute=="step_size"
+                            || attribute=="volume_padding")
                         {
                             const AtNodeEntry* nodeEntry = AiNodeGetNodeEntry(meshNode);
                             const AtParamEntry* paramEntry = AiNodeEntryLookUpParameter(nodeEntry, attribute.c_str());

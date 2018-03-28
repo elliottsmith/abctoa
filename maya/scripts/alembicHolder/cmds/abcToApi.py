@@ -312,39 +312,6 @@ class alembicHolderClass():
             self.logger.error("Export Shaders Error : %s" % e)
             return False
 
-    def writeAbcContainers(self, container_out_path):
-        """
-        Reminder to look into the abcContainersExport command
-
-        Args:
-            container_out_path (str): Path to export container to
-        
-        Returns:
-            bool: The return value. True for success, False otherwise.
-        """
-        self.logger.info("Export Containers")
-
-        try:
-            if not cmds.pluginInfo('abcMayaShader', loaded=True, query=True):
-                cmds.loadPlugin('abcMayaShader')
-
-            # make dirs
-            if not os.path.isdir(os.path.dirname(container_out_path)):
-                os.makedirs(os.path.dirname(container_out_path))
-
-            # export the alembic file
-            cmds.abcContainersExport(f=container_out_path, ls=True)
-            self.logger.debug("Exporting Alembic Containers")
-
-            # reselect the shape
-            cmds.select(self.data['shapeNode'])
-            self.logger.info("Exported Containers : %s" % container_out_path)
-            return True
-
-        except Exception, e:
-            self.logger.error("Export Shaders Error : %s" % e)
-            return False        
-
     def writeJson(self, json_out_path, namespace="default"):
         """
         Export shader and attributes assignments to json file.

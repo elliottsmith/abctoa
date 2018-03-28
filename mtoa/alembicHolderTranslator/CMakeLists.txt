@@ -1,4 +1,4 @@
-set(MTOATRANSLATOR abcViewer)
+set(MTOATRANSLATOR alembicHolderTranslator)
 
 file(GLOB SRC "*.cpp" "*h")
 include_directories(${MTOA_INCLUDE_DIR})

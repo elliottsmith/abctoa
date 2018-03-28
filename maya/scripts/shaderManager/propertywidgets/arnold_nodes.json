@@ -1,343 +1,4 @@
 {
-    "alembicProcedural": {
-        "params": [
-            {
-                "name": "visibility", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "sidedness", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "receive_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "self_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "invert_normals", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "ray_bias", 
-                "type": 4, 
-                "value": 9.999999974752427e-07
-            }, 
-            {
-                "name": "matrix", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "transform_type", 
-                "type": 15, 
-                "value": {
-                    "default": 2, 
-                    "values": [
-                        "linear", 
-                        "rotate_about_origin", 
-                        "rotate_about_center"
-                    ]
-                }
-            }, 
-            {
-                "name": "shader", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "opaque", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "matte", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "use_light_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "light_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "use_shadow_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "shadow_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "trace_sets", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "motion_start", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "motion_end", 
-                "type": 4, 
-                "value": 1.0
-            }, 
-            {
-                "name": "id", 
-                "type": 2, 
-                "value": 0
-            }, 
-            {
-                "name": "override_nodes", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "fileNames", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "objectPath", 
-                "type": 10, 
-                "value": "/"
-            }, 
-            {
-                "name": "namePrefix", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "frame", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "fps", 
-                "type": 4, 
-                "value": 25.0
-            }, 
-            {
-                "name": "jsonFile", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "secondaryJsonFile", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "shadersNamespace", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "shadersAttribute", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "abcShaders", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "shadersAssignation", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "attributes", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "displacementsAssignation", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "layersOverride", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "instancerArchive", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "skipJsonFile", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "skipShaders", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "skipAttributes", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "skipLayers", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "skipDisplacements", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "name", 
-                "type": 10, 
-                "value": ""
-            }
-        ], 
-        "type": "shape"
-    }, 
-    "bakerPrepare": {
-        "params": [
-            {
-                "name": "visibility", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "sidedness", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "receive_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "self_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "invert_normals", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "ray_bias", 
-                "type": 4, 
-                "value": 9.999999974752427e-07
-            }, 
-            {
-                "name": "matrix", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "transform_type", 
-                "type": 15, 
-                "value": {
-                    "default": 2, 
-                    "values": [
-                        "linear", 
-                        "rotate_about_origin", 
-                        "rotate_about_center"
-                    ]
-                }
-            }, 
-            {
-                "name": "shader", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "opaque", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "matte", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "use_light_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "light_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "use_shadow_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "shadow_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "trace_sets", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "motion_start", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "motion_end", 
-                "type": 4, 
-                "value": 1.0
-            }, 
-            {
-                "name": "id", 
-                "type": 2, 
-                "value": 0
-            }, 
-            {
-                "name": "override_nodes", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "data", 
-                "type": 10, 
-                "value": ""
-            }, 
-            {
-                "name": "name", 
-                "type": 10, 
-                "value": ""
-            }
-        ], 
-        "type": "shape"
-    }, 
     "box": {
         "params": [
             {
@@ -368,7 +29,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -508,7 +169,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -648,7 +309,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -820,7 +481,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -1103,7 +764,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -1483,12 +1144,8 @@
             }, 
             {
                 "name": "direction", 
-                "type": 7, 
-                "value": [
-                    0.0, 
-                    0.0, 
-                    -1.0
-                ]
+                "type": 13, 
+                "value": "0, 0, -1"
             }, 
             {
                 "name": "angle", 
@@ -1533,7 +1190,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -1655,7 +1312,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -1782,197 +1439,6 @@
                 "name": "field_channel", 
                 "type": 10, 
                 "value": "field"
-            }, 
-            {
-                "name": "name", 
-                "type": 10, 
-                "value": ""
-            }
-        ], 
-        "type": "shape"
-    }, 
-    "implicit_particle": {
-        "params": [
-            {
-                "name": "visibility", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "sidedness", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "receive_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "self_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "invert_normals", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "ray_bias", 
-                "type": 4, 
-                "value": 9.999999974752427e-07
-            }, 
-            {
-                "name": "matrix", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "transform_type", 
-                "type": 15, 
-                "value": {
-                    "default": 2, 
-                    "values": [
-                        "linear", 
-                        "rotate_about_origin", 
-                        "rotate_about_center"
-                    ]
-                }
-            }, 
-            {
-                "name": "shader", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "opaque", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "matte", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "use_light_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "light_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "use_shadow_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "shadow_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "trace_sets", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "motion_start", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "motion_end", 
-                "type": 4, 
-                "value": 1.0
-            }, 
-            {
-                "name": "id", 
-                "type": 2, 
-                "value": 0
-            }, 
-            {
-                "name": "field", 
-                "type": 12, 
-                "value": "None"
-            }, 
-            {
-                "name": "threshold", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "samples", 
-                "type": 2, 
-                "value": 10
-            }, 
-            {
-                "name": "solver", 
-                "type": 15, 
-                "value": {
-                    "default": 0, 
-                    "values": [
-                        "uniform", 
-                        "levelset"
-                    ]
-                }
-            }, 
-            {
-                "name": "min", 
-                "type": 7, 
-                "value": [
-                    0.0, 
-                    0.0, 
-                    0.0
-                ]
-            }, 
-            {
-                "name": "max", 
-                "type": 7, 
-                "value": [
-                    0.0, 
-                    0.0, 
-                    0.0
-                ]
-            }, 
-            {
-                "name": "step_size", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "field_channel", 
-                "type": 10, 
-                "value": "field"
-            }, 
-            {
-                "name": "points", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "radius", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "smooth_step", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "falloff_exponent", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "step_scale", 
-                "type": 4, 
-                "value": 1.0
             }, 
             {
                 "name": "name", 
@@ -2012,7 +1478,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -2129,12 +1595,7 @@
                 "name": "cast_volumetric_shadows", 
                 "type": 3, 
                 "value": true
-            },
-            {
-                "name": "light_visible", 
-                "type": 3, 
-                "value": false
-            },             
+            }, 
             {
                 "name": "shadow_density", 
                 "type": 4, 
@@ -2257,7 +1718,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -2388,123 +1849,6 @@
             }, 
             {
                 "name": "smoothing", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "name", 
-                "type": 10, 
-                "value": ""
-            }
-        ], 
-        "type": "shape"
-    }, 
-    "particleInstancer": {
-        "params": [
-            {
-                "name": "visibility", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "sidedness", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "receive_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "self_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "invert_normals", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "ray_bias", 
-                "type": 4, 
-                "value": 9.999999974752427e-07
-            }, 
-            {
-                "name": "matrix", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "transform_type", 
-                "type": 15, 
-                "value": {
-                    "default": 2, 
-                    "values": [
-                        "linear", 
-                        "rotate_about_origin", 
-                        "rotate_about_center"
-                    ]
-                }
-            }, 
-            {
-                "name": "shader", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "opaque", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "matte", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "use_light_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "light_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "use_shadow_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "shadow_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "trace_sets", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "motion_start", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "motion_end", 
-                "type": 4, 
-                "value": 1.0
-            }, 
-            {
-                "name": "id", 
-                "type": 2, 
-                "value": 0
-            }, 
-            {
-                "name": "override_nodes", 
                 "type": 3, 
                 "value": false
             }, 
@@ -2679,7 +2023,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -2942,7 +2286,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -3101,7 +2445,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -3281,6 +2625,11 @@
                 }
             }, 
             {
+                "name": "subdiv_frustum_ignore", 
+                "type": 3, 
+                "value": false
+            }, 
+            {
                 "name": "subdiv_uv_smoothing", 
                 "type": 15, 
                 "value": {
@@ -3376,7 +2725,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -3454,6 +2803,11 @@
                 "name": "override_nodes", 
                 "type": 3, 
                 "value": false
+            }, 
+            {
+                "name": "namespace", 
+                "type": 10, 
+                "value": ""
             }, 
             {
                 "name": "filename", 
@@ -3692,17 +3046,17 @@
                 "value": 1.0
             }, 
             {
+                "name": "transmission", 
+                "type": 4, 
+                "value": 1.0
+            }, 
+            {
                 "name": "diffuse", 
                 "type": 4, 
                 "value": 1.0
             }, 
             {
                 "name": "specular", 
-                "type": 4, 
-                "value": 1.0
-            }, 
-            {
-                "name": "transmission", 
                 "type": 4, 
                 "value": 1.0
             }, 
@@ -3828,7 +3182,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -4133,7 +3487,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -4300,7 +3654,7 @@
             {
                 "name": "ray_bias", 
                 "type": 4, 
-                "value": 9.999999974752427e-07
+                "value": 9.9999999747524271e-07
             }, 
             {
                 "name": "matrix", 
@@ -4472,392 +3826,6 @@
                 "name": "velocity_outlier_threshold", 
                 "type": 4, 
                 "value": 0.0010000000474974513
-            }, 
-            {
-                "name": "name", 
-                "type": 10, 
-                "value": ""
-            }
-        ], 
-        "type": "shape"
-    }, 
-    "volume_particle": {
-        "params": [
-            {
-                "name": "visibility", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "sidedness", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "receive_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "self_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "invert_normals", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "ray_bias", 
-                "type": 4, 
-                "value": 9.999999974752427e-07
-            }, 
-            {
-                "name": "matrix", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "transform_type", 
-                "type": 15, 
-                "value": {
-                    "default": 2, 
-                    "values": [
-                        "linear", 
-                        "rotate_about_origin", 
-                        "rotate_about_center"
-                    ]
-                }
-            }, 
-            {
-                "name": "shader", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "opaque", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "matte", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "use_light_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "light_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "use_shadow_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "shadow_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "trace_sets", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "motion_start", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "motion_end", 
-                "type": 4, 
-                "value": 1.0
-            }, 
-            {
-                "name": "id", 
-                "type": 2, 
-                "value": 0
-            }, 
-            {
-                "name": "volume_padding", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "step_size", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "points", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "radius", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "smooth_step", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "falloff_exponent", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "step_scale", 
-                "type": 4, 
-                "value": 1.0
-            }, 
-            {
-                "name": "name", 
-                "type": 10, 
-                "value": ""
-            }
-        ], 
-        "type": "shape"
-    }, 
-    "xgenProcedural": {
-        "params": [
-            {
-                "name": "visibility", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "sidedness", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "receive_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "self_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "invert_normals", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "ray_bias", 
-                "type": 4, 
-                "value": 9.999999974752427e-07
-            }, 
-            {
-                "name": "matrix", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "transform_type", 
-                "type": 15, 
-                "value": {
-                    "default": 2, 
-                    "values": [
-                        "linear", 
-                        "rotate_about_origin", 
-                        "rotate_about_center"
-                    ]
-                }
-            }, 
-            {
-                "name": "shader", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "opaque", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "matte", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "use_light_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "light_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "use_shadow_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "shadow_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "trace_sets", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "motion_start", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "motion_end", 
-                "type": 4, 
-                "value": 1.0
-            }, 
-            {
-                "name": "id", 
-                "type": 2, 
-                "value": 0
-            }, 
-            {
-                "name": "override_nodes", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "name", 
-                "type": 10, 
-                "value": ""
-            }
-        ], 
-        "type": "shape"
-    }, 
-    "xgen_procedural": {
-        "params": [
-            {
-                "name": "visibility", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "sidedness", 
-                "type": 0, 
-                "value": 255
-            }, 
-            {
-                "name": "receive_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "self_shadows", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "invert_normals", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "ray_bias", 
-                "type": 4, 
-                "value": 9.999999974752427e-07
-            }, 
-            {
-                "name": "matrix", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "transform_type", 
-                "type": 15, 
-                "value": {
-                    "default": 2, 
-                    "values": [
-                        "linear", 
-                        "rotate_about_origin", 
-                        "rotate_about_center"
-                    ]
-                }
-            }, 
-            {
-                "name": "shader", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "opaque", 
-                "type": 3, 
-                "value": true
-            }, 
-            {
-                "name": "matte", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "use_light_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "light_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "use_shadow_group", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "shadow_group", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "trace_sets", 
-                "type": 13, 
-                "value": 0
-            }, 
-            {
-                "name": "motion_start", 
-                "type": 4, 
-                "value": 0.0
-            }, 
-            {
-                "name": "motion_end", 
-                "type": 4, 
-                "value": 1.0
-            }, 
-            {
-                "name": "id", 
-                "type": 2, 
-                "value": 0
-            }, 
-            {
-                "name": "override_nodes", 
-                "type": 3, 
-                "value": false
-            }, 
-            {
-                "name": "data", 
-                "type": 10, 
-                "value": ""
             }, 
             {
                 "name": "name", 

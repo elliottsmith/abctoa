@@ -1,7 +1,7 @@
 
 #include "parseAttributes.h"
 #include "abcshaderutils.h"
-#include "../../../common/PathUtil.h"
+#include "../../common/PathUtil.h"
 
 #include <pystring.h>
 
@@ -232,7 +232,7 @@ bool isVisibleForArnold(IObject child, ProcArgs* args)
                             uint16_t vis = args->attributesRoot[*it][itr.key().asString()].asInt();
                             if(vis <= minVis)
                             {
-                                AiMsgDebug("Object %s is invisible", name.c_str());
+                                AiMsgDebug("[parseAttributes] Object %s is invisible", name.c_str());
                                 return false;
                             }
 
@@ -320,7 +320,7 @@ AtNode* createNetwork(IObject object, std::string prefix, ProcArgs & args)
         {
             std::string nodeType = "<undefined>";
             abcnode.getNodeType(nodeType);
-            AiMsgDebug("Creating %s node named %s", nodeType.c_str(), abcnode.getName().c_str());
+            AiMsgDebug("[parseAttributes] Creating %s node named %s", nodeType.c_str(), abcnode.getName().c_str());
             AtNode* aShader = AiNode (nodeType.c_str());
 
             std::string name = prefix + "_" + abcnode.getName();
@@ -372,7 +372,7 @@ AtNode* createNetwork(IObject object, std::string prefix, ProcArgs & args)
             size_t numConnections = abcnode.getNumConnections();
             if(numConnections)
             {
-                AiMsgDebug("linking nodes");
+                AiMsgDebug("[parseAttributes] inking nodes");
                 std::string inputName, connectedNodeName, connectedOutputName;
                 for (size_t j = 0; j < numConnections; ++j)
                 {
@@ -413,12 +413,12 @@ AtNode* createNetwork(IObject object, std::string prefix, ProcArgs & args)
                         {
                             if(connectedOutputName.length() == 0)
                             {
-                                AiMsgDebug("Linking %s to %s.%s", connectedNodeName.c_str(), abcnode.getName().c_str(), inputName.c_str());
+                                AiMsgDebug("[parseAttributes] Linking %s to %s.%s", connectedNodeName.c_str(), abcnode.getName().c_str(), inputName.c_str());
                                 AiNodeLink(aShaders[connectedNodeName.c_str()], inputName.c_str(), aShaders[abcnode.getName().c_str()]);
                             }
                             else
                             {
-                                AiMsgDebug("Linking %s.%s to %s.%s", connectedNodeName.c_str(), connectedOutputName.c_str(), abcnode.getName().c_str(), inputName.c_str());
+                                AiMsgDebug("[parseAttributes] Linking %s.%s to %s.%s", connectedNodeName.c_str(), connectedOutputName.c_str(), abcnode.getName().c_str(), inputName.c_str());
                                 AiNodeLinkOutput(aShaders[connectedNodeName.c_str()], connectedOutputName.c_str(), aShaders[abcnode.getName().c_str()], inputName.c_str());
                             }
                         }
@@ -466,7 +466,7 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
     for( Json::ValueIterator itr = jroot.begin() ; itr != jroot.end() ; itr++ )
     {
         
-        AiMsgDebug( "[ABC] Parsing shader %s", itr.key().asCString());
+        AiMsgDebug( "[parseAttributes] Parsing shader %s", itr.key().asCString());
         std::string shaderName = ns + itr.key().asString();
         AtNode* shaderNode = AiNodeLookUpByName(shaderName.c_str());
         if(shaderNode == NULL)
@@ -480,7 +480,7 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
                     originalName = pystring::replace(originalName, ".message", "");
                 }
 
-                AiMsgDebug( "[ABC] Create shader %s from ABC", originalName.c_str());
+                AiMsgDebug( "[parseAttributes] Create shader %s from ABC", originalName.c_str());
 
                 IObject object = args->materialsObject.getChild(originalName);
                 if (IMaterial::matches(object.getHeader()))
@@ -494,7 +494,7 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
                 shaderNode = AiNodeLookUpByName(shaderName.c_str());
                 if(shaderNode == NULL)
                 {
-                    AiMsgDebug( "[ABC] Searching shader %s deeper underground...", itr.key().asCString());
+                    AiMsgDebug( "[parseAttributes] Searching shader %s deeper underground...", itr.key().asCString());
                     // look for the same namespace for shaders...
                     std::vector<std::string> strs;
                     pystring::split(nameprefix, strs, ":");
@@ -510,11 +510,11 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
         if(shaderNode != NULL)
         {
             Json::Value paths = jroot[itr.key().asString()];
-            AiMsgDebug("[ABC] Shader exists, checking paths. size = %d", paths.size());
+            AiMsgDebug("[parseAttributes] Shader exists, checking paths. size = %d", paths.size());
             for( Json::ValueIterator itr2 = paths.begin() ; itr2 != paths.end() ; itr2++ )
             {
                 Json::Value val = paths[itr2.key().asUInt()];
-                AiMsgDebug("[ABC] Adding path %s", val.asCString());
+                AiMsgDebug("[parseAttributes] Adding path %s", val.asCString());
                 if(type == 0)
                     args->displacements[val.asString().c_str()] = shaderNode;
                 else if(type == 1)
@@ -524,7 +524,7 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
         }
         else
         {
-            AiMsgWarning("[ABC] Can't find shader %s", shaderName.c_str());
+            AiMsgWarning("[parseAttributes] Can't find shader %s", shaderName.c_str());
         }
     }
 }

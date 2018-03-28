@@ -1,6 +1,5 @@
-#include "abcShader.h"
+#include "abcMayaShaderTranslator.h"
 #include <ai_nodes.h>
-//class CExtensionAttrHelper;
 
 static const char* declStrings[][4] = {
    {"constant BYTE", "constant ARRAY BYTE", "uniform BYTE", "varying BYTE"}, // AI_TYPE_BYTE
@@ -21,10 +20,9 @@ static const char* declStrings[][4] = {
 };
 
 
-
 AtNode* CAbcShaderTranslator::CreateArnoldNodes()
 {
-   return AddArnoldNode("AbcShader");
+   return AddArnoldNode("abcMayaShaderProcedural");
 }
 
 void CAbcShaderTranslator::ProcessExtraParameter(AtNode* anode, MObject oAttr, MPlug pAttr, const char* aname)
@@ -75,7 +73,7 @@ void CAbcShaderTranslator::ProcessExtraParameter(AtNode* anode, MObject oAttr, M
                 break;
              default:
                 // not supported: k2Short, k2Long, k3Short, k3Long, kAddr
-                AiMsgError("[mtoa.translator]  Unsupported user attribute type");
+                AiMsgError("[abcMayaShaderTranslator] Unsupported user attribute type");
                 break;
          }
     }
@@ -110,27 +108,11 @@ void CAbcShaderTranslator::ProcessExtraParameter(AtNode* anode, MObject oAttr, M
                 type = AI_TYPE_VECTOR;
             break;
          default:
-            // kMatrix, kNumeric (this one should have be caught be hasFn(MFn::kNumericAttribute))
-            //AiMsgError("[mtoa.translator]  %s: Unsupported user attribute type for %s",
-            //   GetTranslatorName().asChar(), pAttr.partialName(true, false, false, false, false, true).asChar());
             break;
          }
     }
     if(!AiNodeLookUpUserParameter(anode, aname))
         AiNodeDeclare(anode, aname, declStrings[type][0]);
-    /*if (type == AI_TYPE_RGB || type == AI_TYPE_RGBA)
-    {
-        if(GetSessionMode() == MTOA_SESSION_ASS)
-        {
-            if( type == AI_TYPE_RGB)
-                AiNodeSetRGB(anode, aname, pow(pAttr.child(0).asFloat(), 2.2f) , pow(pAttr.child(1).asFloat(), 2.2f), pow(pAttr.child(2).asFloat(), 2.2f));
-            else
-                AiNodeSetRGBA(anode, aname, pow(pAttr.child(0).asFloat(), 2.2f) , pow(pAttr.child(1).asFloat(), 2.2f), pow(pAttr.child(2).asFloat(), 2.2f), pAttr.child(3).asFloat());
-        }
-        else
-            ProcessParameter(anode, aname, type, aname);
-    }
-    else*/
         ProcessParameter(anode, aname, type, aname);
 }
 
@@ -155,7 +137,6 @@ void CAbcShaderTranslator::Export(AtNode* shader)
         if(name != "message" && name !="caching" && name != "isHistoricallyInteresting" && name != "nodeState" && name != "binMembership" && name != "shader" && name != "shaderFrom" && name != "shaders" && name != "outColor" && name != "aiUserOptions")
             ProcessExtraParameter(shader, oAttr, pAttr, name.asChar());
     }
-
 
 }
 

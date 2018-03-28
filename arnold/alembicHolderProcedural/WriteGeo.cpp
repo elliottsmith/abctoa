@@ -38,7 +38,7 @@
 #include "WriteTransform.h"
 #include "WriteOverrides.h"
 #include "ArbGeomParams.h"
-#include "../../../common/PathUtil.h"
+#include "../../common/PathUtil.h"
 #include "parseAttributes.h"
 #include "NodeCache.h"
 
@@ -651,7 +651,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
 
     if (!meshNode)
     {
-        AiMsgError("Failed to make polymesh node for %s",
+        AiMsgError("[WriteGeo] Failed to make polymesh node for %s",
                 prim.getFullName().c_str());
         return NULL;
     }
@@ -877,13 +877,13 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                 IFaceSetSchema::Sample faceSetSample = faceSet.getSchema().getValue( frameSelector );
 
                 const int* faceArray((int *)faceSetSample.getFaces()->getData()); 
-                AiMsgInfo("Faceset %s on %s with %i faces",  faceSetNames[i].c_str(), originalName.c_str(),  faceSetSample.getFaces()->size());
+                AiMsgInfo("[WriteGeo] Faceset %s on %s with %i faces",  faceSetNames[i].c_str(), originalName.c_str(),  faceSetSample.getFaces()->size());
                 for( int f = 0; f < (int) faceSetSample.getFaces()->size(); f++)
                 {
                     if(faceArray[f] <= nsides.size() )
                         faceSetArray[faceArray[f]] = (uint8_t) i;
                     else
-                        AiMsgWarning("Face set is higher than nsides side");
+                        AiMsgWarning("[WriteGeo] Face set is higher than nsides side");
                 }
             }
         }
@@ -901,7 +901,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
 
     args.createdNodes->addNode(meshNode);
     args.nodeCache->addNode(cacheId, meshNode);
-    AiMsgDebug("  Creating 'polymesh': %s", (name + ":src").c_str());
+    AiMsgDebug("[WriteGeo] Creating 'polymesh': %s", (name + ":src").c_str());
     return meshNode;
 }
 
@@ -980,12 +980,12 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
         else
             ApplyShaders(originalName, instanceNode, tags, args);
     } else {
-        AiMsgInfo("Node type doesn't have a shader parameter");
+        AiMsgInfo("[WriteGeo] Node type doesn't have a shader parameter");
     }
 
     args.createdNodes->addNode(instanceNode);  
-    AiMsgDebug("  Creating 'ginstance': %s", (name + ":ginstance").c_str());
-    AiMsgDebug("  Linking 'ginstance' to 'polymesh'");    
+    AiMsgDebug("[WriteGeo] Creating 'ginstance': %s", (name + ":ginstance").c_str());
+    AiMsgDebug("[WriteGeo] Linking 'ginstance' to 'polymesh'");    
     return instanceNode;
 }
 
@@ -1089,8 +1089,8 @@ void createMeshLight(const std::string& name, const std::string& originalName, p
     // adding attributes on procedural
     AddArbitraryProceduralParams(args.proceduralNode, meshLightNode);
 
-    AiMsgDebug("  Creating 'mesh_light': %s", meshlightname.c_str());
-    AiMsgDebug("  Linking 'mesh_light' to 'ginstance'");
+    AiMsgDebug("[WriteGeo] Creating 'mesh_light': %s", meshlightname.c_str());
+    AiMsgDebug("[WriteGeo] Linking 'mesh_light' to 'ginstance'");
     args.createdNodes->addNode(meshLightNode);
     createMeshLightShader(name, originalName, prim, args, xformSamples, mesh, meshLightNode);
 }
@@ -1106,7 +1106,7 @@ AtRGB doNormalize(AtNode* mesh, AtRGB colorMultiplier){
 
     AtNode *poly = (AtNode*)AiNodeGetPtr(mesh, "node");
     AtString name = AiNodeGetStr(poly, "name");
-    AiMsgDebug("Normal RGB");
+    AiMsgDebug("[WriteGeo] Normalise RGB");
 
     double surfaceArea = 0.f;
     int counter = 0;
@@ -1118,11 +1118,11 @@ AtRGB doNormalize(AtNode* mesh, AtRGB colorMultiplier){
         vlist.push_back(vec);
     }
 
-    AiMsgDebug("Number of Polygons: %d", AiArrayGetNumElements(AiNodeGetArray(poly, "nsides")));
+    AiMsgDebug("[WriteGeo] Number of Polygons: %d", AiArrayGetNumElements(AiNodeGetArray(poly, "nsides")));
 
     for(unsigned int i=0; i < AiArrayGetNumElements(AiNodeGetArray(poly, "nsides")); i++){
         int num_vertices = AiArrayGetUInt(AiNodeGetArray(poly, "nsides"), i);
-        AiMsgDebug("Polygon %d has %d vertices", i, num_vertices);
+        AiMsgDebug("[WriteGeo] Polygon %d has %d vertices", i, num_vertices);
 
         std::vector<int> vidxs;
         for(unsigned int i=0; i < num_vertices; i++){
@@ -1141,15 +1141,15 @@ AtRGB doNormalize(AtNode* mesh, AtRGB colorMultiplier){
         if (vertexCount){
 
             AtVector vector0 = AtVector(vlist[proper_vidx[0]].x, vlist[proper_vidx[0]].y, vlist[proper_vidx[0]].z);
-            AiMsgDebug("Vector0: %d, %d, %d", vector0.x, vector0.y, vector0.z);
+            AiMsgDebug("[WriteGeo] Vector0: %d, %d, %d", vector0.x, vector0.y, vector0.z);
 
             for (int j = 1; j < vertexCount - 1; ++j) {
 
                 AtVector vector1 = AtVector(vlist[proper_vidx[j]].x, vlist[proper_vidx[j]].y, vlist[proper_vidx[j]].z);
                 AtVector vector2 = AtVector(vlist[proper_vidx[j + 1]].x, vlist[proper_vidx[j + 1]].y, vlist[proper_vidx[j + 1]].z);
 
-                AiMsgDebug("Vector1: %d, %d, %d", vector1.x, vector1.y, vector1.z);
-                AiMsgDebug("Vector2: %d, %d, %d", vector2.x, vector2.y, vector2.z);                                
+                AiMsgDebug("[WriteGeo] Vector1: %d, %d, %d", vector1.x, vector1.y, vector1.z);
+                AiMsgDebug("[WriteGeo] Vector2: %d, %d, %d", vector2.x, vector2.y, vector2.z);                                
                 surfaceArea += _CalculateTriangleArea(vector0, vector1, vector2);
 
             }
@@ -1241,8 +1241,8 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 
     // set the ptr
     AiNodeSetPtr(mesh, "shader", meshLightShader);    
-    AiMsgDebug("  Creating 'mesh_light_material': %s", meshlightshadername.c_str());
-    AiMsgDebug("  Linking 'ginstance' to 'mesh_light_material'");
+    AiMsgDebug("[WriteGeo] Creating 'mesh_light_material': %s", meshlightshadername.c_str());
+    AiMsgDebug("[WriteGeo] Linking 'ginstance' to 'mesh_light_material'");
     args.createdNodes->addNode(meshLightShader);
 }
 

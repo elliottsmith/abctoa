@@ -41,7 +41,7 @@
 #include "parseAttributes.h"
 #include "NodeCache.h"
 
-#include "../../../common/PathUtil.h"
+#include "../../common/PathUtil.h"
 
 #include <ai.h>
 #include <sstream>
@@ -216,7 +216,7 @@ AtNode* writeCurves(
     AiNodeSetByte( curvesNode, "visibility", 0 );
     if (!curvesNode)
     {
-        AiMsgError("Failed to make points node for %s",
+        AiMsgError("[WriteCurves] Failed to make points node for %s",
                 prim.getFullName().c_str());
         return NULL;
     }
@@ -267,14 +267,14 @@ AtNode* writeCurves(
                             || attribute=="step_size"
                             || attribute=="invert_normals")
                         {
-                            //AiMsgDebug("Checking attribute %s for shape %s", attribute.c_str(), name.c_str());
+                            //AiMsgDebug("[WriteCurves] Checking attribute %s for shape %s", attribute.c_str(), name.c_str());
                             // check if the attribute exists ...
                             const AtNodeEntry* nodeEntry = AiNodeGetNodeEntry(curvesNode);
                             const AtParamEntry* paramEntry = AiNodeEntryLookUpParameter(nodeEntry, attribute.c_str());
 
                             if ( paramEntry != NULL)
                             {
-                                //AiMsgDebug("attribute %s exists on shape", attribute.c_str());
+                                //AiMsgDebug("[WriteCurves] attribute %s exists on shape", attribute.c_str());
                                 Json::Value val = args.attributesRoot[*it][itr.key().asString()];
                                 if( val.isString() )
                                     AiNodeSetStr(curvesNode, attribute.c_str(), val.asCString());

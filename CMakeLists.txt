@@ -175,25 +175,18 @@ message("Scripts will be installed to: \n\t${INSTALL_DIR}/scripts")
 message("PySide will be installed to: \n\t${PYSIDE_INSTALL_DIR}")
 
 # Set the list of subdirectories to recurse into to find stuff to build
-set(SUBDIRECTORIES 
-		arnold/procedurals/alembicProcedural
-		arnold/shaders/abcShader
-		#arnold/utility/assShadersToAbc
-		maya/alembicHolder
-		mtoa/ABCViewer
-		mtoa/abcShader
-)
+set(SUBDIRECTORIES
+        maya/alembicHolder
+        mtoa/alembicHolderTranslator
+        arnold/alembicHolderProcedural
+        maya/abcMayaShader
+        mtoa/abcMayaShaderTranslator
+        arnold/abcMayaShaderProcedural)
 
 # loop over subdirectories
 foreach(SUBDIR ${SUBDIRECTORIES})
     add_subdirectory(${SUBDIR})
 endforeach()
-
-
-# abcMayaShader won't compile on darwin for the moment.
-IF(NOT DARWIN)
-	add_subdirectory(maya/abcMayaShader)
-ENDIF()
 
 # add top-level files
 INSTALL(FILES DESTINATION ${INSTALL_DIR})

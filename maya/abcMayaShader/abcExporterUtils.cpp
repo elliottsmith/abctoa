@@ -57,12 +57,12 @@ AtNode* renameAndCloneNodeByParent(AtNode* node, AtNode* parent)
     {
         AtNode* copy = AiNodeClone(node);
         AiNodeSetStr(copy, "name", newName.asChar());
-        AiMsgDebug("renaming %s to %s", AiNodeGetName(node), AiNodeGetName(copy));
+        AiMsgDebug("[abcExporterUtils] renaming %s to %s", AiNodeGetName(node), AiNodeGetName(copy));
         return copy;
     }
     else
     {
-        AiMsgDebug("%s already exists", AiNodeGetName(existingNode));
+        AiMsgDebug("[abcExporterUtils] %s already exists", AiNodeGetName(existingNode));
         return existingNode;
     }
 }
@@ -119,7 +119,7 @@ void getAllArnoldNodes(AtNode* node, AtNodeSet* nodes)
                     AtNode* linkedNode = (AtNode*)AiArrayGetPtr(paramArray, i);
                     if(linkedNode != NULL)
                     {
-                        //AiMsgDebug("we have a link to %s for %s", AiNodeGetName(linkedNode), AiNodeGetName(node));
+                        //AiMsgDebug("[abcExporterUtils] we have a link to %s for %s", AiNodeGetName(linkedNode), AiNodeGetName(node));
                         //linkedNode = renameAndCloneNodeByParent(linkedNode, node);
                         //AiArraySetPtr(paramArray, i, linkedNode);
                         nodes->insert(linkedNode);
@@ -139,12 +139,12 @@ void getAllArnoldNodes(AtNode* node, AtNodeSet* nodes)
                         MString paramNameArray = MString(paramName) + "[" + MString(to_string(i).c_str()) +"]";
                         if (AiNodeIsLinked(node, paramNameArray.asChar()))
                         {
-                            //AiMsgDebug("%s has a link", paramNameArray.asChar());
+                            //AiMsgDebug("[abcExporterUtils] %s has a link", paramNameArray.asChar());
                             AtNode* linkedNode = NULL;
                             linkedNode = AiNodeGetLink(node, paramNameArray.asChar(), &comp);
                             if(linkedNode)
                             {
-                                //AiMsgDebug("we have a link to %s on %s", AiNodeGetName(linkedNode), paramNameArray.asChar());
+                                //AiMsgDebug("[abcExporterUtils] we have a link to %s on %s", AiNodeGetName(linkedNode), paramNameArray.asChar());
                                 //linkedNode = renameAndCloneNodeByParent(linkedNode, node);
                                 //relink(linkedNode, node, paramNameArray.asChar(), comp);
                                 nodes->insert(linkedNode);
@@ -344,7 +344,7 @@ void processArrayValues(AtNode* sit, const char *paramName, AtArray* paramArray,
         prop.set(vals);
     }
 
-    cout << "exported " << AiArrayGetNumElements(paramArray) << " array values of type " << typeArray << " for " << nodeName.asChar() << "." << paramName << endl;
+    // cout << "exported " << AiArrayGetNumElements(paramArray) << " array values of type " << typeArray << " for " << nodeName.asChar() << "." << paramName << endl;
 }
 
 
@@ -369,8 +369,8 @@ void processArrayParam(AtNode* sit, const char *paramName, AtArray* paramArray, 
 
                 MString paramNameArray = MString(paramName) + "[" + MString(to_string(i).c_str()) +"]";
 
-                AiMsgDebug("%s.%s is linked", nodeName.asChar(), paramName);
-                AiMsgDebug("Exporting link from %s.%s to %s.%s", nodeNameLinked.asChar(), paramNameArray.asChar(), nodeName.asChar(), paramName);
+                AiMsgDebug("[abcExporterUtils] %s.%s is linked", nodeName.asChar(), paramName);
+                AiMsgDebug("[abcExporterUtils] Exporting link from %s.%s to %s.%s", nodeNameLinked.asChar(), paramNameArray.asChar(), nodeName.asChar(), paramName);
                 matObj.getSchema().setNetworkNodeConnection(nodeName.asChar(), paramNameArray.asChar(), nodeNameLinked.asChar(), "");
 
             }
@@ -394,7 +394,7 @@ void processLinkedParam(AtNode* sit, int inputType, int outputType,  Mat::OMater
 
         if(AiNodeGetLink(sit, paramName))
         {
-            AiMsgDebug("%s.%s is linked", nodeName.asChar(), paramName);
+            AiMsgDebug("[abcExporterUtils] %s.%s is linked", nodeName.asChar(), paramName);
             exportLink(sit, matObj, nodeName, paramName, containerName);
         }
         else
@@ -427,7 +427,7 @@ void exportLink(AtNode* sit, Mat::OMaterial matObj, MString nodeName, const char
 {
     AiMsgTab (+2);
     int comp;
-    AiMsgDebug("Checking link %s.%s", nodeName.asChar(), paramName);
+    AiMsgDebug("[abcExporterUtils] Checking link %s.%s", nodeName.asChar(), paramName);
 
     AtNode* linked = AiNodeGetLink(sit, paramName, &comp);
     int outputType = AiNodeEntryGetOutputType(AiNodeGetNodeEntry(linked));
@@ -467,7 +467,7 @@ void exportLink(AtNode* sit, Mat::OMaterial matObj, MString nodeName, const char
         }
 
     }
-    AiMsgDebug("Exporting link from %s.%s to %s.%s", nodeNameLinked.asChar(), outPlug.c_str(), nodeName.asChar(), paramName);
+    AiMsgDebug("[abcExporterUtils] Exporting link from %s.%s to %s.%s", nodeNameLinked.asChar(), outPlug.c_str(), nodeName.asChar(), paramName);
     matObj.getSchema().setNetworkNodeConnection(nodeName.asChar(), paramName, nodeNameLinked.asChar(), outPlug);
 
     AiMsgTab (-2);
@@ -478,7 +478,7 @@ void exportParameterFromArray(AtNode* sit, Mat::OMaterial matObj, AtArray* param
 {
     int type = AiArrayGetType(paramArray);;
 
-    cout << "Array type " << type << " for " << nodeName.asChar() << "." << paramName << endl;
+    // cout << "Array type " << type << " for " << nodeName.asChar() << "." << paramName << endl;
     if (type == AI_TYPE_INT || type == AI_TYPE_ENUM )
     {
         //type int
@@ -519,7 +519,7 @@ void exportParameterFromArray(AtNode* sit, Mat::OMaterial matObj, AtArray* param
         AtRGB a_val = AiArrayGetRGB(paramArray, index);
         Imath::C3f color_val( a_val.r, a_val.g, a_val.b );
         prop.set(color_val);
-        cout << "exporting RGB value of " <<  a_val.r << " " << a_val.g << " " << a_val.b << " for " << nodeName.asChar() <<"."<<paramName << endl;
+        // cout << "exporting RGB value of " <<  a_val.r << " " << a_val.g << " " << a_val.b << " for " << nodeName.asChar() <<"."<<paramName << endl;
     }
     else if (type == AI_TYPE_RGBA)
     {
@@ -528,7 +528,7 @@ void exportParameterFromArray(AtNode* sit, Mat::OMaterial matObj, AtArray* param
         AtRGBA a_val = AiArrayGetRGBA(paramArray, index);
         Imath::C4f color_val( a_val.r, a_val.g, a_val.b, a_val.a );
         prop.set(color_val);
-        cout << "exporting RGBA value of " <<  a_val.r << " " << a_val.g << " " << a_val.b << " " << a_val.a << " for " << nodeName.asChar() <<"."<<paramName << endl;
+        // cout << "exporting RGBA value of " <<  a_val.r << " " << a_val.g << " " << a_val.b << " " << a_val.a << " for " << nodeName.asChar() <<"."<<paramName << endl;
     }
     else if (type == AI_TYPE_VECTOR2)
     {

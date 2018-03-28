@@ -5,7 +5,7 @@
  *      Author: nozon
  */
 
-#include "ABCViewer.h"
+#include "alembicHolderTranslator.h"
 #include "extension/Extension.h"
 
 extern "C"
@@ -18,10 +18,7 @@ extern "C"
         MStatus status;
 
             plugin.Requires("alembicHolder");
-            status = plugin.RegisterTranslator("alembicHolder",
-                                                "",
-                                                CABCViewerTranslator::creator,
-                                                CABCViewerTranslator::NodeInitializer);
+            status = plugin.RegisterTranslator("alembicHolder", "", CABCViewerTranslator::creator, CABCViewerTranslator::NodeInitializer);
     }
 
     DLLEXPORT void deinitializeExtension(CExtension &plugin)

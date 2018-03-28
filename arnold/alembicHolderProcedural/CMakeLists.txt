@@ -1,6 +1,6 @@
-set(PROC arnoldAlembicProcedural)
+set(PROC alembicHolderProcedural)
 
-file(GLOB SRC "*.cpp" "*h" "../../../common/abcshaderutils.h" "../../../common/abcshaderutils.cpp" "../../../common/PathUtil.h" "../../../common/PathUtil.cpp")
+file(GLOB SRC "*.cpp" "*h" "../../common/abcshaderutils.h" "../../common/abcshaderutils.cpp" "../../common/PathUtil.h" "../../common/PathUtil.cpp")
 
 include_directories(${ARNOLD_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/common)

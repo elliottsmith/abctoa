@@ -1,6 +1,6 @@
-set(SHADER arnoldAlembicShader)
+set(SHADER abcMayaShaderProcedural)
 
-set(SRC abcshader.cpp loader.cpp ../../../common/abcshaderutils.h ../../../common/abcshaderutils.cpp)
+set(SRC abcshader.cpp loader.cpp ../../common/abcshaderutils.h ../../common/abcshaderutils.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/common)
 include_directories(${ARNOLD_INCLUDE_DIR})

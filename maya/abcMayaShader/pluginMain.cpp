@@ -13,7 +13,6 @@ License along with this library.*/
 
 
 #include "abcMayaShaderNode.h"
-#include "abcContainersExportCmd.h"
 #include "abcCacheExportCmd.h"
 
 #include <maya/MFnPlugin.h>
@@ -62,8 +61,6 @@ DLLEXPORT MStatus initializePlugin( MObject obj )
         return status;
     }
 
-    plugin.registerCommand( "abcContainersExport", abcContainersExportCmd::creator, abcContainersExportCmd::mySyntax);
-
     plugin.registerCommand( "abcCacheExport", abcCacheExportCmd::creator, abcCacheExportCmd::mySyntax);
 
     return status;
@@ -85,12 +82,6 @@ DLLEXPORT MStatus uninitializePlugin( MObject obj)
     status = plugin.deregisterNode( abcMayaShader::id );
     if (!status) {
         status.perror("deregisterNode");
-        return status;
-    }
-
-    status = plugin.deregisterCommand("abcContainersExport");
-    if (!status) {
-        status.perror("deregisterCommand");
         return status;
     }
 

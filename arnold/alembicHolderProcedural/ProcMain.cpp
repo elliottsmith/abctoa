@@ -40,7 +40,7 @@
 
 #include "ProcArgs.h"
 #include "getBounds.h"
-#include "../../../common/PathUtil.h"
+#include "../../common/PathUtil.h"
 #include "SampleUtil.h"
 #include "WriteGeo.h"
 #include "WritePoint.h"
@@ -70,8 +70,6 @@ node_parameters
     AiParameterStr("namePrefix", "");
     AiParameterFlt("frame", 0.0);
     AiParameterFlt("fps", 25.0);
-    
-
     AiParameterStr("jsonFile", "");
     AiParameterStr("secondaryJsonFile", "");
     AiParameterStr("shadersNamespace", "");
@@ -81,17 +79,13 @@ node_parameters
     AiParameterStr("attributes", "");
     AiParameterStr("displacementsAssignation", "");
     AiParameterStr("layersOverride", "");
-
     AiParameterStr("instancerArchive", "");
-    
     AiParameterBool("skipJsonFile", false);
     AiParameterBool("skipShaders", false);
     AiParameterBool("skipAttributes", false);
     AiParameterBool("skipLayers", false);
     AiParameterBool("skipDisplacements", false);
 }
-
-
 
 
 // Recursively copy the values of b into a.
@@ -247,10 +241,10 @@ void WalkObject( IObject & parent, const ObjectHeader &i_ohead, ProcArgs &args,
     else
     {
 
-        AiMsgError("could not determine type of %s", ohead.getName().c_str());
-        AiMsgError("%s has MetaData: %s", ohead.getName().c_str(), ohead.getMetaData().serialize().c_str());
+        AiMsgError("[ProcMain] could not determine type of %s", ohead.getName().c_str());
+        AiMsgError("[ProcMain] %s has MetaData: %s", ohead.getName().c_str(), ohead.getMetaData().serialize().c_str());
         if ( IXform::matches( ohead ) )
-            AiMsgError("but we are matching");
+            AiMsgError("[ProcMain] but we are matching");
 //        nextParentObject = parent.getChild(ohead.getName());
     }
 
@@ -362,7 +356,7 @@ procedural_init
 			{
 				std::string path1 = itr.key().asString();
 				std::string path2 = pathRemappingReaderOverrides[itr.key().asString()].asString();
-				AiMsgDebug("Remapping %s to %s", path1.c_str(), path2.c_str());
+				AiMsgDebug("[ProcMain] Remapping %s to %s", path1.c_str(), path2.c_str());
 				args->pathRemapping[path1] = path2;
 			}
 		}
@@ -383,11 +377,11 @@ procedural_init
         IArchive archive = factory.getArchive(abcfile.c_str());
         if (!archive.valid())
         {
-            AiMsgWarning ( "Cannot read file %s", abcfile);
+            AiMsgWarning ( "[ProcMain] Cannot read file %s", abcfile);
         }
         else
         {
-            AiMsgDebug ( "reading file %s", abcfile);
+            AiMsgDebug ( "[ProcMain] reading file %s", abcfile);
             Abc::IObject materialsObject(archive.getTop(), "materials");
             args->useAbcShaders = true;
             args->materialsObject = materialsObject;
@@ -632,11 +626,11 @@ procedural_init
         archive = factory.getArchive(instancerArchive.c_str());
         if (!archive.valid())
         {
-            AiMsgWarning ( "Cannot read file %s", instancerArchive);
+            AiMsgWarning ( "[ProcMain] Cannot read file %s", instancerArchive);
         }
         else
         {
-            AiMsgInfo( "Using Instancer archive %s", instancerArchive);
+            AiMsgInfo( "[ProcMain] Using Instancer archive %s", instancerArchive);
 
             IObject root = archive.getTop();
             PathList path;
@@ -661,14 +655,14 @@ procedural_init
     
     if (!createdNodes.empty())
     {
-        AiMsgDebug("Found cache of size %i", createdNodes.size());
+        AiMsgDebug("[ProcMain] Found cache of size %i", createdNodes.size());
         for(int i = 0; i <  createdNodes.size(); i++)
         {
-            AiMsgDebug("Instancing obj %i", i);
+            AiMsgDebug("[ProcMain] Instancing obj %i", i);
             CachedNodeFile cachedNode = createdNodes[i];
             AtNode *obj = cachedNode.node;
             
-            AiMsgDebug("Getting obj %i %s and type %s", i, AiNodeGetName(obj), AiNodeEntryGetName(AiNodeGetNodeEntry (obj)));
+            AiMsgDebug("[ProcMain] Getting obj %i %s and type %s", i, AiNodeGetName(obj), AiNodeEntryGetName(AiNodeGetNodeEntry (obj)));
             if(AiNodeEntryGetType(AiNodeGetNodeEntry(obj)) == AI_NODE_SHAPE)
             {
                 AtNode *instance = AiNode("ginstance");
@@ -788,13 +782,13 @@ procedural_init
     if (!archive.valid())
     {
         for(size_t i = 0; i < args->filenames.size(); i++)
-            AiMsgError ( "Cannot read file %s", args->filenames[i].c_str());
+            AiMsgError ( "[ProcMain] Cannot read file %s", args->filenames[i].c_str());
         return 0;
     }
     else
     {
         for (size_t i = 0; i < args->filenames.size(); i++)
-            AiMsgDebug ( "reading file %s", args->filenames[i].c_str());
+            AiMsgDebug ( "[ProcMain] reading file %s", args->filenames[i].c_str());
     }
 
     IObject root = archive.getTop();
@@ -826,11 +820,11 @@ procedural_init
     }
     /*catch ( const std::exception &e )
     {
-        AiMsgError("exception thrown during ProcInit: %s", e.what());
+        AiMsgError("[ProcMain] exception thrown during ProcInit: %s", e.what());
     }
     catch (...)
     {
-        AiMsgError("exception thrown");
+        AiMsgError("[ProcMain] exception thrown");
     }
     */
     //g_cache->g_fileCache->removeFromOpenedFiles(args->filename);
@@ -841,7 +835,7 @@ procedural_init
 
 procedural_cleanup
 {
-    AiMsgDebug("ProcCleanup");
+    AiMsgDebug("[ProcMain] ProcCleanup");
     //delete reinterpret_cast<ProcArgs*>( user_ptr );
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
     if(args != NULL)
@@ -860,7 +854,7 @@ procedural_cleanup
         delete args->createdNodes;
         delete args;
     }
-    AiMsgDebug("ProcCleanup done");
+    AiMsgDebug("[ProcMain] ProcCleanup done");
     
     return 1;
 }
@@ -871,7 +865,7 @@ procedural_num_nodes
 {
 
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
-    AiMsgDebug("got %i nodes", args->createdNodes->getNumNodes());
+    AiMsgDebug("[ProcMain] got %i nodes", args->createdNodes->getNumNodes());
     return args->createdNodes->getNumNodes();
 
 }
@@ -881,10 +875,10 @@ procedural_num_nodes
 procedural_get_node
 {
     
-    AiMsgDebug("Should return node %i", i);
+    AiMsgDebug("[ProcMain] Should return node %i", i);
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
     
-    AiMsgDebug("Returning node %s", AiNodeGetName(args->createdNodes->getNode(i)));
+    AiMsgDebug("[ProcMain] Returning node %s", AiNodeGetName(args->createdNodes->getNode(i)));
     return args->createdNodes->getNode(i);
 
 }
@@ -900,7 +894,7 @@ extern "C"
         if (i>0) return 0;
     node->methods = alembicProceduralMethods;
     node->output_type = AI_TYPE_NONE;
-    node->name = "alembicProcedural";
+    node->name = "alembicHolderProcedural";
     node->node_type = AI_NODE_SHAPE_PROCEDURAL;
     strcpy(node->version, AI_VERSION);
     return true;

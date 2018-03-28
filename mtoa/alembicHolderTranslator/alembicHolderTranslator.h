@@ -1,7 +1,6 @@
 
 #include "translators/shape/ShapeTranslator.h"
-#include "extension/Extension.h"
-//#include "translators/NodeTranslator.h" 
+#include "extension/Extension.h" 
 #include "pystring.h"
 
 class CABCViewerTranslator

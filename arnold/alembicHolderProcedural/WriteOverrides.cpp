@@ -34,7 +34,7 @@
 //
 //-*****************************************************************************
 
-#include "../../../common/PathUtil.h"
+#include "../../common/PathUtil.h"
 #include "WriteOverrides.h"
 #include <ai.h>
 #include <sstream>

@@ -1,4 +1,4 @@
-set(MTOATRANSLATOR abcShader)
+set(MTOATRANSLATOR abcMayaShaderTranslator)
 
 file(GLOB SRC "*.cpp" "*h")
 

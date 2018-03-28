@@ -1,4 +1,4 @@
-#include "ABCViewer.h"
+#include "alembicHolderTranslator.h"
 #include <ai_nodes.h>
 
 #include <vector>
@@ -35,9 +35,8 @@ int DJB2Hash(unsigned char *str)
 
 AtNode*  CABCViewerTranslator::CreateArnoldNodes()
 {
-    return AddArnoldNode("alembicProcedural");
+    return AddArnoldNode("alembicHolderProcedural");
 }
-
 
 void CABCViewerTranslator::ProcessRenderFlagsCustom(AtNode* node)
 {
@@ -80,7 +79,6 @@ void CABCViewerTranslator::Export(AtNode* procedural)
 {
     ExportProcedural(procedural, IsExported());
 }
-
 
 void CABCViewerTranslator::ExportProcedural(AtNode* procedural, bool update)
 {
@@ -137,10 +135,8 @@ void CABCViewerTranslator::ExportProcedural(AtNode* procedural, bool update)
                             ExportConnectedNode(sgPlug);
                         }
                 }
-
             }
         }
-
 
         MPlug jsonFile = m_DagNode.findPlug("jsonFile");
         MPlug secondaryJsonFile = m_DagNode.findPlug("secondaryJsonFile");
@@ -152,8 +148,7 @@ void CABCViewerTranslator::ExportProcedural(AtNode* procedural, bool update)
         MPlug attributes = m_DagNode.findPlug("attributes");
         MPlug displacementsAssignation = m_DagNode.findPlug("displacementsAssignation");
         MPlug layersOverride = m_DagNode.findPlug("layersOverride");
-        
-        
+
         bool skipJsonFile = m_DagNode.findPlug("skipJsonFile").asBool();
         bool skipShaders = m_DagNode.findPlug("skipShaders").asBool();
         bool skipAttributes = m_DagNode.findPlug("skipAttributes").asBool();
@@ -161,15 +156,10 @@ void CABCViewerTranslator::ExportProcedural(AtNode* procedural, bool update)
         bool skipDisplacements = m_DagNode.findPlug("skipDisplacements").asBool();
 
         AiNodeSetBool(procedural, "skipJsonFile", skipJsonFile);
-
         AiNodeSetBool(procedural, "skipShaders", skipShaders);
-
         AiNodeSetBool(procedural, "skipAttributes", skipAttributes);
-
         AiNodeSetBool(procedural, "skipLayers", skipLayers);
-
         AiNodeSetBool(procedural, "skipDisplacements", skipDisplacements);
-
 
         if(abcShaders.asString() != "")
         {
@@ -255,17 +245,13 @@ void CABCViewerTranslator::ExportProcedural(AtNode* procedural, bool update)
         AiNodeSetStr(procedural, "namePrefix", m_dagPath.partialPathName().asChar());
         AiNodeSetFlt(procedural, "frame", time.as(time.unit()));
         AiNodeSetFlt(procedural, "fps", fps);
-
     }
 }
-
-
 
 void CABCViewerTranslator::ExportShaders()
 {
   ExportStandinsShaders(GetArnoldNode());
 }
-
 
 void CABCViewerTranslator::ExportStandinsShaders(AtNode* procedural)
 {
@@ -286,10 +272,7 @@ void CABCViewerTranslator::ExportStandinsShaders(AtNode* procedural)
         }
         else
         {
-            AiMsgWarning("[mtoa] [translator %s] ShadingGroup %s has no surfaceShader input",
-                    GetTranslatorName().asChar(), MFnDependencyNode(shadingGroupPlug.node()).name().asChar());
-            /*AiMsgWarning("[mtoa] ShadingGroup %s has no surfaceShader input.",
-                    fnDGNode.name().asChar());*/
+            AiMsgWarning("[alembicHolderTranslator] [translator %s] ShadingGroup %s has no surfaceShader input", GetTranslatorName().asChar(), MFnDependencyNode(shadingGroupPlug.node()).name().asChar());
             AiNodeSetPtr(procedural, "shader", NULL);
         }
     }
@@ -302,7 +285,6 @@ void CABCViewerTranslator::ExportMotion(AtNode* anode)
 
     ExportMatrix(anode);
 }
-
 
 void CABCViewerTranslator::NodeInitializer(CAbTranslator context){
 

@@ -41,7 +41,7 @@
 #include "NodeCache.h"
 
 #include "ArbGeomParams.h"
-#include "../../../common/PathUtil.h"
+#include "../../common/PathUtil.h"
 
 
 #include <ai.h>
@@ -219,7 +219,7 @@ AtNode* writePoints(
 
     if (!pointsNode)
     {
-        AiMsgError("Failed to make points node for %s",
+        AiMsgError("[WritePoint] Failed to make points node for %s",
                 prim.getFullName().c_str());
         return NULL;
     }
@@ -273,14 +273,14 @@ AtNode* writePoints(
                             || attribute=="step_size"
                             || attribute=="invert_normals")
                         {
-                            //AiMsgDebug("Checking attribute %s for shape %s", attribute.c_str(), name.c_str());
+                            //AiMsgDebug("[WritePoint] Checking attribute %s for shape %s", attribute.c_str(), name.c_str());
                             // check if the attribute exists ...
                             const AtNodeEntry* nodeEntry = AiNodeGetNodeEntry(pointsNode);
                             const AtParamEntry* paramEntry = AiNodeEntryLookUpParameter(nodeEntry, attribute.c_str());
 
                             if ( paramEntry != NULL)
                             {
-                                //AiMsgDebug("attribute %s exists on shape", attribute.c_str());
+                                //AiMsgDebug("[WritePoint] attribute %s exists on shape", attribute.c_str());
                                 Json::Value val = args.attributesRoot[*it][itr.key().asString()];
                                 if( val.isString() )
                                     AiNodeSetStr(pointsNode, attribute.c_str(), val.asCString());

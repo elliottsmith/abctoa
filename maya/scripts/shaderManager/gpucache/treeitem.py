@@ -219,7 +219,7 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         menu.popup(QtGui.QCursor.pos())
 
     def importShaderInScene(self):
-        cmds.loadPlugin('abcMayaShader.mll', qt=1)
+        cmds.loadPlugin('abcMayaShader.so', qt=1)
         shader = self.cache.assignations.getShader(self.getPath(), self.interface.getLayer())
         if shader:
             abcShader = cmds.shadingNode('abcMayaShader', asShader=True, n="%s" % shader["shader"].replace("SG", ""))
@@ -228,7 +228,7 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
 
 
     def importDisplaceInscene(self):
-        cmds.loadPlugin('abcMayaShader.mll', qt=1)
+        cmds.loadPlugin('abcMayaShader.so', qt=1)
         shader = self.cache.assignations.getDisplace(self.getPath(), self.interface.getLayer())
         if shader:
             abcShader = cmds.shadingNode('abcMayaShader', asShader=True, n="%s" % shader["shader"].replace("SG", ""))

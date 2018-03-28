@@ -15,13 +15,10 @@ License along with this library.*/
 #include <stdio.h>
 
 extern AtNodeMethods* ABCShaderMethods;
-//extern AtNodeMethods* ShaderAssignMethods;
-
 
 enum SHADERS
 {
    ABCSHADER
-   //ASSIGNSHADER
 };
 
 node_loader
@@ -33,15 +30,9 @@ node_loader
    case ABCSHADER :
       node->methods     = (AtNodeMethods*) ABCShaderMethods;
       node->output_type = AI_TYPE_CLOSURE;
-      node->name        = "AbcShader";
+      node->name        = "abcMayaShaderProcedural";
       node->node_type   = AI_NODE_SHADER;
-      break;/*
-   case ASSIGNSHADER :
-      node->methods     = (AtNodeMethods*) ShaderAssignMethods;
-      node->output_type = AI_TYPE_RGB;
-      node->name        = "AssignShader";
-      node->node_type   = AI_NODE_SHADER;
-      break;   */
+      break;
    default:
       return false;
    }

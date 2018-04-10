@@ -19,7 +19,8 @@ from arnold import *
 
 class NoScrollQDoubleSpinBox(QDoubleSpinBox):
     def __init__(self, scrollWidget=None, *args, **kwargs):
-        super(NoScrollQDoubleSpinBox, self).__init__(*args, **kwargs)  
+        super(NoScrollQDoubleSpinBox, self).__init__(*args, **kwargs)
+        self.setDecimals(3)  
         self.scrollWidget=scrollWidget
         self.setFocusPolicy(Qt.StrongFocus)
 

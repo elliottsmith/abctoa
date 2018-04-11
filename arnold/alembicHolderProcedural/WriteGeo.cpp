@@ -921,10 +921,13 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
     AtNode* instanceNode = AiNode( "ginstance" );
+    AtNode* camera = AiUniverseGetCamera();    
 
     AiNodeSetStr( instanceNode, "name", (name + ":ginstance").c_str());
     AiNodeSetPtr( instanceNode, "node", mesh );
     AiNodeSetBool( instanceNode, "inherit_xform", true );
+    AiNodeSetFlt(instanceNode, "motion_start", AiNodeGetFlt(camera, "motion_start"));
+    AiNodeSetFlt(instanceNode, "motion_end", AiNodeGetFlt(camera, "motion_end"));    
     
     if ( args.proceduralNode )
         AiNodeSetByte( instanceNode, "visibility", AiNodeGetByte( args.proceduralNode, "visibility" ) );

@@ -92,6 +92,11 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
                 if ( paramEntry != NULL)
                 {
                     Json::Value val = args.attributesRoot[*it][itr.key().asString()];
+                    
+                    // for debug
+                    Json::FastWriter fastWriter;
+                    std::string output = fastWriter.write(val);
+                    AiMsgDebug("[WriteOverrides] Attribute : %s | Value : %s", attribute.c_str(), output.c_str());
 
                     if( val.isString() ) 
                     {

@@ -85,7 +85,7 @@ MStatus abcCacheExportCmd::doIt( const MArgList &args)
          iter.getDependNode(dependNode);
          MFnDagNode dagNode(dependNode);
 
-         AiMsgInfo("[abcCacheExportCmd] alembicHolder: %s", dagNode.name().asChar());
+         AiMsgDebug("[abcCacheExportCmd] alembicHolder: %s", dagNode.name().asChar());
          MPlug shaders = dagNode.findPlug("shaders");
 
          std::vector<MPlug> shaderToExport;
@@ -93,7 +93,7 @@ MStatus abcCacheExportCmd::doIt( const MArgList &args)
           for (unsigned int i=0;i<shaders.numElements();++i)
           {
              MPlug plug = shaders.elementByPhysicalIndex(i);
-             AiMsgInfo("[abcCacheExportCmd] alembicHolder connected shader: %s", plug.name().asChar());
+             AiMsgDebug("[abcCacheExportCmd] alembicHolder connected shader: %s", plug.name().asChar());
              MPlugArray connections;
              plug.connectedTo(connections, true, false);
              for (unsigned int k=0; k<connections.length(); ++k)
@@ -114,14 +114,14 @@ MStatus abcCacheExportCmd::doIt( const MArgList &args)
             // create the material
             MFnDependencyNode container(toExport.node());
 
-            AiMsgInfo("[abcCacheExportCmd] creating container: %s", container.name().asChar());
+            AiMsgDebug("[abcCacheExportCmd] creating container: %s", container.name().asChar());
             Mat::OMaterial matObj(materials, container.name().asChar());
 
             CNodeTranslator* translator = arnoldSession->ExportNode(toExport);
             if(true)
              {
                  AtNode* root = translator->GetArnoldNode();
-                 AiMsgInfo("[abcCacheExportCmd] container root: %s", AiNodeGetStr(root, "name").c_str());
+                 AiMsgDebug("[abcCacheExportCmd] container root: %s", AiNodeGetStr(root, "name").c_str());
 
                  exportedNodes->insert(root);
                  // We need to traverse the tree again...
@@ -136,12 +136,12 @@ MStatus abcCacheExportCmd::doIt( const MArgList &args)
 
                      nodeName = MString(pystring::replace(pystring::replace(std::string(nodeName.asChar()), ".message", ""), ".", "_").c_str());
 
-                     AiMsgInfo("[abcCacheExportCmd] node added: %s", nodeName.asChar());
+                     AiMsgDebug("[abcCacheExportCmd] node added: %s", nodeName.asChar());
                      matObj.getSchema().addNetworkNode(nodeName.asChar(), "arnold", AiNodeEntryGetName(AiNodeGetNodeEntry(*sit)));
 
                      if(root == *sit)
                      {
-                         AiMsgInfo("[abcCacheExportCmd] node: %s", nodeName.asChar());
+                         AiMsgDebug("[abcCacheExportCmd] node: %s", nodeName.asChar());
                          //TODO : get if it's a volume, eventually
                         matObj.getSchema().setNetworkTerminal(
                         "arnold",
@@ -152,7 +152,7 @@ MStatus abcCacheExportCmd::doIt( const MArgList &args)
 
                      ////////////////////////////////////////////////////////////////////////////////////////////
                      //export parameters
-                     AiMsgInfo("[abcCacheExportCmd] node added: %s", nodeName.asChar());
+                     AiMsgDebug("[abcCacheExportCmd] node added: %s", nodeName.asChar());
                      AtParamIterator* nodeParam = AiNodeEntryGetParamIterator(AiNodeGetNodeEntry(*sit));
                      int outputType = AiNodeEntryGetOutputType(AiNodeGetNodeEntry(*sit));
 
@@ -215,7 +215,7 @@ MStatus abcCacheExportCmd::doIt( const MArgList &args)
         }
 
     }
-    AiMsgInfo("[abcCacheExportCmd] Success!");
+    AiMsgDebug("[abcCacheExportCmd] Success!");
     CMayaScene::End();
     return MStatus::kSuccess;
 }

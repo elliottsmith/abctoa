@@ -877,7 +877,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                 IFaceSetSchema::Sample faceSetSample = faceSet.getSchema().getValue( frameSelector );
 
                 const int* faceArray((int *)faceSetSample.getFaces()->getData()); 
-                AiMsgInfo("[WriteGeo] Faceset %s on %s with %i faces",  faceSetNames[i].c_str(), originalName.c_str(),  faceSetSample.getFaces()->size());
+                AiMsgDebug("[WriteGeo] Faceset %s on %s with %i faces",  faceSetNames[i].c_str(), originalName.c_str(),  faceSetSample.getFaces()->size());
                 for( int f = 0; f < (int) faceSetSample.getFaces()->size(); f++)
                 {
                     if(faceArray[f] <= nsides.size() )
@@ -980,7 +980,7 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
         else
             ApplyShaders(originalName, instanceNode, tags, args);
     } else {
-        AiMsgInfo("[WriteGeo] Node type doesn't have a shader parameter");
+        AiMsgDebug("[WriteGeo] Node type doesn't have a shader parameter");
     }
 
     args.createdNodes->addNode(instanceNode);  

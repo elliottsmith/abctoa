@@ -50,8 +50,8 @@ node_initialize
     AiNodeSetLocalData(node, new ShaderData);
     ShaderData* data = reinterpret_cast<ShaderData*>(AiNodeGetLocalData(node));
 
-    AiMsgInfo("[abcMayaShaderProcedural] Shader: %s:%s", AiNodeGetStr(node, "name").c_str(), AiNodeGetStr(node, "shader").c_str());
-    AiMsgInfo("[abcMayaShaderProcedural] Shader File: %s", AiNodeGetStr(node, "file").c_str());
+    AiMsgDebug("[abcMayaShaderProcedural] Shader: %s:%s", AiNodeGetStr(node, "name").c_str(), AiNodeGetStr(node, "shader").c_str());
+    AiMsgDebug("[abcMayaShaderProcedural] Shader File: %s", AiNodeGetStr(node, "file").c_str());
 
     Alembic::Abc::IArchive archive;
     Alembic::AbcCoreFactory::IFactory factory;
@@ -147,13 +147,13 @@ node_initialize
 
                 if(numConnections)
                 {
-                    AiMsgInfo("[abcMayaShaderProcedural] linking nodes");
+                    AiMsgDebug("[abcMayaShaderProcedural] linking nodes");
                     std::string inputName, connectedNodeName, connectedOutputName;
                     for (size_t j = 0; j < numConnections; ++j)
                     {
                         if (abcnode.getConnection(j, inputName, connectedNodeName, connectedOutputName))
                         {
-                            AiMsgInfo("[abcMayaShaderProcedural] Linking %s.%s to %s.%s", connectedNodeName.c_str(), connectedOutputName.c_str(), abcnode.getName().c_str(), inputName.c_str());
+                            AiMsgDebug("[abcMayaShaderProcedural] Linking %s.%s to %s.%s", connectedNodeName.c_str(), connectedOutputName.c_str(), abcnode.getName().c_str(), inputName.c_str());
                             AiNodeLinkOutput(data->aShaders[connectedNodeName.c_str()], connectedOutputName.c_str(), data->aShaders[abcnode.getName().c_str()], inputName.c_str());
                         }
                     }
@@ -169,7 +169,7 @@ node_initialize
                     "arnold", "surface", connectedNodeName, connectedOutputName))
         {
 
-            AiMsgInfo("[abcMayaShaderProcedural] Linking %s.%s to root", connectedNodeName.c_str(), connectedOutputName.c_str());     
+            AiMsgDebug("[abcMayaShaderProcedural] Linking %s.%s to root", connectedNodeName.c_str(), connectedOutputName.c_str());     
             AiNodeLink(data->aShaders[connectedNodeName.c_str()],  "shaderIn", node);
         }
 

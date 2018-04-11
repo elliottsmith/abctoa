@@ -924,7 +924,7 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
 
     AiNodeSetStr( instanceNode, "name", (name + ":ginstance").c_str());
     AiNodeSetPtr( instanceNode, "node", mesh );
-    AiNodeSetBool( instanceNode, "inherit_xform", false );
+    AiNodeSetBool( instanceNode, "inherit_xform", true );
     
     if ( args.proceduralNode )
         AiNodeSetByte( instanceNode, "visibility", AiNodeGetByte( args.proceduralNode, "visibility" ) );

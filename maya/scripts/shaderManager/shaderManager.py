@@ -589,43 +589,46 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             self.itemCLicked(self.hierarchyWidget.currentItem(), 0, force=True)
 
         # change it in maya too
-        curLayer = cmds.editRenderLayerGlobals(query=1, currentRenderLayer=1)
-        if self.curLayer:
-            if curLayer != self.curLayer:
+        try:
+            curLayer = cmds.editRenderLayerGlobals(query=1, currentRenderLayer=1)
+            if self.curLayer:
+                if curLayer != self.curLayer:
 
-                rs = renderSetup.instance()
-                if self.curLayer != 'defaultRenderLayer':
+                    rs = renderSetup.instance()
+                    if self.curLayer != 'defaultRenderLayer':
 
-                    # there is a bug whereby, if you have a collection filter set to 'All' and you change the name of the layer
-                    # when you toggle active layer to that layer, it crashes, as a work around, you can set the filter type to transform
-                    # and then back 'All'.
+                        # there is a bug whereby, if you have a collection filter set to 'All' and you change the name of the layer
+                        # when you toggle active layer to that layer, it crashes, as a work around, you can set the filter type to transform
+                        # and then back 'All'.
 
-                    # so, get the layer in question
-                    layer = rs.getRenderLayer(self.curLayer.split('rs_')[-1])
+                        # so, get the layer in question
+                        layer = rs.getRenderLayer(self.curLayer.split('rs_')[-1])
 
-                    # and the collections
-                    collections = layer.getCollections()
-                    col_types = {}
+                        # and the collections
+                        collections = layer.getCollections()
+                        col_types = {}
 
-                    # iterate over the collections and get the filter type and store them
-                    for col in collections:
-                        selector = col.getSelector()
-                        current_filter_type = selector.getFilterType()
-                        col_types[col] = current_filter_type
+                        # iterate over the collections and get the filter type and store them
+                        for col in collections:
+                            selector = col.getSelector()
+                            current_filter_type = selector.getFilterType()
+                            col_types[col] = current_filter_type
 
-                        # if the filter type is 'All', set it to something else, in this case (1) transform
-                        if current_filter_type == 0:
-                            selector.setFilterType(1)
-                    
-                    # now we can set the active layer
-                    cmds.editRenderLayerGlobals( currentRenderLayer=self.curLayer)
+                            # if the filter type is 'All', set it to something else, in this case (1) transform
+                            if current_filter_type == 0:
+                                selector.setFilterType(1)
+                        
+                        # now we can set the active layer
+                        cmds.editRenderLayerGlobals( currentRenderLayer=self.curLayer)
 
-                    # now we can revert the collections filter type back to their original types
-                    for col in col_types:
-                        selector = col.getSelector()
-                        selector.setFilterType(col_types[col])
-                else:
-                    cmds.editRenderLayerGlobals( currentRenderLayer=self.curLayer)
+                        # now we can revert the collections filter type back to their original types
+                        for col in col_types:
+                            selector = col.getSelector()
+                            selector.setFilterType(col_types[col])
+                    else:
+                        cmds.editRenderLayerGlobals( currentRenderLayer=self.curLayer)
+        except:
+            pass
 
     def updateTree(self):
         """Update alembic tree"""

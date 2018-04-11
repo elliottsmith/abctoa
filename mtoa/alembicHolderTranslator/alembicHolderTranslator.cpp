@@ -238,7 +238,7 @@ void CABCViewerTranslator::ExportProcedural(AtNode* procedural, bool update)
         float fps = 25.0f;
 
         static const MTime sec(1.0, MTime::kSeconds);
-        fps = sec.as(MTime::uiUnit());
+        fps = sec.asUnits(MTime::uiUnit());
 
         AiNodeSetArray(procedural, "fileNames", cachesFileName);
         AiNodeSetStr(procedural, "objectPath", objectPathStr.c_str());

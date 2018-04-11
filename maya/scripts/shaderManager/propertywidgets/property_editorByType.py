@@ -117,7 +117,7 @@ PROPERTY_ADD_LIST = {
 
 PROPERTY_BLACK_LIST = {
 'options'        : ['outputs'],
-'polymesh'       : ['nidxs', 'nlist', 'nsides', 'shidxs', 'uvidxs', 'uvlist', 'vidxs', 'crease_idxs', 'vlist', 'autobump_visibility', 'sidedness', 'ray_bias'],
+'polymesh'       : ['nidxs', 'nlist', 'nsides', 'shidxs', 'uvidxs', 'uvlist', 'vidxs', 'crease_idxs', 'vlist', 'autobump_visibility', 'sidedness', 'ray_bias', 'motion_start', 'motion_end'],
 'points'         : ['sidedness', 'ray_bias'],
 'curves'         : ['sidedness', 'ray_bias', 'basis'],
 'driver_display' : ['callback', 'callback_data'],

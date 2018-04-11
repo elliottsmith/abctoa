@@ -65,7 +65,7 @@ PROPERTY_ADD_LIST = {
                     {'name' :'forceVisible', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'sss_setname', 'type': AI_TYPE_STRING, 'value' : ""},
                     {'name' :'velocity_multiplier', 'type': AI_TYPE_FLOAT, 'value' : 1.0}
-                  ],
+                    ],
 'points'         : [
                     {'name' :'forceVisible', 'type': AI_TYPE_BOOLEAN, 'value' : False}, 
                     {'name' :'radius_attribute', 'type': AI_TYPE_STRING, 'value' : "pscale"},
@@ -82,38 +82,36 @@ PROPERTY_ADD_LIST = {
                     {'name' :'convert_to_mesh_light', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'color_temperature', 'type': AI_TYPE_INT, 'value' : 6500}                    
-                   ],               
+                    ],               
 'point_light'    :  [
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'color_temperature', 'type': AI_TYPE_FLOAT, 'value' : 6500}
-                   ],
+                    ],
 'quad_light'    :  [
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'color_temperature', 'type': AI_TYPE_FLOAT, 'value' : 6500}
-                   ],
+                    ],
 'spot_light'    :  [
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'color_temperature', 'type': AI_TYPE_FLOAT, 'value' : 6500}
-                   ],
+                    ],
 'distant_light' :  [
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'color_temperature', 'type': AI_TYPE_FLOAT, 'value' : 6500}
-                   ],
+                    ],
 'photometric_light' :  [
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'color_temperature', 'type': AI_TYPE_FLOAT, 'value' : 6500}
-                   ],
+                    ],
 'disk_light' :  [
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'color_temperature', 'type': AI_TYPE_FLOAT, 'value' : 6500}
-                   ],                   
+                    ],                   
 'cylinder_light' :  [
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'color_temperature', 'type': AI_TYPE_FLOAT, 'value' : 6500}
-                   ]                    
+                    ]                    
 }
-
-
 
 PROPERTY_BLACK_LIST = {
 'options'        : ['outputs'],
@@ -128,28 +126,29 @@ class PropertyEditor(QWidget):
     propertyChanged = Signal(dict)
     setPropertyValue = Signal(dict)
     reset = Signal()
+
     def __init__(self, mainEditor, nodetype, parent = None):
         QWidget.__init__(self, parent)
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
 
-        
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),"arnold_nodes.json"), "r") as node_definition:
-          self.nodes = json.load(node_definition)
+            self.nodes = json.load(node_definition)
 
         self.mainEditor = mainEditor
-        
         self.name = nodetype
         self.node = self.nodes[self.name]
-
         self.scrollArea = None
+        
         labelLayout = QHBoxLayout()
         self.mainLayout.addLayout(labelLayout)
 
+        # polymesh
         self.attributes = QPushButton("Poly Mesh Attributes")
         self.attributes.pressed.connect(self.attributesPressed)
         self.attributes.setEnabled(False)
 
+        # mesh light
         self.mesh_attributes = QPushButton("Mesh Light Attributes")
         self.mesh_attributes.pressed.connect(self.meshAttributesPressed)
 
@@ -160,114 +159,118 @@ class PropertyEditor(QWidget):
         self.resetTo(nodetype)
 
     def attributesPressed(self):
-      """"""
-      self.attributes.setEnabled(False)
-      self.mesh_attributes.setEnabled(True)
-      self.resetTo("polymesh")
+        """"""
+        self.attributes.setEnabled(False)
+        self.mesh_attributes.setEnabled(True)
+        self.resetTo("polymesh")
 
     def meshAttributesPressed(self):
-      """"""
-      self.attributes.setEnabled(True)
-      self.mesh_attributes.setEnabled(False)
-      self.resetTo("mesh_light")
+        """"""
+        self.attributes.setEnabled(True)
+        self.mesh_attributes.setEnabled(False)
+        self.resetTo("mesh_light")
 
     def propertyValue(self, message):
-      param = message["paramname"]
-      if param in self.propertyWidgets:
-        self.propertyWidgets[param].changed(message)
-        self.propertyWidgets[param].title.setText("<font color='red'>%s</font>" % message["paramname"])
+        """"""
+        param = message["paramname"]
+        if param in self.propertyWidgets:
+            self.propertyWidgets[param].changed(message)
+            self.propertyWidgets[param].title.setText("<font color='red'>%s</font>" % message["paramname"])
 
     def resetToDefault(self):
-      self.reset.emit()
-      for param in self.propertyWidgets:
-        if hasattr(self.propertyWidgets[param], "title"):
-          self.propertyWidgets[param].title.setText(param)
+        """"""
+        self.reset.emit()
+        for param in self.propertyWidgets:
+            if hasattr(self.propertyWidgets[param], "title"):
+                self.propertyWidgets[param].title.setText(param)
 
     def clearAll(self):
-      for name in self.propertyWidgets:
-        self.propertyWidgets[name].deleteLater()
-      self.propertyWidgets = {}
+        """"""
+        for name in self.propertyWidgets:
+            self.propertyWidgets[name].deleteLater()
+        self.propertyWidgets = {}
 
-      if self.scrollArea :
-        self.scrollArea.deleteLater()
+        if self.scrollArea:
+            self.scrollArea.deleteLater()
 
     def resetTo(self, nodetype):
-      self.resetToDefault()
-      self.clearAll()
-      self.name = nodetype
-      self.node = self.nodes[self.name]
+        """"""
+        self.clearAll()
+        self.name = nodetype
+        self.node = self.nodes[self.name]
 
-      if self.node:
+        if self.node:
+            frameLayout = QVBoxLayout()
+            self.scrollArea = QScrollArea()
+            self.scrollArea.setWidgetResizable(True)
+            frame = QFrame()
+            frame.setLayout(frameLayout)
+            self.mainLayout.addWidget(self.scrollArea)
 
-          frameLayout = QVBoxLayout()
-          self.scrollArea = QScrollArea()
-          self.scrollArea.setWidgetResizable(True)
-          frame = QFrame()
-          frame.setLayout(frameLayout)
-          self.mainLayout.addWidget(self.scrollArea)
+            # custom parameters
+            if self.name in PROPERTY_ADD_LIST:
+                for prop in PROPERTY_ADD_LIST[self.name]:
+                    propertyWidget = self.GetPropertyWidget(prop, frame, False)
 
-          if self.name in PROPERTY_ADD_LIST:
-            for prop in PROPERTY_ADD_LIST[self.name]:
-              propertyWidget = self.GetPropertyWidget(prop, frame, False)
+                    self.propertyWidgets[prop["name"]] = propertyWidget
+                    if propertyWidget:
+                        frameLayout.addWidget(propertyWidget)
 
-              self.propertyWidgets[prop["name"]] = propertyWidget
-              if propertyWidget:
-                frameLayout.addWidget(propertyWidget)
+            # built-in parameters
+            for param in self.node["params"]:
+                paramName = param["name"]
+                blackList = PROPERTY_BLACK_LIST[self.name] if self.name in PROPERTY_BLACK_LIST else []
 
-        ## Built-in parameters
-          for param in self.node["params"]:
+                if paramName != 'name' and not paramName in blackList:
+                    propertyWidget = self.GetPropertyWidget(param, frame, False)
+                    
+                    if propertyWidget:
+                        self.propertyWidgets[paramName] = propertyWidget
+                        frameLayout.addWidget(propertyWidget)
 
-              paramName = param["name"]
+            frameLayout.addStretch(0)
+            self.scrollArea.setWidget(frame)
 
-              blackList = PROPERTY_BLACK_LIST[self.name] if self.name in PROPERTY_BLACK_LIST else []
-              if paramName != 'name' and not paramName in blackList:
-                propertyWidget = self.GetPropertyWidget(param, frame, False)
-                if propertyWidget:
-                  self.propertyWidgets[paramName] = propertyWidget
-                  frameLayout.addWidget(propertyWidget)
+        else:
+            self.mainLayout.addStretch()
 
-
-          frameLayout.addStretch(0)
-
-          self.scrollArea.setWidget(frame)
-      else:
-          self.mainLayout.addStretch()
-
-      self.mainEditor.updateAttributeEditor()
+        self.mainEditor.updateAttributeEditor()
 
     def GetPropertyWidget(self, param, parent, userData):
-      widget = None
-      type = param["type"]
-      if "visibility" in param["name"] or "sidedness" in param["name"]:
-         widget = property_widget_visibility.PropertyWidgetVisibility(self, param, parent)
-      elif type == AI_TYPE_BYTE:
-         widget = property_widget_int.PropertyWidgetInt(self, param, parent)
-      elif type == AI_TYPE_INT:
-         widget = property_widget_int.PropertyWidgetInt(self, param, parent)
-      elif type == AI_TYPE_UINT:
-         widget = property_widget_int.PropertyWidgetInt(self, param,  parent)
-      elif type == AI_TYPE_FLOAT:
-         widget = property_widget_float.PropertyWidgetFloat(self, param, parent)
-      elif type == AI_TYPE_VECTOR:
-         widget = property_widget_vector.PropertyWidgetVector(self, param, property_widget.PropertyWidget.VECTOR, parent)
-      elif type == AI_TYPE_POINT:
-         widget = property_widget_vector.PropertyWidgetVector(self, param, property_widget.PropertyWidget.POINT, parent)
-      elif type == AI_TYPE_POINT2:
-         widget = property_widget_vector.PropertyWidgetVector(self, param, property_widget.PropertyWidget.POINT2, parent)
-      if type == AI_TYPE_BOOLEAN:
-         widget = property_widget_bool.PropertyWidgetBool(self, param, parent)
-      elif type == AI_TYPE_STRING:
-         widget = property_widget_string.PropertyWidgetString(self, param, parent)
-      elif type == AI_TYPE_ENUM:
-         widget = property_widget_enum.PropertyWidgetEnum(self, param, parent)
-      elif type == AI_TYPE_RGB:
-         widget = property_widget_color.PropertyWidgetColor(self, param, property_widget.PropertyWidget.RGB, parent)
-      elif type == AI_TYPE_RGBA:
-         widget = property_widget_color.PropertyWidgetColor(self, param, property_widget.PropertyWidget.RGBA, parent)
-      ##elif type == AI_TYPE_POINTER:
-      ##   widget = PropertyWidgetPointer(nentry, name, parent)
-      # elif type == AI_TYPE_NODE:
-      #    widget = PropertyWidgetNode(self, pentry, name, parent)
-      if widget and userData:
-         widget.setBackgroundRole(QPalette.Base)
-      return widget
+        """"""
+        widget = None
+        type = param["type"]
+        if "visibility" in param["name"] or "sidedness" in param["name"]:
+            widget = property_widget_visibility.PropertyWidgetVisibility(self, param, parent)
+        elif type == AI_TYPE_BYTE:
+            widget = property_widget_int.PropertyWidgetInt(self, param, parent)
+        elif type == AI_TYPE_INT:
+            widget = property_widget_int.PropertyWidgetInt(self, param, parent)
+        elif type == AI_TYPE_UINT:
+            widget = property_widget_int.PropertyWidgetInt(self, param,  parent)
+        elif type == AI_TYPE_FLOAT:
+            widget = property_widget_float.PropertyWidgetFloat(self, param, parent)
+        elif type == AI_TYPE_VECTOR:
+            widget = property_widget_vector.PropertyWidgetVector(self, param, property_widget.PropertyWidget.VECTOR, parent)
+        elif type == AI_TYPE_POINT:
+            widget = property_widget_vector.PropertyWidgetVector(self, param, property_widget.PropertyWidget.POINT, parent)
+        elif type == AI_TYPE_POINT2:
+            widget = property_widget_vector.PropertyWidgetVector(self, param, property_widget.PropertyWidget.POINT2, parent)
+        elif type == AI_TYPE_BOOLEAN:
+            widget = property_widget_bool.PropertyWidgetBool(self, param, parent)
+        elif type == AI_TYPE_STRING:
+            widget = property_widget_string.PropertyWidgetString(self, param, parent)
+        elif type == AI_TYPE_ENUM:
+            widget = property_widget_enum.PropertyWidgetEnum(self, param, parent)
+        elif type == AI_TYPE_RGB:
+            widget = property_widget_color.PropertyWidgetColor(self, param, property_widget.PropertyWidget.RGB, parent)
+        elif type == AI_TYPE_RGBA:
+            widget = property_widget_color.PropertyWidgetColor(self, param, property_widget.PropertyWidget.RGBA, parent)
+        # elif type == AI_TYPE_POINTER:
+        #     widget = PropertyWidgetPointer(nentry, name, parent)
+        # elif type == AI_TYPE_NODE:
+        #     widget = PropertyWidgetNode(self, pentry, name, parent)
+
+        if widget and userData:
+            widget.setBackgroundRole(QPalette.Base)
+        return widget

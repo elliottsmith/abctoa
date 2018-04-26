@@ -407,7 +407,7 @@
                 "name": "basis", 
                 "type": 15, 
                 "value": {
-                    "default": 0, 
+                    "default": 2, 
                     "values": [
                         "bezier", 
                         "b-spline", 

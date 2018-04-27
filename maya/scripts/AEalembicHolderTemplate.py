@@ -80,6 +80,7 @@ class AEalembicHolderTemplate(BaseTemplate):
         """
         Connect the new control to existing control
         """
+        self.cache = cacheName + "[0]"        
         cmds.connectControl("abcpathNameField", self.cache)
 
     def _abcBrowser(self, args):

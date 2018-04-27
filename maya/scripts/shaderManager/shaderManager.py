@@ -155,6 +155,12 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.shape_check.stateChanged.connect(self.geoFilterChanged)
         self.layers_btn.clicked.connect(self.layers_clicked)
 
+        # TEMP
+        self.transform_check.setEnabled(False)
+        self.shape_check.setEnabled(False)
+        self.geoFilter.setEnabled(False)
+        self.label.setEnabled(False)
+
     def layers_clicked(self):
         """"""
         layers_copy = CopyLayers(self)

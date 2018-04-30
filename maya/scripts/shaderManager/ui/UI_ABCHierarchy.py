@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'maya/scripts/shaderManager/ui/UI_ABCHierarchy.ui'
 #
-# Created: Mon Mar 12 17:27:54 2018
+# Created: Mon Apr 30 17:58:49 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,27 +21,6 @@ class Ui_NAM(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.gridLayout = QtGui.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
-        self.wildCardButton = QtGui.QPushButton(self.centralwidget)
-        self.wildCardButton.setMaximumSize(QtCore.QSize(200, 16777215))
-        self.wildCardButton.setObjectName("wildCardButton")
-        self.gridLayout.addWidget(self.wildCardButton, 2, 4, 1, 1)
-        self.horizontalLayout = QtGui.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.transform_check = QtGui.QCheckBox(self.centralwidget)
-        self.transform_check.setChecked(True)
-        self.transform_check.setObjectName("transform_check")
-        self.horizontalLayout.addWidget(self.transform_check)
-        self.shape_check = QtGui.QCheckBox(self.centralwidget)
-        self.shape_check.setObjectName("shape_check")
-        self.horizontalLayout.addWidget(self.shape_check)
-        self.label = QtGui.QLabel(self.centralwidget)
-        self.label.setObjectName("label")
-        self.horizontalLayout.addWidget(self.label)
-        self.gridLayout.addLayout(self.horizontalLayout, 2, 0, 1, 1)
-        self.geoFilter = QtGui.QLineEdit(self.centralwidget)
-        self.geoFilter.setMinimumSize(QtCore.QSize(250, 0))
-        self.geoFilter.setObjectName("geoFilter")
-        self.gridLayout.addWidget(self.geoFilter, 2, 2, 1, 1)
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.renderLayer = QtGui.QComboBox(self.centralwidget)
@@ -139,6 +118,10 @@ class Ui_NAM(object):
         self.hierarchyWidget.setObjectName("hierarchyWidget")
         self.hierarchyWidget.header().setVisible(True)
         self.gridLayout.addWidget(self.splitter, 1, 0, 1, 5)
+        self.wildCardButton = QtGui.QPushButton(self.centralwidget)
+        self.wildCardButton.setMaximumSize(QtCore.QSize(200, 16777215))
+        self.wildCardButton.setObjectName("wildCardButton")
+        self.gridLayout.addWidget(self.wildCardButton, 2, 1, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 1, 0, 1, 2)
         NAM.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(NAM)
@@ -154,10 +137,6 @@ class Ui_NAM(object):
 
     def retranslateUi(self, NAM):
         NAM.setWindowTitle(QtGui.QApplication.translate("NAM", "Alembic Cache Manager", None, QtGui.QApplication.UnicodeUTF8))
-        self.wildCardButton.setText(QtGui.QApplication.translate("NAM", "Add WildCard Assignation", None, QtGui.QApplication.UnicodeUTF8))
-        self.transform_check.setText(QtGui.QApplication.translate("NAM", "Xform", None, QtGui.QApplication.UnicodeUTF8))
-        self.shape_check.setText(QtGui.QApplication.translate("NAM", "Shape", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("NAM", "Select:", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideProps.setText(QtGui.QApplication.translate("NAM", "Override properties", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideShaders.setText(QtGui.QApplication.translate("NAM", "Override shaders", None, QtGui.QApplication.UnicodeUTF8))
         self.overrideDisps.setText(QtGui.QApplication.translate("NAM", "Override displacements", None, QtGui.QApplication.UnicodeUTF8))
@@ -166,4 +145,5 @@ class Ui_NAM(object):
         self.hierarchyWidget.headerItem().setText(0, QtGui.QApplication.translate("NAM", "ABC Hierarchy", None, QtGui.QApplication.UnicodeUTF8))
         self.hierarchyWidget.headerItem().setText(1, QtGui.QApplication.translate("NAM", "shaders", None, QtGui.QApplication.UnicodeUTF8))
         self.hierarchyWidget.headerItem().setText(2, QtGui.QApplication.translate("NAM", "displacement", None, QtGui.QApplication.UnicodeUTF8))
+        self.wildCardButton.setText(QtGui.QApplication.translate("NAM", "Add WildCard Assignation", None, QtGui.QApplication.UnicodeUTF8))
 

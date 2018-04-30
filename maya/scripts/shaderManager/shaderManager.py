@@ -150,16 +150,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.overrideProps.stateChanged.connect(self.overridePropsChanged)
         self.soloSelected.stateChanged.connect(self.soloSelectedChanged)        
         self.wildCardButton.pressed.connect(self.addWildCard)
-        self.geoFilter.textChanged.connect(self.geoFilterChanged)
-        self.transform_check.stateChanged.connect(self.geoFilterChanged)
-        self.shape_check.stateChanged.connect(self.geoFilterChanged)
         self.layers_btn.clicked.connect(self.layers_clicked)
-
-        # TEMP
-        self.transform_check.setEnabled(False)
-        self.shape_check.setEnabled(False)
-        self.geoFilter.setEnabled(False)
-        self.label.setEnabled(False)
 
     def layers_clicked(self):
         """"""

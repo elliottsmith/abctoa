@@ -97,7 +97,7 @@ std::string getHash(
     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
-    //get tags
+  //get tags
     std::vector<std::string> tags;
     getAllTags(prim, tags, &args);
 
@@ -107,6 +107,7 @@ std::string getHash(
     std::string hashAttributes("@");
     Json::FastWriter writer;
     Json::Value rootEncode;
+
 
     if(args.linkAttributes)
     {
@@ -179,6 +180,7 @@ std::string getHash(
 
 }
 
+
 AtNode* writeCurves(  
     const std::string& name,
     const std::string& originalName,
@@ -188,59 +190,47 @@ AtNode* writeCurves(
     const SampleTimeSet& sampleTimes
     )
 {
-    // initialise some vars
-    std::vector<AtVector> vlist;
-    std::vector<float> radius;
-    std::vector<float> finalRadius;
+	std::vector<AtVector> vlist;
+	std::vector<float> radius;
+	std::vector<float> finalRadius;
 
-    size_t numCurves;
-    Int32ArraySamplePtr nVertices;
-    int basis = 2;
+	size_t numCurves;
+	Int32ArraySamplePtr nVertices;
+	int basis = 3;
 
-    float radiusCurves = 1.0f;
-    float scaleVelocity = 1.0f/args.fps;
-    std::string radiusParam = "pscale";    
-
-    // get the curves schema from the curves reference
     Alembic::AbcGeom::ICurvesSchema  &ps = prim.getSchema();
-
-    // get the timesamples from the curves refernce
     TimeSamplingPtr ts = ps.getTimeSampling();
 
-    // new time sampling var
     SampleTimeSet singleSampleTimes;
-
-    // add curves timesampling for current frame to newly created singleSampleTimes
     singleSampleTimes.insert( ts->getFloorIndex(args.frame / args.fps, ps.getNumSamples()).second );
 
-    // get arbitrary geo properties
     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
-
-    // via a pointer, get samples
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
     //get tags  
     std::vector<std::string> tags;
     getAllTags(prim, tags, &args);
 
-    // create the arnold node, set name and visibilty and check if valid
-    AtNode* curvesNode = AiNode( "curves" );
+	AtNode* curvesNode = AiNode( "curves" );
     AiNodeSetStr( curvesNode, "name", (name + ":src").c_str() );
     AiNodeSetByte( curvesNode, "visibility", 0 );
     if (!curvesNode)
     {
-        AiMsgError("[WriteCurves] Failed to make points node for %s", prim.getFullName().c_str());
+        AiMsgError("[WriteCurves] Failed to make points node for %s",
+                prim.getFullName().c_str());
         return NULL;
     }
 
-    // add to created nodes - if we need this again (instanced?)
-    args.createdNodes->addNode(curvesNode);
+	args.createdNodes->addNode(curvesNode);
+
+    float radiusCurves = 1.0f;
+    float scaleVelocity = 1.0f/args.fps;
+	std::string radiusParam = "pscale";
     
-    // check for radiusCurves arg param - exposed in shader manager
-    if (AiNodeLookUpUserParameter(args.proceduralNode, "radiusCurves") !=NULL )
+	if (AiNodeLookUpUserParameter(args.proceduralNode, "radiusCurves") !=NULL )
         radiusCurves = AiNodeGetFlt(args.proceduralNode, "radiusCurves");
     
-    // look for various attributes and set them on curvesNode and / or store them for future use
+	// Attribute overrides..
     if(args.linkAttributes)
     {
         for(std::vector<std::string>::iterator it=args.attributes.begin(); it!=args.attributes.end(); ++it)
@@ -258,12 +248,6 @@ AtNode* writeCurves(
                         {
                             Json::Value val = args.attributesRoot[*it][itr.key().asString()];
                             radiusParam = val.asString();
-                        }
-
-                        if(attribute == "basis")
-                        {
-                            Json::Value val = args.attributesRoot[*it][itr.key().asString()];
-                            basis = val.asInt();                                                        
                         }
 
                         if(attribute == "radius_multiplier")
@@ -292,7 +276,6 @@ AtNode* writeCurves(
                             {
                                 //AiMsgDebug("[WriteCurves] attribute %s exists on shape", attribute.c_str());
                                 Json::Value val = args.attributesRoot[*it][itr.key().asString()];
-
                                 if( val.isString() )
                                     AiNodeSetStr(curvesNode, attribute.c_str(), val.asCString());
                                 else if( val.isBool() )
@@ -310,8 +293,6 @@ AtNode* writeCurves(
                                 }
                                 else if( val.isUInt() )
                                     AiNodeSetUInt(curvesNode, attribute.c_str(), val.asUInt());
-                            } else {
-                                // std::cout << "[CURVES] missing param : " << attribute << std::endl;
                             }
                         }
                     }
@@ -322,12 +303,10 @@ AtNode* writeCurves(
 
     bool isFirstSample = true;
 
-    // set the radiusProperty node parameter is it exists
     if (AiNodeLookUpUserParameter(args.proceduralNode, "radiusProperty") !=NULL )
         radiusParam = std::string(AiNodeGetStr(args.proceduralNode, "radiusProperty"));
 
     bool useVelocities = false;
-    // if we only have one time sample but motion blur is required
     if ((sampleTimes.size() == 1) && (args.shutterOpen != args.shutterClose))
     {
         // no sample, and motion blur needed, let's try to get velocities.
@@ -335,89 +314,92 @@ AtNode* writeCurves(
             useVelocities = true;
     }
 
-    // create an sample iterator from the begining of the time sample
-    for ( SampleTimeSet::iterator I = sampleTimes.begin(); I != sampleTimes.end(); ++I, isFirstSample = false)
+
+    if ((sampleTimes.size() == 1) && (args.shutterOpen != args.shutterClose))
     {
+        // no sample, and motion blur needed, let's try to get velocities.
+        if(ps.getVelocitiesProperty().valid())
+            useVelocities = true;
+    }
 
-        // grab the sample as a reference
+    for ( SampleTimeSet::iterator I = sampleTimes.begin();
+          I != sampleTimes.end(); ++I, isFirstSample = false)
+    {
         ISampleSelector sampleSelector( *I );
-
-        // get the curves schema at specific sample
         Alembic::AbcGeom::ICurvesSchema::Sample sample = ps.getValue( sampleSelector );
 
-        // get positions as an array pointer?
         Alembic::Abc::P3fArraySamplePtr v3ptr = sample.getPositions();
         size_t pSize = sample.getPositions()->size();
 
         // handling radius
-        // init an empty width sample
-        IFloatGeomParam::Sample widthSamp;
 
-        // init width params, get mesh width
+        IFloatGeomParam::Sample widthSamp;
         IFloatGeomParam widthParam = ps.getWidthsParam();
 
         if(!widthParam)
         {
-            // if the mesh doesnt have width, get any arbitrary params
             ICompoundProperty prop = ps.getArbGeomParams();
             if ( prop != NULL && prop.valid() )
             {
-                // if 'pscale' property is found
                 if (prop.getPropertyHeader(radiusParam) != NULL)
                 {
                     const PropertyHeader * tagsHeader = prop.getPropertyHeader(radiusParam);
-
-                    // check the type
                     if (IFloatGeomParam::matches( *tagsHeader ))
-                    {   
-                        // get the arbitrary width param and sample
+                    {
                         widthParam = IFloatGeomParam( prop,  tagsHeader->getName());
                         widthSamp = widthParam.getExpandedValue( sampleSelector );
                     }
                 }
             }
-        } else {
-            widthParam.getExpanded(widthSamp, sampleSelector);
         }
+        else
+            widthParam.getExpanded(widthSamp, sampleSelector);
 
-        if ( isFirstSample )
-            // if its the first sample
-        {
-            // numCurves and nVertices are size_t type and Int32ArraySamplePtr type, respectively
-            numCurves = sample.getNumCurves();
-            nVertices = sample.getCurvesNumVertices();   
+		if ( isFirstSample )
+		{
+			numCurves = sample.getNumCurves();
+			nVertices = sample.getCurvesNumVertices();   
 
-            if(widthSamp)
+			BasisType basisType = sample.getBasis();
+            if ( basisType != kNoBasis )
             {
-                // if the curve mesh has width, add those samples to the radius vector
-
-                // for every sample in the sample array, get the coresponding width sample
-                // then multiply that value by the radius curve - default 1.0f
-
-                // this is only used if finalRadius is empty
-                for ( size_t pId = 0; pId < pSize; ++pId ){
-                    double val = (*widthSamp.getVals())[pId] * radiusCurves;
-                    radius.push_back(val);
+                switch ( basisType )
+                {
+                case kBezierBasis:
+                    basis =  0;
+                    break;
+                case kBsplineBasis:
+                    basis = 1;
+                    break;
+                case kCatmullromBasis:
+                    basis = 2;
+                    break;
+                case kHermiteBasis:
+					break;
+                case kPowerBasis:
+					break;
+                default:
+                    break;
                 }
             }
+			if(widthSamp)
+			{
+				for ( size_t pId = 0; pId < pSize; ++pId )
+					radius.push_back((*widthSamp.getVals())[pId] * radiusCurves);
+			}
 
-        }
+		}
+
         
-        // HACK
         if(useVelocities && isFirstSample)
         {
-            AiMsgDebug("[WriteCurves] faking additional samples for motion blur");
-            // no sample, motion needed and first sample - eeeek
             
-            // default is 1.0f/args.fps = 1.00/24 = 0.0416666
             if (AiNodeLookUpUserParameter(args.proceduralNode, "scaleVelocity") !=NULL )
                 scaleVelocity *= AiNodeGetFlt(args.proceduralNode, "scaleVelocity");
 
-            // vlist is our list if AtVectors - we fake additional samples
             vlist.resize(pSize*2);
             Alembic::Abc::V3fArraySamplePtr velptr = sample.getVelocities();
 
-            // low / high samples
             float timeoffset = ((args.frame / args.fps) - ts->getFloorIndex((*I), ps.getNumSamples()).second) * args.fps;
 
             for ( size_t pId = 0; pId < pSize; ++pId )
@@ -443,7 +425,6 @@ AtNode* writeCurves(
         else
             // not motion blur or correctly sampled curves
         {
-            // for every sample, create an arnold AtVector
             for ( size_t pId = 0; pId < pSize; ++pId )
             {
                 AtVector pos;
@@ -455,88 +436,105 @@ AtNode* writeCurves(
         }
     }
 
-    // we now have a vector of AtVectors - vlist - made from the Alembic::Abc::P3fArraySamplePtr v3ptr pointer
-    // init an arnold array - numCuvres may be null - or taken from sample if were on the first sample (size_t)
-    AtArray* curveNumPoints = AiArrayAllocate( numCurves , 1, AI_TYPE_UINT);
+	AtArray* curveNumPoints = AiArrayAllocate( numCurves , 1, AI_TYPE_UINT); 
+	unsigned int w_end = 0;
 
-    // positive int
-    unsigned int w_end = 0;
-
-    AiMsgDebug("[WriteCurves] calculate the final radius");
     for ( size_t i = 0; i < numCurves ; i++ )
+	{
+		unsigned int c_verts = nVertices->get()[i];
+		AiArraySetUInt(curveNumPoints, i, c_verts);
+
+		if ( !radius.empty() && ( basis == 1 || basis == 2 ) /* for spline & catmull */ )
+		{
+			unsigned int w_start = w_end;
+			w_end += c_verts;
+			std::vector<float> this_range(radius.begin() + w_start,
+                                        radius.begin() + w_end );
+
+			for ( size_t r=0; r < this_range.size(); ++r )
+			{
+              if ( r != 1 && r !=this_range.size()-2 )
+                finalRadius.push_back(this_range[r]);
+			}
+		}
+		else if ( !radius.empty() && basis == 0 /* for bezier */ )
+		{
+			//  skip the control points.
+			unsigned int w_start = w_end;
+			w_end += c_verts;
+			std::vector<float> this_range(radius.begin() + w_start,
+                                        radius.begin() + w_end );
+
+			for (size_t r = 0; r < this_range.size() ; r+=3)
+			{
+				 finalRadius.push_back(this_range[r]);
+			}
+		}
+	}
+
+	if (!radius.empty() && finalRadius.empty())
+		finalRadius.swap(radius);
+
+
+	if(!finalRadius.empty())
+        AiNodeSetArray(curvesNode, "radius",
+                AiArrayConvert( finalRadius.size() ,
+                        1, AI_TYPE_FLOAT, (void*)(&(finalRadius[0]))
+                                ));
+
+	else
+		AiNodeSetArray(curvesNode, "radius", AiArray( 1 , 1, AI_TYPE_FLOAT, radiusCurves));
+
+
+
+    if(!useVelocities)
     {
-        // for each in size_t numCurves, get the index from the Int32ArraySamplePtr get method
-        unsigned int c_verts = nVertices->get()[i];
+        AiNodeSetArray(curvesNode, "points",
+                AiArrayConvert( vlist.size() / sampleTimes.size(),
+                        sampleTimes.size(), AI_TYPE_VECTOR, (void*)(&(vlist[0]))
+                                ));
 
-        // add to the curve array
-        AiArraySetUInt(curveNumPoints, i, c_verts);
 
-        // radius will always be empty if widthSamp is NULL
-        if ( !radius.empty() && ( basis == 1 || basis == 2 ) /* for spline & catmull */ )
+        /*if ( sampleTimes.size() > 1 )
         {
-            AiMsgDebug("[WriteCurves] b-spline / catmull-rom basis");
-            unsigned int w_start = w_end;
-            w_end += c_verts;
+            std::vector<float> relativeSampleTimes;
+            relativeSampleTimes.reserve( sampleTimes.size() );
 
-            std::vector<double> this_range(radius.begin() + w_start, radius.begin() + w_end );
-
-            for ( size_t r=0; r < this_range.size(); ++r )
+            for (SampleTimeSet::const_iterator I = sampleTimes.begin();
+                    I != sampleTimes.end(); ++I )
             {
-                AiMsgDebug("[WriteCurves] %f > finalRadius", this_range[r]);
-                finalRadius.push_back(this_range[r]);
+               chrono_t sampleTime = GetRelativeSampleTime( args, (*I) );
+
+                relativeSampleTimes.push_back(sampleTime);
+
             }
-        }
-        else if ( !radius.empty() && basis == 0 /* for bezier */ )
-        {
-            AiMsgDebug("[WriteCurves] bezier basis");
-            //  skip the control points.
-            
-            unsigned int w_start = w_end;
-            w_end += c_verts;
-            std::vector<double> this_range(radius.begin() + w_start, radius.begin() + w_end );
 
-            for (size_t r = 0; r < this_range.size() ; r+=3)
-            {
-                AiMsgDebug("[WriteCurves] %f > finalRadius", this_range[r]);
-                finalRadius.push_back(this_range[r]);
-            }
-        }
-        else {
-            AiMsgDebug("[WriteCurves] unknown basis");
-        }
+            AiNodeSetArray( curvesNode, "deform_time_samples",
+                    AiArrayConvert(relativeSampleTimes.size(), 1,
+                            AI_TYPE_FLOAT, &relativeSampleTimes[0]));
+        }*/
+    }
+    else
+    {
+        AiNodeSetArray(curvesNode, "points",
+                AiArrayConvert( vlist.size() / 2,
+                        2, AI_TYPE_VECTOR, (void*)(&(vlist[0]))
+                                ));
+
+        /*AiNodeSetArray( curvesNode, "deform_time_samples",
+                    AiArray(2, 1, AI_TYPE_FLOAT, 0.f, 1.f));*/
+
     }
 
-    if (!radius.empty() && finalRadius.empty()){
-        AiMsgDebug("[WriteCurves] Swapping finalRadius for radius");
-        finalRadius.swap(radius);
-    }
+	AiNodeSetInt(curvesNode, "basis", basis);
 
-    if(!finalRadius.empty()){
-        AiMsgDebug("[WriteCurves] setting finalRadius");
-        AiNodeSetArray(curvesNode, "radius", AiArrayConvert( finalRadius.size(), 1, AI_TYPE_FLOAT, (void*)(&(finalRadius[0]))));        
-    } else {
-        AiMsgDebug("[WriteCurves] setting radiusCurves");
-        AiNodeSetArray(curvesNode, "radius", AiArray( 1 , 1, AI_TYPE_FLOAT, radiusCurves));
-    }
+	AiNodeSetArray(curvesNode, "num_points", curveNumPoints);
 
-    if(!useVelocities){
-        AiMsgDebug("[WriteCurves] setting points");
-        AiNodeSetArray(curvesNode, "points", AiArrayConvert( vlist.size() / sampleTimes.size(), sampleTimes.size(), AI_TYPE_VECTOR, (void*)(&(vlist[0]))));
-    } else {
-        AiMsgDebug("[WriteCurves] setting points with velocities");
-        AiNodeSetArray(curvesNode, "points", AiArrayConvert( vlist.size() / 2, 2, AI_TYPE_VECTOR, (void*)(&(vlist[0]))));
-    }
 
-    AiNodeSetInt(curvesNode, "basis", basis); 
-    AiNodeSetArray(curvesNode, "num_points", curveNumPoints);
-
-    // add arbitary geom parameters
     ICompoundProperty arbPointsParams = ps.getArbGeomParams();
     AddArbitraryGeomParams( arbGeomParams, frameSelector, curvesNode );
 
-    // add the node to the nodeCache
-    args.nodeCache->addNode(cacheId, curvesNode);
-    AiMsgDebug("[WriteCurves] finished");
+	args.nodeCache->addNode(cacheId, curvesNode);
     return curvesNode;
 
 }
@@ -586,7 +584,7 @@ void createInstance(
 
     //get tags
     std::vector<std::string> tags;
-    getAllTags(prim, tags, &args);
+	getAllTags(prim, tags, &args);
 
     // Arnold Attribute from json
     if(args.linkAttributes)
@@ -598,49 +596,36 @@ void createInstance(
         ApplyShaders(originalName, instanceNode, tags, args);
 
     args.createdNodes->addNode(instanceNode);
+
 }
+
 
 void ProcessCurves( ICurves &curves, ProcArgs &args,
         MatrixSampleMap * xformSamples)
 {
-    AiMsgDebug("");
-    // check the curves are valid
+
     if ( !curves.valid() )
         return;
 
-    // get the curve name
     std::string originalName = curves.getFullName();
-
-    // create new name with args prefix
     std::string name = args.nameprefix + originalName;
-    AiMsgDebug("[WriteCurves] name : %s", name.c_str());
 
-    // init sampleTimes obj and add samples to it
+
     SampleTimeSet sampleTimes;
     getSampleTimes(curves, args, sampleTimes);
 
-    // create a hash id of curves and attributes
-    std::string cacheId = getHash(name, originalName, curves, args, sampleTimes);
-    AiMsgDebug("[WriteCurves] hash : %s", cacheId.c_str());
 
-    // now we try and retrieve the arnold mesh node from the node cache as it might already exist
+    std::string cacheId = getHash(name, originalName, curves, args, sampleTimes);
     AtNode* curvesNode = args.nodeCache->getCachedNode(cacheId);
 
     if(curvesNode == NULL)
-    { 
-        // We don't have a cache, so we much create this points object.        
-        AiMsgDebug("[WriteCurves] create curve node");
+    { // We don't have a cache, so we much create this points object.
         curvesNode = writeCurves(name, originalName, cacheId, curves, args, sampleTimes);
-    } else {
-        AiMsgDebug("[WriteCurves] curve node exists");
     }
 
+    // we can create the instance, with correct transform, attributes & shaders.
     if(curvesNode != NULL)
-    {
-        // we can create the instance, with correct transform, attributes & shaders.
-        AiMsgDebug("[WriteCurves] create ginstance node");
         createInstance(name, originalName, curves, args, xformSamples, curvesNode);
-    }
-    AiMsgDebug("");
-  
+
 }
+

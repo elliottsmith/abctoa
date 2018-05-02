@@ -1196,6 +1196,10 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         newItem.checkShaders(self.getLayer())
         newItem.checkProperties(self.getLayer())
 
+        # so that all new wildcards have a default shader
+        newItem.shaderToAssign = 'lambert1'
+        newItem.assignShader()
+
         newItem.protected = protected
 
     def createTag(self, parentItem, tag, protected=False) :

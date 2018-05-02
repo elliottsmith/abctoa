@@ -81,7 +81,8 @@ PROPERTY_ADD_LIST = {
 'mesh_light'    :  [
                     {'name' :'convert_to_mesh_light', 'type': AI_TYPE_BOOLEAN, 'value' : False},
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},
-                    {'name' :'color_temperature', 'type': AI_TYPE_INT, 'value' : 6500}                    
+                    {'name' :'color_temperature', 'type': AI_TYPE_INT, 'value' : 6500},
+                    {'name' :'light_visible', 'type': AI_TYPE_BOOLEAN, 'value' : False},                    
                     ],               
 'point_light'    :  [
                     {'name' :'use_color_temperature', 'type': AI_TYPE_BOOLEAN, 'value' : False},

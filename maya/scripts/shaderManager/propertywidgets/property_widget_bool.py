@@ -43,8 +43,6 @@ class PropertyWidgetBool(PropertyWidget):
       value = False
 
     self.controller.mainEditor.propertyChanged(dict(propname=self.paramName, default=value == self.default, value=value))
-    if self.paramName == 'convert_to_mesh_light':
-      self.controller.mainEditor.propertyChanged(dict(propname='color', default=False, value=[1.0, 1.0, 1.0]))
 
   def changed(self, message):
     value = message["value"]

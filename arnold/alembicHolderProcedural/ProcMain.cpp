@@ -380,7 +380,8 @@ procedural_init
             AiMsgWarning ( "[ProcMain] Cannot read file %s", abcfile);
         }
         else
-        {
+    {
+  
             AiMsgDebug ( "[ProcMain] reading file %s", abcfile);
             Abc::IObject materialsObject(archive.getTop(), "materials");
             args->useAbcShaders = true;
@@ -787,8 +788,13 @@ procedural_init
     }
     else
     {
-        for (size_t i = 0; i < args->filenames.size(); i++)
-            AiMsgDebug ( "[ProcMain] reading file %s", args->filenames[i].c_str());
+        for (size_t i = 0; i < args->filenames.size(); i++){
+            AiMsgDebug("");
+            AiMsgDebug("**********************************************************************************************************************************");
+            AiMsgDebug("[ProcMain] Node : %s", AiNodeGetName(node));
+            AiMsgDebug("[ProcMain] File : %s", args->filenames[i].c_str());            
+            AiMsgDebug("**********************************************************************************************************************************");
+        }
     }
 
     IObject root = archive.getTop();
@@ -818,16 +824,7 @@ procedural_init
             }
         }
     }
-    /*catch ( const std::exception &e )
-    {
-        AiMsgError("[ProcMain] exception thrown during ProcInit: %s", e.what());
-    }
-    catch (...)
-    {
-        AiMsgError("[ProcMain] exception thrown");
-    }
-    */
-    //g_cache->g_fileCache->removeFromOpenedFiles(args->filename);
+
     return 1;
 }
 

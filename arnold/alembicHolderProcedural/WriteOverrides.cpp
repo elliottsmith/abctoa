@@ -137,45 +137,49 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
                             if(attribute=="visibility")
                             {
                                 uint8_t attrViz = val.asInt();
+
                                 // special case, we must determine it against the general viz.
                                 uint8_t procViz = AiNodeGetByte( args.proceduralNode, "visibility" );
+
                                 uint8_t compViz = AI_RAY_ALL;
                                 {
-                                    compViz &= ~AI_RAY_SUBSURFACE;
-                                    if (procViz > compViz)
-                                        procViz &= ~AI_RAY_SUBSURFACE;
-                                    else
-                                        attrViz &= ~AI_RAY_SUBSURFACE;
-                                    compViz &= ~AI_RAY_SUBSURFACE;
+
+                                    compViz &= ~AI_RAY_SPECULAR_REFLECT;
                                     if(procViz > compViz)
                                         procViz &= ~AI_RAY_SPECULAR_REFLECT;
                                     else
                                         attrViz &= ~AI_RAY_SPECULAR_REFLECT;
-                                    compViz &= ~AI_RAY_DIFFUSE_REFLECT;
+
+                                    compViz &= ~AI_RAY_DIFFUSE_REFLECT;                                    
                                     if(procViz > compViz)
                                         procViz &= ~AI_RAY_DIFFUSE_REFLECT;
                                     else
                                         attrViz &= ~AI_RAY_DIFFUSE_REFLECT;
+                                    
                                     compViz &= ~AI_RAY_VOLUME;
                                     if(procViz > compViz)
                                         procViz &= ~AI_RAY_VOLUME;
                                     else
                                         attrViz &= ~AI_RAY_VOLUME;
+                                    
                                     compViz &= ~AI_RAY_SPECULAR_TRANSMIT;
                                     if(procViz > compViz)
                                         procViz &= ~AI_RAY_SPECULAR_TRANSMIT;
                                     else
                                         attrViz &= ~AI_RAY_SPECULAR_TRANSMIT;
+
                                     compViz &= ~AI_RAY_DIFFUSE_TRANSMIT;
                                     if(procViz > compViz)
                                         procViz &= ~AI_RAY_DIFFUSE_TRANSMIT;
                                     else
                                         attrViz &= ~AI_RAY_DIFFUSE_TRANSMIT;
+                                    
                                     compViz &= ~AI_RAY_SHADOW;
                                     if(procViz > compViz)
                                         procViz &= ~AI_RAY_SHADOW;
                                     else
                                         attrViz &= ~AI_RAY_SHADOW;
+
                                     compViz &= ~AI_RAY_CAMERA;
                                     if(procViz > compViz)
                                         procViz &= ~AI_RAY_CAMERA;
@@ -183,6 +187,7 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
                                         attrViz &= ~AI_RAY_CAMERA;
                                 }
 
+                                AiMsgDebug("[WriteOverrides] visibility : attrViz %i", attrViz);
                                 AiNodeSetByte(node, attribute.c_str(), attrViz);
                             }
                             else

@@ -24,7 +24,7 @@ class PropertyWidgetVisibility(PropertyWidget):
 
     self.paramName = params["name"]
 
-    self.minVal = AI_RAY_ALL & ~(AI_RAY_SUBSURFACE|AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT|AI_RAY_DIFFUSE_TRANSMIT|AI_RAY_SHADOW|AI_RAY_CAMERA)
+    self.minVal = AI_RAY_ALL & ~(AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT|AI_RAY_DIFFUSE_TRANSMIT|AI_RAY_SHADOW|AI_RAY_CAMERA)
 
     self.controller = controller
     self.controller.setPropertyValue.connect(self.changed)
@@ -37,14 +37,13 @@ class PropertyWidgetVisibility(PropertyWidget):
     self.switch = True
 
     self.viz = {}
-    self.viz["camera"] = QCheckBox(self)
-    self.viz["cast_shadows"] = QCheckBox(self)
+    self.viz["primary_visibility"] = QCheckBox(self)
+    self.viz["casts_shadows"] = QCheckBox(self)
     self.viz["diffuse_transmit"] = QCheckBox(self)
     self.viz["specular_transmit"] = QCheckBox(self)
     self.viz["volume"] = QCheckBox(self)
     self.viz["diffuse_reflect"] = QCheckBox(self)
     self.viz["specular_reflect"] = QCheckBox(self)
-    self.viz["subsurface"] = QCheckBox(self)
 
     self.default = params["value"]
     self.setViz(self.default)
@@ -59,7 +58,6 @@ class PropertyWidgetVisibility(PropertyWidget):
       self.viz[v].stateChanged.connect(self.PropertyChanged)
       row = row + 1
 
-
     self.layout().addLayout(grid)
 
   def switchPressed(self):
@@ -73,11 +71,12 @@ class PropertyWidgetVisibility(PropertyWidget):
         self.switch = True
 
   def computeViz(self):
+
     value = AI_RAY_ALL
 
-    if not self.viz["camera"].isChecked():
+    if not self.viz["primary_visibility"].isChecked():
         value &= ~AI_RAY_CAMERA
-    if not self.viz["cast_shadows"].isChecked():
+    if not self.viz["casts_shadows"].isChecked():
         value &= ~AI_RAY_SHADOW
     if not self.viz["diffuse_transmit"].isChecked():
         value &= ~AI_RAY_DIFFUSE_TRANSMIT
@@ -89,8 +88,6 @@ class PropertyWidgetVisibility(PropertyWidget):
         value &= ~AI_RAY_DIFFUSE_REFLECT
     if not self.viz["specular_reflect"].isChecked():
         value &= ~AI_RAY_SPECULAR_REFLECT
-    if not self.viz["subsurface"].isChecked():
-        value &= ~AI_RAY_SUBSURFACE
 
     return value
 
@@ -106,36 +103,30 @@ class PropertyWidgetVisibility(PropertyWidget):
     for v in self.viz:
       self.viz[v].setChecked(0)
 
-    if value > AI_RAY_ALL & ~(AI_RAY_SUBSURFACE):
-        self.viz["subsurface"].setChecked(1)
-        value = value - AI_RAY_SUBSURFACE
-    if value > AI_RAY_ALL & ~(AI_RAY_SUBSURFACE|AI_RAY_SPECULAR_REFLECT):
+    if value > AI_RAY_ALL & ~(AI_RAY_SPECULAR_REFLECT):
         self.viz["specular_reflect"].setChecked(1)
         value = value - AI_RAY_SPECULAR_REFLECT
-    if value > AI_RAY_ALL & ~(AI_RAY_SUBSURFACE|AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT):
+    if value > AI_RAY_ALL & ~(AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT):
         self.viz["diffuse_reflect"].setChecked(1)
         value = value - AI_RAY_DIFFUSE_REFLECT
-    if value > AI_RAY_ALL & ~(AI_RAY_SUBSURFACE|AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME):
+    if value > AI_RAY_ALL & ~(AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME):
         self.viz["volume"].setChecked(1)
         value = value - AI_RAY_VOLUME        
-    if value > AI_RAY_ALL & ~(AI_RAY_SUBSURFACE|AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT):
+    if value > AI_RAY_ALL & ~(AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT):
         self.viz["specular_transmit"].setChecked(1)
         value = value - AI_RAY_SPECULAR_TRANSMIT
-    if value > AI_RAY_ALL & ~(AI_RAY_SUBSURFACE|AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT|AI_RAY_DIFFUSE_TRANSMIT):
+    if value > AI_RAY_ALL & ~(AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT|AI_RAY_DIFFUSE_TRANSMIT):
         self.viz["diffuse_transmit"].setChecked(1)
         value = value - AI_RAY_DIFFUSE_TRANSMIT
-    if value > AI_RAY_ALL & ~(AI_RAY_SUBSURFACE|AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT|AI_RAY_DIFFUSE_TRANSMIT|AI_RAY_SHADOW):
-        self.viz["cast_shadows"].setChecked(1)
+    if value > AI_RAY_ALL & ~(AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT|AI_RAY_DIFFUSE_TRANSMIT|AI_RAY_SHADOW):
+        self.viz["casts_shadows"].setChecked(1)
         value = value - AI_RAY_SHADOW
-    if value > AI_RAY_ALL & ~(AI_RAY_SUBSURFACE|AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT|AI_RAY_DIFFUSE_TRANSMIT|AI_RAY_SHADOW|AI_RAY_CAMERA):
-        self.viz["camera"].setChecked(1)
+    if value > AI_RAY_ALL & ~(AI_RAY_SPECULAR_REFLECT|AI_RAY_DIFFUSE_REFLECT|AI_RAY_VOLUME|AI_RAY_SPECULAR_TRANSMIT|AI_RAY_DIFFUSE_TRANSMIT|AI_RAY_SHADOW|AI_RAY_CAMERA):
+        self.viz["primary_visibility"].setChecked(1)
         value = value - AI_RAY_CAMERA
 
-
-
-
-
   def PropertyChanged(self, state):
+
     value= self.computeViz()
 
     if value <= self.minVal:
@@ -157,7 +148,6 @@ class PropertyWidgetVisibility(PropertyWidget):
     self.setViz(value)
     for v in self.viz:
       self.viz[v].stateChanged.connect(self.PropertyChanged)
-
 
   def resetValue(self):
     for v in self.viz:

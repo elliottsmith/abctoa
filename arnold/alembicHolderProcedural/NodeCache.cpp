@@ -24,7 +24,7 @@ NodeCache::~NodeCache()
 //-*************************************************************************
 AtNode* NodeCache::getCachedNode(const std::string& cacheId)
 {
-    AiMsgDebug("  [NodeCache] Searching for %s", cacheId.c_str());
+    // AiMsgDebug("  [NodeCache] Searching for %s", cacheId.c_str());
     std::map<std::string, std::string>::const_iterator I = ArnoldNodeCache.find(cacheId);
     if (I != ArnoldNodeCache.end())
         return AiNodeLookUpByName(I->second.c_str());

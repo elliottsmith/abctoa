@@ -832,6 +832,7 @@ procedural_init
 
 procedural_cleanup
 {
+    AiMsgDebug("");
     AiMsgDebug("[ProcMain] ProcCleanup");
     //delete reinterpret_cast<ProcArgs*>( user_ptr );
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
@@ -862,7 +863,7 @@ procedural_num_nodes
 {
 
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
-    AiMsgDebug("[ProcMain] got %i nodes", args->createdNodes->getNumNodes());
+    // AiMsgDebug("[ProcMain] got %i nodes", args->createdNodes->getNumNodes());
     return args->createdNodes->getNumNodes();
 
 }
@@ -872,10 +873,10 @@ procedural_num_nodes
 procedural_get_node
 {
     
-    AiMsgDebug("[ProcMain] Should return node %i", i);
+    // AiMsgDebug("[ProcMain] Should return node %i", i);
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
     
-    AiMsgDebug("[ProcMain] Returning node %s", AiNodeGetName(args->createdNodes->getNode(i)));
+    // AiMsgDebug("[ProcMain] Returning node %s", AiNodeGetName(args->createdNodes->getNode(i)));
     return args->createdNodes->getNode(i);
 
 }

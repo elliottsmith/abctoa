@@ -187,7 +187,6 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
                                         attrViz &= ~AI_RAY_CAMERA;
                                 }
 
-                                AiMsgDebug("[WriteOverrides] visibility : attrViz %i", attrViz);
                                 AiNodeSetByte(node, attribute.c_str(), attrViz);
                             }
                             else

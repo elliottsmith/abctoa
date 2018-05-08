@@ -359,32 +359,13 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
                 AiNodeSetArray(meshNode, "nlist",
                                AiArrayConvert(numNormals,
                                               numVertexSamples, AI_TYPE_VECTOR, &nlist[0]));
-               
 
             if (!nidxs.empty())
             {
-               // we must invert the idxs
-               //unsigned int facePointIndex = 0;
-               unsigned int base = 0;
-               AtArray* nsides = AiNodeGetArray(meshNode, "nsides");
-               std::vector<unsigned int> nvidxReversed;
-               for (unsigned int i = 0; i < AiArrayGetNumElements(nsides) / AiArrayGetNumKeys(nsides); ++i)
-               {
-                  int curNum = AiArrayGetUInt(nsides ,i);
-
-                  for (int j = 0; j < curNum; ++j)
-                  {
-                      nvidxReversed.push_back(nidxs[base+curNum-j-1]);
-                  }
-                  base += curNum;
-               }
-                AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(nvidxReversed.size(), 1, AI_TYPE_UINT, &nvidxReversed[0]));
-            }
-            else
+              AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(nidxs.size(), 1, AI_TYPE_UINT, &nidxs[0]));              
+            } else
             {
-                AiNodeSetArray(meshNode, "nidxs",
-                        AiArrayConvert(vidxs.size(), 1, AI_TYPE_UINT,
-                                &vidxs[0]));
+              AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(vidxs.size(), 1, AI_TYPE_UINT, &vidxs[0]));
             }
         }
     }

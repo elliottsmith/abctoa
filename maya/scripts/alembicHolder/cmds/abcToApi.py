@@ -197,21 +197,23 @@ class alembicHolderClass():
                 if not fixed['layers'].has_key(layer):
                     fixed['layers'][layer] = {'shaders' : {}, 'displacements' : {}}
                 
-                for shader in assignations['layers'][layer]['shaders']:
-                    if namespace != ':':
-                        fixed['layers'][layer]['shaders']['%s:%s' % (namespace, shader)] = assignations['layers'][layer]['shaders'][shader]
-                        attrs_to_connect.append('%s:%s' % (namespace, shader))
-                    else:
-                        fixed['layers'][layer]['shaders']['%s' % (shader)] = assignations['layers'][layer]['shaders'][shader]
-                        attrs_to_connect.append('%s' % (shader))
+                if assignations['layers'][layer].has_key('shaders'):
+                    for shader in assignations['layers'][layer]['shaders']:
+                        if namespace != ':':
+                            fixed['layers'][layer]['shaders']['%s:%s' % (namespace, shader)] = assignations['layers'][layer]['shaders'][shader]
+                            attrs_to_connect.append('%s:%s' % (namespace, shader))
+                        else:
+                            fixed['layers'][layer]['shaders']['%s' % (shader)] = assignations['layers'][layer]['shaders'][shader]
+                            attrs_to_connect.append('%s' % (shader))
                 
-                for disp in assignations['layers'][layer]['displacements']:
-                    if namespace != ':':
-                        fixed['layers'][layer]['displacements']['%s:%s' % (namespace, disp)] = assignations['layers'][layer]['displacements'][disp]
-                        attrs_to_connect.append('%s:%s' % (namespace, disp))
-                    else:
-                        fixed['layers'][layer]['displacements']['%s' % (disp)] = assignations['layers'][layer]['displacements'][disp]
-                        attrs_to_connect.append('%s' % (disp))                    
+                if assignations['layers'][layer].has_key('displacements'):
+                    for disp in assignations['layers'][layer]['displacements']:
+                        if namespace != ':':
+                            fixed['layers'][layer]['displacements']['%s:%s' % (namespace, disp)] = assignations['layers'][layer]['displacements'][disp]
+                            attrs_to_connect.append('%s:%s' % (namespace, disp))
+                        else:
+                            fixed['layers'][layer]['displacements']['%s' % (disp)] = assignations['layers'][layer]['displacements'][disp]
+                            attrs_to_connect.append('%s' % (disp))                    
 
         self.setAttr(attr='shadersAssignation', value=json.dumps(fixed['shaders']))
         self.setAttr(attr='displacementsAssignation', value=json.dumps(fixed['displacement']))

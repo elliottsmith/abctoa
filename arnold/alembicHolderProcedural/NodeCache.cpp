@@ -12,7 +12,7 @@ NodeCache::NodeCache()
 
 NodeCache::~NodeCache()
 {
-    AiMsgDebug("  [NodeCache] Removing %i nodes from the cache", ArnoldNodeCache.size());
+    AiMsgDebug("    [NodeCache] Removing %i nodes from the cache", ArnoldNodeCache.size());
     ArnoldNodeCache.clear();
 
 }
@@ -50,7 +50,7 @@ NodeCollector::NodeCollector(AtNode *procedural)
 
 NodeCollector::~NodeCollector()
 {
-    AiMsgDebug("  [NodeCache] Deleting node collector (%i collected nodes)", ArnoldNodeCollector.size());
+    AiMsgDebug("    [NodeCache] Deleting node collector (%i collected nodes)", ArnoldNodeCollector.size());
     ArnoldNodeCollector.clear();
 }
 
@@ -60,7 +60,7 @@ NodeCollector::~NodeCollector()
 //-*************************************************************************
 void NodeCollector::addNode(AtNode* node)
 {
-    AiMsgDebug("  [NodeCache] Adding node %s and type %s", AiNodeGetName(node), AiNodeEntryGetName(AiNodeGetNodeEntry (node)));
+    // AiMsgDebug("    [NodeCache] Adding node %s and type %s", AiNodeGetName(node), AiNodeEntryGetName(AiNodeGetNodeEntry (node)));
     ArnoldNodeCollector.push_back(node);
 }
 
@@ -75,7 +75,7 @@ AtNode* NodeCollector::getNode(int num)
         return ArnoldNodeCollector[num];
     else
     {
-        AiMsgError("  [NodeCache] Returning null node!");
+        AiMsgError("    [NodeCache] Returning null node!");
         return 0;
     }
 }
@@ -89,7 +89,7 @@ FileCache::FileCache()
 
 FileCache::~FileCache()
 {
-    AiMsgDebug("  [NodeCache] Removing %i files from the file cache", ArnoldFileCache.size());
+    AiMsgDebug("    [NodeCache] Removing %i files from the file cache", ArnoldFileCache.size());
     for (std::map<std::string, std::vector<CachedNodeFile>* >::iterator it = ArnoldFileCache.begin();
          it != ArnoldFileCache.end(); ++it)
     {

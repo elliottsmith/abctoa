@@ -97,7 +97,7 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
                     Json::FastWriter fastWriter;
                     std::string output = fastWriter.write(val);
                     output.erase(std::remove(output.begin(), output.end(), '\n'), output.end());
-                    AiMsgDebug("[WriteOverrides] Attribute : %s | Value : %s", attribute.c_str(), output.c_str());
+                    AiMsgDebug("    [WriteOverrides][ApplyOverrides] Attribute : %s | Value : %s", attribute.c_str(), output.c_str());
 
                     if( val.isString() ) 
                     {

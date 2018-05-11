@@ -76,6 +76,7 @@ bool nodeHasParameter( struct AtNode * node, const std::string & paramName)
 void ApplyTransformation( struct AtNode * node,
         MatrixSampleMap * xformSamples, ProcArgs &args )
 {
+    AiMsgDebug("  [WriteTransform][ApplyTransformation]");
     if ( !node || !xformSamples || xformSamples->empty() )
     {
         return;

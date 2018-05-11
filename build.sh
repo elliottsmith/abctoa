@@ -2,6 +2,9 @@
 echo ""
 echo "Compiling AbcToA"
 
+pyside-uic maya/scripts/shaderManager/ui/UI_ABCHierarchy.ui -o maya/scripts/shaderManager/ui/UI_ABCHierarchy.py
+sed -i 's/from PySide import QtCore, QtGui/from milk.utils.v1_0.pyside.loader import QtCore, QtGui/g' maya/scripts/shaderManager/ui/UI_ABCHierarchy.py
+
 export DISTRIBUTION=centos6
 export DSO=so
 export COMPILER=gcc-4.9.2
@@ -36,9 +39,6 @@ export LD_LIBRARY_PATH=/milk/apps/arnold/Arnold-$ARNOLDVER-linux/bin:$CENTRAL/li
 
 mkdir BUILD
 cd BUILD
-
-pyside-uic maya/scripts/shaderManager/ui/UI_ABCHierarchy.ui -o maya/scripts/shaderManager/ui/UI_ABCHierarchy.py
-sed -i 's/from PySide import QtCore, QtGui/from milk.utils.v1_0.pyside.loader import QtCore, QtGui/g' maya/scripts/shaderManager/ui/UI_ABCHierarchy.py
 
 echo ""
 echo "Running cmake"

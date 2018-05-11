@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'maya/scripts/shaderManager/ui/UI_ABCHierarchy.ui'
 #
-# Created: Mon Apr 30 17:58:49 2018
+# Created: Fri May 11 13:32:00 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,7 +33,7 @@ class Ui_NAM(object):
         self.layers_btn.setText("")
         self.layers_btn.setObjectName("layers_btn")
         self.horizontalLayout_3.addWidget(self.layers_btn)
-        self.gridLayout.addLayout(self.horizontalLayout_3, 0, 4, 1, 1)
+        self.gridLayout.addLayout(self.horizontalLayout_3, 0, 5, 1, 1)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.overrideProps = QtGui.QCheckBox(self.centralwidget)
@@ -50,7 +50,7 @@ class Ui_NAM(object):
         self.soloSelected = QtGui.QCheckBox(self.centralwidget)
         self.soloSelected.setObjectName("soloSelected")
         self.horizontalLayout_2.addWidget(self.soloSelected)
-        self.gridLayout.addLayout(self.horizontalLayout_2, 0, 2, 1, 1)
+        self.gridLayout.addLayout(self.horizontalLayout_2, 0, 3, 1, 1)
         self.splitter = QtGui.QSplitter(self.centralwidget)
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName("splitter")
@@ -117,15 +117,18 @@ class Ui_NAM(object):
         self.hierarchyWidget.setColumnCount(3)
         self.hierarchyWidget.setObjectName("hierarchyWidget")
         self.hierarchyWidget.header().setVisible(True)
-        self.gridLayout.addWidget(self.splitter, 1, 0, 1, 5)
+        self.gridLayout.addWidget(self.splitter, 1, 0, 1, 6)
         self.wildCardButton = QtGui.QPushButton(self.centralwidget)
         self.wildCardButton.setMaximumSize(QtCore.QSize(200, 16777215))
         self.wildCardButton.setObjectName("wildCardButton")
         self.gridLayout.addWidget(self.wildCardButton, 2, 1, 1, 1)
+        self.locatorsButton = QtGui.QPushButton(self.centralwidget)
+        self.locatorsButton.setObjectName("locatorsButton")
+        self.gridLayout.addWidget(self.locatorsButton, 2, 2, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 1, 0, 1, 2)
         NAM.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(NAM)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1400, 24))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1400, 25))
         self.menubar.setObjectName("menubar")
         NAM.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(NAM)
@@ -146,4 +149,5 @@ class Ui_NAM(object):
         self.hierarchyWidget.headerItem().setText(1, QtGui.QApplication.translate("NAM", "shaders", None, QtGui.QApplication.UnicodeUTF8))
         self.hierarchyWidget.headerItem().setText(2, QtGui.QApplication.translate("NAM", "displacement", None, QtGui.QApplication.UnicodeUTF8))
         self.wildCardButton.setText(QtGui.QApplication.translate("NAM", "Add WildCard Assignation", None, QtGui.QApplication.UnicodeUTF8))
+        self.locatorsButton.setText(QtGui.QApplication.translate("NAM", "Import All Locators", None, QtGui.QApplication.UnicodeUTF8))
 

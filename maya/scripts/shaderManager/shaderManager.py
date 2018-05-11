@@ -150,8 +150,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.overrideProps.stateChanged.connect(self.overridePropsChanged)
         self.soloSelected.stateChanged.connect(self.soloSelectedChanged)        
         self.wildCardButton.pressed.connect(self.addWildCard)
+        self.locatorsButton.pressed.connect(self.importLocators)        
         self.layers_btn.clicked.connect(self.layers_clicked)
-
+    
     def layers_clicked(self):
         """"""
         layers_copy = CopyLayers(self)
@@ -1238,3 +1239,9 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 item = pitem
 
         self.createWildCard(item)
+    
+    def importLocators(self):
+    	"""Import items matching the name 'locator' as maya geo"""
+    	
+    	for cache in self.ABCViewerNode:
+    		cmds.AbcImport(self.ABCViewerNode[cache].ABCcache, ft="locator")

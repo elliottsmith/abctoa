@@ -5,3 +5,4 @@ exportArnoldDefinitions.py
 local.cmake
 /maya/alembicHolder/version.h
 /package.py
+maya/scripts/shaderManager/ui/UI_ABCHierarchy.py

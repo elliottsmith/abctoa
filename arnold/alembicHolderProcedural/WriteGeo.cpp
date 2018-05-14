@@ -314,7 +314,7 @@ inline void doNormals( primT& prim, AtNode *meshNode, const SampleTimeSet& sampl
 template<> 
 inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const SampleTimeSet& sampleTimes, size_t numVertexSamples, const std::vector<unsigned int>& vidxs)
 {
-    AiMsgDebug("  [WriteGeo][doNormals]");
+    // AiMsgDebug("  [WriteGeo][doNormals]");
     if (AiNodeGetInt(meshNode, "subdiv_type") == 0 && sampleTimes.size() > 0) // if the mesh has subdiv, we don't need normals as they are recomputed by arnold!
     {
         std::vector<float> nlist;
@@ -1066,6 +1066,8 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     { 
       // We don't have a cache, so we much create this mesh.
       meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
+    } else {
+        AiMsgDebug("  [WriteGeo][ProcessPolyMesh] Found Cached : %s", originalName.c_str());   
     }
 
     AtNode *instanceNode = NULL;
@@ -1073,6 +1075,11 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     {
       // we can create the instance, with correct transform, attributes & shaders.      
       instanceNode = createInstance(name, originalName, polymesh, args, xformSamples, meshNode);      
+    }
+
+    if(instanceNode == NULL)
+    {
+        AiMsgDebug("  [GINSTANCE] NULL : %s", originalName.c_str()); 
     }
 
     if(isMeshLight(originalName, polymesh, args))
@@ -1109,6 +1116,8 @@ void ProcessSubD( ISubD &subd, ProcArgs &args, MatrixSampleMap * xformSamples )
       //force suddiv
       if(meshNode)
         AiNodeSetStr( meshNode, "subdiv_type", "catclark" );
+    } else {
+        AiMsgDebug("  [WriteGeo][ProcessSubD] Found Cached : %s", originalName.c_str());   
     }
 
     // we can create the instance, with correct transform, attributes & shaders.

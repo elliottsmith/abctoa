@@ -12,7 +12,7 @@ export PYTHONVER=2.7.5
 
 export MAYAVER=2018.2
 export MAYASHORT=_2018
-export ARNOLDVER=5.0.2.3
+export ARNOLDVER=5.1.0.1
 export ARNOLD_SHORT=5.0
 export MTOAVER=3.0.0.2
 export MTOAVER_=3.0.0.2

@@ -14,7 +14,7 @@ using namespace Alembic::AbcGeom;
 //-*****************************************************************************
 
 
-void ProcessLight( ILight &light, ProcArgs &args,
-        MatrixSampleMap * xformSamples);
+void ProcessLight( ILight &light, ProcArgs &args, MatrixSampleMap * xformSamples);
+AtRGB ConvertKelvinToRGB(float kelvin);
 
 #endif

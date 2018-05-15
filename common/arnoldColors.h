@@ -38,7 +38,6 @@
 
 #include <ai.h>
 
-AtRGB _ConvertKelvinToRGB(float kelvin);
-AtRGB _NormalizeRGB(AtNode* mesh, AtRGB colorMultiplier);
+void NormalizeRGB(AtNode* mesh, AtRGB &colorMultiplier);
 
 #endif

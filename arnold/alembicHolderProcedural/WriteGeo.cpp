@@ -36,6 +36,7 @@
 
 #include "WriteGeo.h"
 #include "WriteTransform.h"
+#include "WriteLight.h"
 #include "WriteOverrides.h"
 #include "ArbGeomParams.h"
 #include "../../common/PathUtil.h"
@@ -953,8 +954,6 @@ void createMeshLight(const std::string& name, const std::string& originalName, p
     // adding attributes on procedural
     AddArbitraryProceduralParams(args.proceduralNode, meshLightNode);
 
-    AiMsgDebug("  [WriteGeo][createMeshLight] Creating 'mesh_light': %s", meshlightname.c_str());
-    AiMsgDebug("  [WriteGeo][createMeshLight] Linking 'mesh_light' to 'ginstance'");
     AiMsgDebug("  [WriteGeo][createMeshLight] Create meshlight - FINISH");    
     args.createdNodes->addNode(meshLightNode);
     createMeshLightShader(name, originalName, prim, args, xformSamples, mesh, meshLightNode);
@@ -1010,7 +1009,7 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
         ApplyOverrides(originalName, meshLightShader, tags, args);
 
     if (use_color_temperature) {
-        AtRGB color = _ConvertKelvinToRGB(color_temperature);
+        AtRGB color = ConvertKelvinToRGB(color_temperature);
         AiNodeSetRGB(meshLightShader, "color", color.r, color.g, color.b);
     }
 
@@ -1020,15 +1019,16 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
         AtRGB colorMultiplier = AI_RGB_WHITE;
         colorMultiplier = colorMultiplier * AiNodeGetFlt(meshLightNode, "intensity") * powf(2.f, AiNodeGetFlt(meshLightNode, "exposure"));
 
+        // if normalize is set to false, we need to multiply
+        // the color with the surface area
+        // doing a very simple triangulation, good for
+        // approximating the Arnold one
         if (AiNodeGetBool(meshLightNode, "normalize"))
-            {
-                AtRGB norm = _NormalizeRGB(mesh, colorMultiplier);
-                AiNodeSetRGB (meshLightShader, "color_multiplier", norm.r, norm.g, norm.b);
-            }
-            else
-            {
-                AiNodeSetRGB(meshLightShader, "color_multiplier", colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
-            }
+         NormalizeRGB(mesh, colorMultiplier);
+
+        AiNodeSetRGB(meshLightShader, "color_multiplier", colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
+        AiMsgDebug("[WriteGeo][createMeshLightShader] R : %f, G : %f, B : %f", colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
+
     }
     else {
         AiNodeSetByte(mesh, "visibility", AI_RAY_SPECULAR_REFLECT);
@@ -1037,8 +1037,6 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 
     // set the ptr
     AiNodeSetPtr(mesh, "shader", meshLightShader);    
-    AiMsgDebug("  [WriteGeo][createMeshLightShader] Creating 'mesh_light_material': %s", meshlightshadername.c_str());
-    AiMsgDebug("  [WriteGeo][createMeshLightShader] Linking 'ginstance' to 'mesh_light_material'");
     AiMsgDebug("  [WriteGeo][createMeshLightShader] Create meshlight shader - FINISH");    
     args.createdNodes->addNode(meshLightShader);
 }

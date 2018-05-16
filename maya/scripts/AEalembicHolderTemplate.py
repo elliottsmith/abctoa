@@ -224,7 +224,8 @@ class AEalembicHolderTemplate(BaseTemplate):
         Build the body of the attribute editor template according to shotgun context
         """
         self.beginLayout(name="Cache File", collapse=False)
-        self.callCustom(self._abcWidget, self._abcConnect, "cacheFileNames")
+        # self.callCustom(self._abcWidget, self._abcConnect, "cacheFileNames")
+        self.addControl(control="cacheFileNames", label="Cache File Names") 
         self.addControl(control="cacheGeomPath", label="Geometry Path")
         self.addControl(control="cacheSelectionPath", label="Selection Path")
         self.addControl(control="boundingBoxExtendedMode", label="Bounding Box Extended Mode")

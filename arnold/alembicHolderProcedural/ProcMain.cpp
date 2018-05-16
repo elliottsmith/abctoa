@@ -281,6 +281,7 @@ struct caches
 {
     FileCache* g_fileCache;
     NodeCache* g_nodeCache;
+    AtCritSec mycs;
 
 };
 
@@ -300,6 +301,7 @@ node_plugin_initialize
 
 
     caches *g_caches = new caches();
+    AiCritSecInitRecursive(&g_caches->mycs);
     g_caches->g_fileCache = new FileCache();
     g_caches->g_nodeCache = new NodeCache();
     *plugin_data = g_caches;
@@ -310,6 +312,7 @@ node_plugin_initialize
 node_plugin_cleanup
 {
     caches *g_caches = reinterpret_cast<caches*>(plugin_data);
+    AiCritSecClose(&g_caches->mycs);
     delete g_caches->g_fileCache;
     delete g_caches->g_nodeCache;
     delete g_caches;
@@ -365,8 +368,10 @@ procedural_init
 
     caches *g_cache = reinterpret_cast<caches*>(AiNodeGetPluginData(node));
     
+    args->proceduralNode = node;
     args->nodeCache = g_cache->g_nodeCache;
-    args->createdNodes = new NodeCollector(node);
+    args->lock = g_cache->mycs;
+    args->createdNodes = new NodeCollector(args->lock, node);
 
 
     AtString abcfile = AiNodeGetStr(node, "abcShaders");

@@ -6,8 +6,10 @@ namespace {
     std::vector<CachedNodeFile> emptyCreatedNodes;
 }
 
-NodeCache::NodeCache()
+NodeCache::NodeCache(AtCritSec mycs)
 {
+
+    lock = mycs;
 }
 
 NodeCache::~NodeCache()
@@ -24,7 +26,8 @@ NodeCache::~NodeCache()
 //-*************************************************************************
 AtNode* NodeCache::getCachedNode(const std::string& cacheId)
 {
-    // AiMsgDebug("  [NodeCache] Searching for %s", cacheId.c_str());
+    AiMsgDebug("  [NodeCache] Searching for %s", cacheId.c_str());
+    AtScopedLock sc(lock);
     std::map<std::string, std::string>::const_iterator I = ArnoldNodeCache.find(cacheId);
     if (I != ArnoldNodeCache.end())
         return AiNodeLookUpByName(I->second.c_str());
@@ -38,13 +41,15 @@ AtNode* NodeCache::getCachedNode(const std::string& cacheId)
 //-*************************************************************************
 void NodeCache::addNode(const std::string& cacheId, AtNode* node)
 {
+    AtScopedLock sc(lock);
     ArnoldNodeCache[cacheId] = std::string(AiNodeGetName(node));
 }
 
 
 // The node collector is a thread-safe class that accumlate AtNode created in the procedural.
-NodeCollector::NodeCollector(AtNode *procedural)
+NodeCollector::NodeCollector(AtCritSec mycs, AtNode *procedural)
 {
+    lock = mycs;
     proc = procedural;
 }
 
@@ -60,17 +65,20 @@ NodeCollector::~NodeCollector()
 //-*************************************************************************
 void NodeCollector::addNode(AtNode* node)
 {
-    // AiMsgDebug("    [NodeCache] Adding node %s and type %s", AiNodeGetName(node), AiNodeEntryGetName(AiNodeGetNodeEntry (node)));
+    AtScopedLock sc(lock);
+    AiMsgDebug("    [NodeCache] Adding node %s and type %s", AiNodeGetName(node), AiNodeEntryGetName(AiNodeGetNodeEntry (node)));
     ArnoldNodeCollector.push_back(node);
 }
 
 size_t NodeCollector::getNumNodes()
 {
+    AtScopedLock sc(lock);
     return ArnoldNodeCollector.size();
 }
 
 AtNode* NodeCollector::getNode(int num)
 {
+    AtScopedLock sc(lock);
     if (num < ArnoldNodeCollector.size())
         return ArnoldNodeCollector[num];
     else
@@ -83,8 +91,9 @@ AtNode* NodeCollector::getNode(int num)
 
 
 
-FileCache::FileCache()
+FileCache::FileCache(AtCritSec mycs)
 {
+    lock = mycs;
 }
 
 FileCache::~FileCache()
@@ -104,6 +113,9 @@ FileCache::~FileCache()
 //-*************************************************************************
 const std::vector<CachedNodeFile>& FileCache::getCachedFile(const std::string& cacheId)
 {
+    AtScopedLock sc(lock);
+
+
     std::map<std::string, std::vector<CachedNodeFile>* >::iterator I = ArnoldFileCache.find(cacheId);
     if (I != ArnoldFileCache.end())
     {
@@ -179,6 +191,7 @@ std::string FileCache::getHash(const std::vector<std::string>& fileNames,
 //-*************************************************************************
 void FileCache::addCache(const std::string& cacheId, NodeCollector* createdNodes)
 {
+    AtScopedLock sc(lock);
     if (ArnoldFileCache.find(cacheId) == ArnoldFileCache.end())
     {
         std::vector<CachedNodeFile>* nodeCache = new std::vector<CachedNodeFile>();

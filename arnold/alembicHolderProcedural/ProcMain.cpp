@@ -288,16 +288,16 @@ struct caches
 
 node_plugin_initialize
 {
-#ifdef WIN32
-    // DIRTY FIX 
-    // magic static* used in the Alembic Schemas are not threadSafe in Visual Studio, so we need to initialized them first.
-    IPolyMesh::getSchemaTitle();
-    IPoints::getSchemaTitle();
-    ICurves::getSchemaTitle();
-    INuPatch::getSchemaTitle();
-    IXform::getSchemaTitle();
-    ISubD::getSchemaTitle();
-#endif
+    #ifdef WIN32
+        // DIRTY FIX
+        // magic static* used in the Alembic Schemas are not threadSafe in Visual Studio, so we need to initialized them first.
+        IPolyMesh::getSchemaTitle();
+        IPoints::getSchemaTitle();
+        ICurves::getSchemaTitle();
+        INuPatch::getSchemaTitle();
+        IXform::getSchemaTitle();
+        ISubD::getSchemaTitle();
+    #endif
 
 
     caches *g_caches = new caches();
@@ -895,12 +895,12 @@ extern "C"
     node_loader
     {
         if (i>0) return 0;
-    node->methods = alembicProceduralMethods;
-    node->output_type = AI_TYPE_NONE;
-    node->name = "alembicHolderProcedural";
-    node->node_type = AI_NODE_SHAPE_PROCEDURAL;
-    strcpy(node->version, AI_VERSION);
-    return true;
+            node->methods = alembicProceduralMethods;
+            node->output_type = AI_TYPE_NONE;
+            node->name = "alembicHolderProcedural";
+            node->node_type = AI_NODE_SHAPE_PROCEDURAL;
+            strcpy(node->version, AI_VERSION);
+            return true;
     }
 
 #ifdef __cplusplus

@@ -366,7 +366,8 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
                unsigned int base = 0;
                AtArray* nsides = AiNodeGetArray(meshNode, "nsides");
                std::vector<unsigned int> nvidxReversed;
-               for (unsigned int i = 0; i < AiArrayGetNumElements(nsides) / AiArrayGetNumKeys(nsides); ++i)
+               // for (unsigned int i = 0; i < AiArrayGetNumElements(nsides) / AiArrayGetNumKeys(nsides); ++i)
+               for (unsigned int i = 0; i < nsides->nelements / nsides->nkeys; ++i)
                {
                   int curNum = AiArrayGetUInt(nsides ,i);
 
@@ -1059,7 +1060,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
 
     getSampleTimes(polymesh, args, sampleTimes);
     std::string cacheId = getHash(name, originalName, polymesh, args, sampleTimes);
-
+    AiCritSecEnter(&args.lock);
     AtNode* meshNode = args.nodeCache->getCachedNode(cacheId);
 
     if(meshNode == NULL)
@@ -1070,6 +1071,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
         AiMsgDebug("  [WriteGeo][ProcessPolyMesh] Found Cached : %s", originalName.c_str());   
     }
 
+    AiCritSecLeave(&args.lock);
     AtNode *instanceNode = NULL;
     if(meshNode != NULL)
     {

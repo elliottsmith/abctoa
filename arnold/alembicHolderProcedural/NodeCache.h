@@ -18,10 +18,18 @@ using namespace Alembic::AbcGeom;
 This class is handling the caching of Arnold node
 */
 
+class AtScopedLock{
+public:
+    AtScopedLock(AtCritSec cs) : m_critSec(cs) { AiCritSecEnter(&m_critSec); }
+    ~AtScopedLock() { AiCritSecLeave(&m_critSec); }
+private:
+    AtCritSec m_critSec;
+};
+
 class NodeCache
 {
 public:
-    NodeCache();
+    NodeCache(AtCritSec mycs);
     ~NodeCache();
 
     AtNode* getCachedNode(const std::string& cacheId);
@@ -30,13 +38,14 @@ public:
 
 private:
     std::map<std::string, std::string> ArnoldNodeCache;
+    AtCritSec lock;
 };
 
 
 class NodeCollector
 {
 public:
-    NodeCollector(AtNode *proc);
+    NodeCollector(AtCritSec mycs, AtNode *proc);
     ~NodeCollector();
 
     void addNode(AtNode* node);
@@ -49,6 +58,7 @@ public:
 private:
     std::vector<AtNode*> ArnoldNodeCollector;
     AtNode *proc;
+    AtCritSec lock;
 };
 
 
@@ -61,7 +71,7 @@ struct CachedNodeFile
 class FileCache
 {
 public:
-    FileCache();
+    FileCache(AtCritSec mycs);
     ~FileCache();
 
     const std::vector<CachedNodeFile>& getCachedFile(const std::string& cacheId);
@@ -80,6 +90,7 @@ public:
 private:
     std::map<std::string, std::vector<CachedNodeFile>* > ArnoldFileCache;
     std::map<std::string, std::string > ArnoldFileCacheProc; // This is used to check if the procedural creating the cache still exists. If not, chances are that the whole cache is not valid.
+    AtCritSec lock;
 };
 
 #endif

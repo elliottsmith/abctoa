@@ -51,11 +51,4 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args,
 void ProcessSubD( ISubD &subd, ProcArgs &args,
         MatrixSampleMap * xformSamples);
 
-// void ProcessNuPatch( INuPatch &patch, ProcArgs &args );
-//
-//void ProcessPoints( IPoints &patch, ProcArgs &args );
-//
-//void ProcessCurves( ICurves &curves, ProcArgs &args );
-
-
 #endif

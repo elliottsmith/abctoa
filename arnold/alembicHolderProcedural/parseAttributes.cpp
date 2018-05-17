@@ -1,4 +1,3 @@
-
 #include "parseAttributes.h"
 #include "abcshaderutils.h"
 #include "../../common/PathUtil.h"

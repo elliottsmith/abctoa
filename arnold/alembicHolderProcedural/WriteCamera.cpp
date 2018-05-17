@@ -1,10 +1,7 @@
 #include "WriteCamera.h"
 
-
 #include <ai.h>
 #include <sstream>
-
-#include "json/json.h"
 
 void ProcessCamera( ICamera &camera, const ProcArgs &args,
         MatrixSampleMap * xformSamples)

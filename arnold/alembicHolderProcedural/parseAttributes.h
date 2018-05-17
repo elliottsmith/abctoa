@@ -10,11 +10,8 @@
 #include <Alembic/Abc/All.h>
 #include <Alembic/AbcMaterial/IMaterial.h>
 
-
-
 #ifndef _Alembic_Arnold_ParseOverrides_h_
 #define _Alembic_Arnold_ParseOverrides_h_
-
 
 void getTags(Alembic::AbcGeom::IObject iObj, std::vector<std::string> & tags, ProcArgs* args);
 void getAllTags(Alembic::AbcGeom::IObject iObj, std::vector<std::string> & tags, ProcArgs* args);

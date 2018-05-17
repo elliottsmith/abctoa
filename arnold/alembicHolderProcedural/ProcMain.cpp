@@ -316,7 +316,6 @@ node_plugin_cleanup
     delete g_caches->g_fileCache;
     delete g_caches->g_nodeCache;
     delete g_caches;
-    return true;
 }
 
 procedural_init

@@ -1070,7 +1070,6 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
         AiMsgDebug("  [WriteGeo][ProcessPolyMesh] Found Cached : %s", originalName.c_str());   
     }
 
-    AiCritSecLeave(&args.lock);
     AtNode *instanceNode = NULL;
     if(meshNode != NULL)
     {
@@ -1088,6 +1087,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
       // Handling meshLights.
       createMeshLight(name, originalName, polymesh, args, xformSamples, instanceNode);    
     }
+    AiCritSecLeave(&args.lock);
 }
 
 //-*************************************************************************

@@ -50,8 +50,6 @@
 #include "parseAttributes.h"
 #include "NodeCache.h"
 
-#include "ReadInstancer.h"
-
 #include <Alembic/AbcGeom/All.h>
 
 #include <Alembic/AbcCoreFactory/IFactory.h>
@@ -79,7 +77,6 @@ node_parameters
     AiParameterStr("attributes", "");
     AiParameterStr("displacementsAssignation", "");
     AiParameterStr("layersOverride", "");
-    AiParameterStr("instancerArchive", "");
     AiParameterBool("skipJsonFile", false);
     AiParameterBool("skipShaders", false);
     AiParameterBool("skipAttributes", false);
@@ -395,7 +392,6 @@ procedural_init
         }
     }
 
-
     Json::Value jrootShaders;
     Json::Value jrootAttributes;
     Json::Value jrootDisplacements;
@@ -409,9 +405,6 @@ procedural_init
     AtString attributes = AiNodeGetStr(node, "attributes");
     AtString displacementsAssignation = AiNodeGetStr(node, "displacementsAssignation");
     AtString layersOverride = AiNodeGetStr(node, "layersOverride");
-
-    AtString instancerArchive = AiNodeGetStr(node, "instancerArchive");
-
 
     bool parsingSuccessful = false;
 
@@ -620,39 +613,6 @@ procedural_init
 
         }
         std::sort(args->attributes.begin(), args->attributes.end());
-    }
-
-
-    // check if we have a instancer archive attribute
-    if (instancerArchive.empty() == false )
-    {
-        // if so, we try to load the archive.
-        IArchive archive;
-        Alembic::AbcCoreFactory::IFactory factory;
-        archive = factory.getArchive(instancerArchive.c_str());
-        if (!archive.valid())
-        {
-            AiMsgWarning ( "[ProcMain] Cannot read file %s", instancerArchive);
-        }
-        else
-        {
-            AiMsgInfo( "[ProcMain] Using Instancer archive %s", instancerArchive);
-
-            IObject root = archive.getTop();
-            PathList path;
-
-            if ( path.empty() ) //walk the entire scene
-            {
-                for ( size_t i = 0; i < root.getNumChildren(); ++i )
-                {
-                    std::vector<std::string> tags;
-                    WalkObjectForInstancer( root, root.getChildHeader(i), *args,
-                                path.end(), path.end(), 0 );
-                }
-            }
-            
-            return 1;
-        }
     }
 
     std::string fileCacheId = g_cache->g_fileCache->getHash(args->filenames, args->shaders, args->displacements, args->attributesRoot, args->frame);

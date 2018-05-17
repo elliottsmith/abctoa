@@ -99,10 +99,9 @@ std::string getHash(
     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
-  //get tags
+    //get tags
     std::vector<std::string> tags;
     getAllTags(prim, tags, &args);
-
 
     // overrides that can't be applied on instances
     // we create a hash from that.
@@ -419,25 +418,6 @@ AtNode* writePoints(
                 AiArrayConvert( vidxs.size() / sampleTimes.size(),
                         sampleTimes.size(), AI_TYPE_FLOAT, (void*)(&(radius[0]))
                                 ));
-
-        /*if ( sampleTimes.size() > 1 )
-        {
-            std::vector<float> relativeSampleTimes;
-            relativeSampleTimes.reserve( sampleTimes.size() );
-
-            for (SampleTimeSet::const_iterator I = sampleTimes.begin();
-                    I != sampleTimes.end(); ++I )
-            {
-               chrono_t sampleTime = GetRelativeSampleTime( args, (*I) );
-
-                relativeSampleTimes.push_back(sampleTime);
-
-            }
-
-            AiNodeSetArray( pointsNode, "deform_time_samples",
-                    AiArrayConvert(relativeSampleTimes.size(), 1,
-                            AI_TYPE_FLOAT, &relativeSampleTimes[0]));
-        }*/
     }
     else
     {
@@ -449,10 +429,6 @@ AtNode* writePoints(
                 AiArrayConvert( vidxs.size() /2 / sampleTimes.size(),
                         sampleTimes.size(), AI_TYPE_FLOAT, (void*)(&(radius[0]))
                                 ));
-
-        /*AiNodeSetArray( pointsNode, "deform_time_samples",
-                    AiArray(2, 1, AI_TYPE_FLOAT, 0.f, 1.f));*/
-
     }
 
     ICompoundProperty arbPointsParams = ps.getArbGeomParams();
@@ -461,9 +437,7 @@ AtNode* writePoints(
 	args.nodeCache->addNode(cacheId, pointsNode);
     return pointsNode;
 
-
 }
-
 
 //-*************************************************************************
 // createInstance

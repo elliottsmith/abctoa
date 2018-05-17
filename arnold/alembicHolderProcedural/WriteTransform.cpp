@@ -37,13 +37,10 @@
 #include "WriteTransform.h"
 #include "ArbGeomParams.h"
 #include "../../common/PathUtil.h"
-//#include "ArbAttrUtil.h"
 
 #include <ai.h>
 #include <sstream>
-
 #include "json/json.h"
-
 
 //-*****************************************************************************
 
@@ -52,8 +49,6 @@
         #define AiNodeGetNodeEntry(node)   ((node)->base_node)
     #endif
 #endif
-
-
 
 //-*****************************************************************************
 void printMatrix(AtMatrix matrix)
@@ -95,20 +90,12 @@ void ApplyTransformation( struct AtNode * node,
         return;
     }
 
-
-    std::vector<float> sampleTimes;
-    sampleTimes.reserve(xformSamples->size());
-
     std::vector<float> mlist;
     mlist.reserve( 16* xformSamples->size() );
 
     for ( MatrixSampleMap::iterator I = xformSamples->begin();
             I != xformSamples->end(); ++I )
     {
-        // build up a vector of relative sample times to feed to
-        // "transform_time_samples" or "time_samples"
-        sampleTimes.push_back( GetRelativeSampleTime(args, (*I).first) );
-
 
         for (int i = 0; i < 16; i++)
         {
@@ -118,25 +105,6 @@ void ApplyTransformation( struct AtNode * node,
 
     AiNodeSetArray(node, "matrix", AiArrayConvert(1, xformSamples->size(), AI_TYPE_MATRIX, &mlist[0]));
 
-
-    if ( sampleTimes.size() > 1 )
-    {
-        // persp_camera calls it time_samples while the primitives call it
-        // transform_time_samples
-        if ( nodeHasParameter( node, "transform_time_samples" ) )
-        {
-            AiNodeSetArray(node, "transform_time_samples", AiArrayConvert(sampleTimes.size(), 1, AI_TYPE_FLOAT, &sampleTimes[0]));
-        }
-        else if ( nodeHasParameter( node, "time_samples" ) )
-        {
-            AiNodeSetArray(node, "time_samples", AiArrayConvert(sampleTimes.size(), 1, AI_TYPE_FLOAT, &sampleTimes[0]));
-        }
-        else
-        {
-            //TODO, warn if neither is present? Should be there in all
-            //commercial versions of arnold by now.
-        }
-    }
 }
 
 

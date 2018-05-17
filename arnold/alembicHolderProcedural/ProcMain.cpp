@@ -302,8 +302,8 @@ node_plugin_initialize
 
     caches *g_caches = new caches();
     AiCritSecInitRecursive(&g_caches->mycs);
-    g_caches->g_fileCache = new FileCache();
-    g_caches->g_nodeCache = new NodeCache();
+    g_caches->g_fileCache = new FileCache(&g_caches->mycs);
+    g_caches->g_nodeCache = new NodeCache(&g_caches->mycs);
     *plugin_data = g_caches;
     return true;
 }

@@ -366,8 +366,7 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
                unsigned int base = 0;
                AtArray* nsides = AiNodeGetArray(meshNode, "nsides");
                std::vector<unsigned int> nvidxReversed;
-               // for (unsigned int i = 0; i < AiArrayGetNumElements(nsides) / AiArrayGetNumKeys(nsides); ++i)
-               for (unsigned int i = 0; i < nsides->nelements / nsides->nkeys; ++i)
+               for (unsigned int i = 0; i < AiArrayGetNumElements(nsides) / AiArrayGetNumKeys(nsides); ++i)
                {
                   int curNum = AiArrayGetUInt(nsides ,i);
 

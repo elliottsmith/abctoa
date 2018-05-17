@@ -181,7 +181,8 @@ set(SUBDIRECTORIES
         arnold/alembicHolderProcedural
         maya/abcMayaShader
         mtoa/abcMayaShaderTranslator
-        arnold/abcMayaShaderProcedural)
+        arnold/abcMayaShaderProcedural
+        )
 
 # loop over subdirectories
 foreach(SUBDIR ${SUBDIRECTORIES})

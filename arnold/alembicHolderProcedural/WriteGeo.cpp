@@ -367,17 +367,24 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
                unsigned int base = 0;
                AtArray* nsides = AiNodeGetArray(meshNode, "nsides");
                std::vector<unsigned int> nvidxReversed;
-               for (unsigned int i = 0; i < AiArrayGetNumElements(nsides) / AiArrayGetNumKeys(nsides); ++i)
+               if ( AiArrayGetNumKeys(nsides) != 0 )
                {
-                  int curNum = AiArrayGetUInt(nsides ,i);
+                   for (unsigned int i = 0; i < AiArrayGetNumElements(nsides) / AiArrayGetNumKeys(nsides); ++i)
+                   {
+                      uint8_t curNum = AiArrayGetUInt(nsides ,i);
 
-                  for (int j = 0; j < curNum; ++j)
-                  {
-                      nvidxReversed.push_back(nidxs[base+curNum-j-1]);
-                  }
-                  base += curNum;
-               }
-                AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(nvidxReversed.size(), 1, AI_TYPE_UINT, &nvidxReversed[0]));
+                      for (int j = 0; j < curNum; ++j)
+                      {
+                          nvidxReversed.push_back(nidxs[base+curNum-j-1]);
+                      }
+                      base += curNum;
+                   }
+                   AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(nvidxReversed.size(), 1, AI_TYPE_UINT, &nvidxReversed[0]));
+                }
+                else 
+                {
+                    AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(vidxs.size(), 1, AI_TYPE_UINT, &vidxs[0]));                    
+                }
             }
             else
             {
@@ -1057,7 +1064,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
 
     getSampleTimes(polymesh, args, sampleTimes);
     std::string cacheId = getHash(name, originalName, polymesh, args, sampleTimes);
-
+    AiCritSecEnter(&args.lock);
     AtNode* meshNode = args.nodeCache->getCachedNode(cacheId);
 
     if(meshNode == NULL)
@@ -1085,6 +1092,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
       // Handling meshLights.
       createMeshLight(name, originalName, polymesh, args, xformSamples, instanceNode);    
     }
+    AiCritSecLeave(&args.lock);
 }
 
 //-*************************************************************************

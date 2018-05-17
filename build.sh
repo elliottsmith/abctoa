@@ -50,7 +50,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/a
 	-DMAYA_LOCATION=/milk/apps/autodesk/maya/$MAYAVER \
 	-DBOOST_ROOT=$CENTRAL/include/$DISTRIBUTION/$COMPILER \
 	-DBoost_REGEX_LIBRARY=$CENTRAL/lib/$DISTRIBUTION/$COMPILER/libboost_regex.$DSO \
-	-DCMAKE_CXX_FLAGS="-Wno-deprecated-declarations -Wno-enum-compare -Wno-unused-variable -Wno-pointer-arith -I$CENTRAL/include/$DISTRIBUTION/mtoa/$MTOAVER -I$CENTRAL/include/$DISTRIBUTION/$COMPILER -I$CENTRAL/include/$DISTRIBUTION/$COMPILER/OpenEXR -I$CENTRAL/include/$DISTRIBUTION/$COMPILER/jsoncpp -I$PWD/../thirdParty/ezOptionParser" \
+	-DCMAKE_CXX_FLAGS="-Wno-deprecated-declarations -Wno-enum-compare -Wno-unused-variable -Wno-pointer-arith -I$CENTRAL/include/$DISTRIBUTION/mtoa/$MTOAVER -I$CENTRAL/include/$DISTRIBUTION/$COMPILER -I$CENTRAL/include/$DISTRIBUTION/$COMPILER/OpenEXR -I$CENTRAL/include/$DISTRIBUTION/$COMPILER/jsoncpp" \
 	..
 
 echo ""

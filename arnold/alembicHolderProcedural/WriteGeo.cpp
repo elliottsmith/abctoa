@@ -1128,8 +1128,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     getSampleTimes(polymesh, args, sampleTimes);
     std::string cacheId = getHash(name, originalName, polymesh, args, sampleTimes);
     AiCritSecEnter(&args.lock);
-    // AtNode* meshNode = args.nodeCache->getCachedNode(cacheId);
-    AtNode* meshNode = NULL;
+    AtNode* meshNode = args.nodeCache->getCachedNode(cacheId);
 
     if(meshNode == NULL)
     { 

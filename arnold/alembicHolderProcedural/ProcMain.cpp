@@ -335,25 +335,6 @@ procedural_init
     ProcArgs * args = new ProcArgs(node);
     *user_ptr = args;
 
-    
-	if(const char* env_p = std::getenv("PATH_REMAPPING")) // TODO: Read from json file and procedural parameters & merge them all.
-	{
-		Json::Reader pathRemappingReader;
-        Json::Value pathRemappingReaderOverrides;
-
-		if(pathRemappingReader.parse( env_p, pathRemappingReaderOverrides ))
-		{
-			for( Json::ValueIterator itr = pathRemappingReaderOverrides.begin() ; itr != pathRemappingReaderOverrides.end() ; itr++ )
-			{
-				std::string path1 = itr.key().asString();
-				std::string path2 = pathRemappingReaderOverrides[itr.key().asString()].asString();
-				AiMsgDebug("[ProcMain] Remapping %s to %s", path1.c_str(), path2.c_str());
-				args->pathRemapping[path1] = path2;
-			}
-		}
-	}
-		
-
     caches *g_cache = reinterpret_cast<caches*>(AiNodeGetPluginData(node));
     
     args->proceduralNode = node;

@@ -12,10 +12,18 @@ export PYTHONVER=2.7.5
 
 export MAYAVER=2018.2
 export MAYASHORT=_2018
+
+# ARNOLD 5.1
 export ARNOLDVER=5.1.0.1
-export ARNOLD_SHORT=5.0
+export ARNOLD_SHORT=5.0 # 5.1 is binary compatible wih 5.0, so we use this so that we can use arnold 5 shaders that we have already installed / compiled
 export MTOAVER=3.0.0.2
 export MTOAVER_=3.0.0.2
+
+# # ARNOLD 5.0
+# export ARNOLDVER=5.0.2.4
+# export ARNOLD_SHORT=5.0
+# export MTOAVER=2.1.0.3
+# export MTOAVER_=2.1.0.3
 
 # sys argv
 export PREFIX=$1

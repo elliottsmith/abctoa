@@ -465,7 +465,7 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
     for( Json::ValueIterator itr = jroot.begin() ; itr != jroot.end() ; itr++ )
     {
         
-        AiMsgDebug( "    [parseAttributes][ParseShaders] Parsing shader %s", itr.key().asCString());
+        // AiMsgDebug( "    [parseAttributes][ParseShaders] Parsing shader %s", itr.key().asCString());
         std::string shaderName = ns + itr.key().asString();
         AtNode* shaderNode = AiNodeLookUpByName(shaderName.c_str());
         if(shaderNode == NULL)
@@ -479,7 +479,7 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
                     originalName = pystring::replace(originalName, ".message", "");
                 }
 
-                AiMsgDebug( "    [parseAttributes][ParseShaders] Create shader %s from ABC", originalName.c_str());
+                // AiMsgDebug( "    [parseAttributes][ParseShaders] Create shader %s from ABC", originalName.c_str());
 
                 IObject object = args->materialsObject.getChild(originalName);
                 if (IMaterial::matches(object.getHeader()))
@@ -493,7 +493,7 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
                 shaderNode = AiNodeLookUpByName(shaderName.c_str());
                 if(shaderNode == NULL)
                 {
-                    AiMsgDebug( "    [parseAttributes][ParseShaders] Searching shader %s deeper underground...", itr.key().asCString());
+                    // AiMsgDebug( "    [parseAttributes][ParseShaders] Searching shader %s deeper underground...", itr.key().asCString());
                     // look for the same namespace for shaders...
                     std::vector<std::string> strs;
                     pystring::split(nameprefix, strs, ":");
@@ -509,11 +509,11 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
         if(shaderNode != NULL)
         {
             Json::Value paths = jroot[itr.key().asString()];
-            AiMsgDebug("    [parseAttributes][ParseShaders] Shader exists, checking paths. size = %d", paths.size());
+            // AiMsgDebug("    [parseAttributes][ParseShaders] Shader exists, checking paths. size = %d", paths.size());
             for( Json::ValueIterator itr2 = paths.begin() ; itr2 != paths.end() ; itr2++ )
             {
                 Json::Value val = paths[itr2.key().asUInt()];
-                AiMsgDebug("    [parseAttributes][ParseShaders] Adding path %s", val.asCString());
+                // AiMsgDebug("    [parseAttributes][ParseShaders] Adding path %s", val.asCString());
                 if(type == 0)
                     args->displacements[val.asString().c_str()] = shaderNode;
                 else if(type == 1)

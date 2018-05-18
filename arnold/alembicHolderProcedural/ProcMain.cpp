@@ -83,7 +83,6 @@ node_parameters
     AiParameterBool("skipDisplacements", false);
 }
 
-
 // Recursively copy the values of b into a.
 void update(Json::Value& a, Json::Value& b) {
     Json::Value::Members memberNames = b.getMemberNames();
@@ -241,7 +240,6 @@ void WalkObject( IObject & parent, const ObjectHeader &i_ohead, ProcArgs &args,
         AiMsgError("[ProcMain] %s has MetaData: %s", ohead.getName().c_str(), ohead.getMetaData().serialize().c_str());
         if ( IXform::matches( ohead ) )
             AiMsgError("[ProcMain] but we are matching");
-//        nextParentObject = parent.getChild(ohead.getName());
     }
 
     if ( nextParentObject.valid() )
@@ -268,9 +266,6 @@ void WalkObject( IObject & parent, const ObjectHeader &i_ohead, ProcArgs &args,
             }
         }
     }
-
-
-
 }
 
 struct caches
@@ -280,7 +275,6 @@ struct caches
     AtCritSec mycs;
 
 };
-
 
 node_plugin_initialize
 {
@@ -303,7 +297,6 @@ node_plugin_initialize
     *plugin_data = g_caches;
     return true;
 }
-
 
 node_plugin_cleanup
 {
@@ -332,7 +325,6 @@ procedural_init
         if(layer != std::string("defaultRenderLayer"))
             customLayer = true;
     }
-
 
     skipJson = AiNodeGetBool(node, "skipJsonFile");
     skipShaders = AiNodeGetBool(node, "skipShaders");
@@ -371,19 +363,18 @@ procedural_init
 
 
     AtString abcfile = AiNodeGetStr(node, "abcShaders");
-
     if(abcfile.empty() == false)
     {
         Alembic::AbcCoreFactory::IFactory factory;
         IArchive archive = factory.getArchive(abcfile.c_str());
         if (!archive.valid())
         {
-            AiMsgWarning ( "[ProcMain] Cannot read file %s", abcfile);
+            AiMsgWarning("[ProcMain] Invalid alembic shaders file : %s", abcfile);
         }
         else
     {
   
-            AiMsgDebug ( "[ProcMain] reading file %s", abcfile);
+            AiMsgDebug("[ProcMain] Loading alembic shaders file : %s", abcfile);
             Abc::IObject materialsObject(archive.getTop(), "materials");
             args->useAbcShaders = true;
             args->materialsObject = materialsObject;
@@ -391,6 +382,8 @@ procedural_init
         }
     }
 
+    // PARSING JSON DATA
+    //-*****************************************************************************
     Json::Value jrootShaders;
     Json::Value jrootAttributes;
     Json::Value jrootDisplacements;
@@ -431,7 +424,6 @@ procedural_init
                 if(jroot["namespace"].isString())
                     args->ns = jroot["namespace"].asString() + ":";
 
-				
 				if(jroot["shadersAttribute"].isString())
 				{
 					args->shaderAssignationAttribute = jroot["shadersAttribute"].asString();
@@ -450,7 +442,6 @@ procedural_init
                 }
             }
 
-
             if(skipAttributes == false)
             {
                 jrootAttributes = jroot["attributes"];
@@ -462,10 +453,8 @@ procedural_init
 
                     if(readerOverride.parse( attributes.c_str(), jrootAttributesOverrides))
                         OverrideProperties(jrootAttributes, jrootAttributesOverrides);
-
                 }
             }
-
 
             if(skipDisplacement == false)
             {
@@ -506,7 +495,6 @@ procedural_init
                     }
                 }
             }
-
         }
     }
 
@@ -542,7 +530,6 @@ procedural_init
             bool parsingSuccessful = reader.parse( displacementsAssignation.c_str(), jrootDisplacements );
         }
     }
-
 
     if( jrootLayers[layer].size() > 0 && customLayer)
     {
@@ -585,13 +572,11 @@ procedural_init
     }
 
     //Check displacements
-
     if( jrootDisplacements.size() > 0 )
     {
         args->linkDisplacement = true;
         ParseShaders(jrootDisplacements, args->ns, args->nameprefix, args, 0);
     }
-
 
     // Check if we can link shaders or not.
     if( jrootShaders.size() > 0 )
@@ -599,7 +584,6 @@ procedural_init
         args->linkShader = true;
         ParseShaders(jrootShaders, args->ns, args->nameprefix, args, 1);
     }
-
 
     if( jrootAttributes.size() > 0 )
     {
@@ -609,7 +593,6 @@ procedural_init
         {
             std::string path = itr.key().asString();
             args->attributes.push_back(path);
-
         }
         std::sort(args->attributes.begin(), args->attributes.end());
     }
@@ -747,7 +730,7 @@ procedural_init
     if (!archive.valid())
     {
         for(size_t i = 0; i < args->filenames.size(); i++)
-            AiMsgError ( "[ProcMain] Cannot read file %s", args->filenames[i].c_str());
+            AiMsgError("[ProcMain] Invalid alembic file : %s", args->filenames[i].c_str());
         return 0;
     }
     else
@@ -755,8 +738,8 @@ procedural_init
         for (size_t i = 0; i < args->filenames.size(); i++){
             AiMsgDebug("");
             AiMsgDebug("**********************************************************************************************************************************");
-            AiMsgDebug("[ProcMain] Node : %s", AiNodeGetName(node));
-            AiMsgDebug("[ProcMain] File : %s", args->filenames[i].c_str());            
+            AiMsgDebug("[ProcMain] Arnold Node : %s", AiNodeGetName(node));
+            AiMsgDebug("[ProcMain] Alembic File : %s", args->filenames[i].c_str());            
             AiMsgDebug("**********************************************************************************************************************************");
         }
     }
@@ -788,7 +771,6 @@ procedural_init
             }
         }
     }
-
     return 1;
 }
 
@@ -796,9 +778,6 @@ procedural_init
 
 procedural_cleanup
 {
-    AiMsgDebug("");
-    AiMsgDebug("[ProcMain] ProcCleanup");
-    //delete reinterpret_cast<ProcArgs*>( user_ptr );
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
     if(args != NULL)
     {
@@ -816,8 +795,6 @@ procedural_cleanup
         delete args->createdNodes;
         delete args;
     }
-    AiMsgDebug("[ProcMain] ProcCleanup done");
-    
     return 1;
 }
 
@@ -825,24 +802,16 @@ procedural_cleanup
 
 procedural_num_nodes
 {
-
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
-    // AiMsgDebug("[ProcMain] got %i nodes", args->createdNodes->getNumNodes());
     return args->createdNodes->getNumNodes();
-
 }
 
 //-*************************************************************************
 
 procedural_get_node
 {
-    
-    // AiMsgDebug("[ProcMain] Should return node %i", i);
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
-    
-    // AiMsgDebug("[ProcMain] Returning node %s", AiNodeGetName(args->createdNodes->getNode(i)));
     return args->createdNodes->getNode(i);
-
 }
 
   // DSO hook

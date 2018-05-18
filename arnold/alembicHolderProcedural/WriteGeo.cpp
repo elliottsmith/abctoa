@@ -767,7 +767,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
 
     args.createdNodes->addNode(meshNode);
     args.nodeCache->addNode(cacheId, meshNode);
-    AiMsgDebug("  [WriteGeo][writeMesh] FINISH");
+    // AiMsgDebug("  [WriteGeo][writeMesh] FINISH");
     return meshNode;
 }
 
@@ -852,10 +852,10 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
         AiMsgDebug("  [WriteGeo][createInstance] Node type doesn't have a shader parameter");
     }
 
-    AiMsgDebug("  [WriteGeo][createInstance] Linking 'ginstance' to 'polymesh'");
+    // AiMsgDebug("  [WriteGeo][createInstance] Linking 'ginstance' to 'polymesh'");
     AiNodeSetPtr( instanceNode, "node", mesh );
     args.createdNodes->addNode(instanceNode);  
-    AiMsgDebug("  [WriteGeo][createInstance] FINISH");        
+    // AiMsgDebug("  [WriteGeo][createInstance] FINISH");        
     return instanceNode;
 }
 
@@ -1024,7 +1024,7 @@ void createMeshLight(const std::string& name, const std::string& originalName, p
     // adding attributes on procedural
     AddArbitraryProceduralParams(args.proceduralNode, meshLightNode);
 
-    AiMsgDebug("  [WriteGeo][createMeshLight] Create meshlight - FINISH");    
+    // AiMsgDebug("  [WriteGeo][createMeshLight] Create meshlight - FINISH");    
     args.createdNodes->addNode(meshLightNode);
     createMeshLightShader(name, originalName, prim, args, xformSamples, mesh, meshLightNode);
 }
@@ -1107,7 +1107,7 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 
     // set the ptr
     AiNodeSetPtr(mesh, "shader", meshLightShader);    
-    AiMsgDebug("  [WriteGeo][createMeshLightShader] Create meshlight shader - FINISH");    
+    // AiMsgDebug("  [WriteGeo][createMeshLightShader] Create meshlight shader - FINISH");    
     args.createdNodes->addNode(meshLightShader);
 }
 
@@ -1147,7 +1147,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
 
     if(instanceNode == NULL)
     {
-        AiMsgDebug("  [GINSTANCE] NULL : %s", originalName.c_str()); 
+        AiMsgWarning("  [WriteGeo][ProcessPolyMesh] GINSTANCE NULL : %s", originalName.c_str()); 
     }
 
     if(isMeshLight(originalName, polymesh, args))

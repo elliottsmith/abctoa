@@ -741,7 +741,7 @@ procedural_init
     }
 
     Alembic::AbcCoreFactory::IFactory factory;
-    factory.setOgawaNumStreams(8);
+    factory.setOgawaNumStreams(16);
     IArchive archive = factory.getArchive(args->filenames);
     
     if (!archive.valid())

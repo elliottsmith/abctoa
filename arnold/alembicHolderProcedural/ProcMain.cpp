@@ -704,8 +704,12 @@ procedural_init
         return 1;
     }
 
+    // NO CACHED FILE WAS FOUND - WE NEED TO WALK THE ALEMBIC AND CREATE THE ARNOLD NODES
+    //-*****************************************************************************
     Alembic::AbcCoreFactory::IFactory factory;
-    factory.setOgawaNumStreams(16);
+
+    // TODO - expose this value to user? what is the sweet spot?
+    factory.setOgawaNumStreams(8);
     IArchive archive = factory.getArchive(args->filenames);
     
     if (!archive.valid())

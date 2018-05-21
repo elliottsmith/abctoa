@@ -11,13 +11,12 @@ export COMPILER=gcc-4.9.2
 export PYTHONVER=2.7.5
 
 export MAYAVER=2018.2
-export MAYASHORT=_2018
+export MAYASHORT=2018
 
 # ARNOLD 5.1
 export ARNOLDVER=5.1.0.1
 export ARNOLD_SHORT=5.0 # 5.1 is binary compatible wih 5.0, so we use this so that we can use arnold 5 shaders that we have already installed / compiled
 export MTOAVER=3.0.0.2
-export MTOAVER_=3.0.0.2
 
 # # ARNOLD 5.0
 # export ARNOLDVER=5.0.2.4
@@ -51,10 +50,11 @@ cd BUILD
 echo ""
 echo "Running cmake"
 echo ""
-cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/$VERSION \
-	-DINSTALL_DIR=$PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/$VERSION \
+
+cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/addons/$DISTRIBUTION/maya$MAYASHORT/modules/abctoa/$VERSION \
+	-DINSTALL_DIR=$PREFIX/addons/$DISTRIBUTION/maya$MAYASHORT/modules/abctoa/$VERSION \
 	-DARNOLD_ROOT=/milk/apps/arnold/Arnold-$ARNOLDVER-linux \
-	-DMTOA_BASE_DIR=/milk/apps/arnold/MtoA-$MTOAVER_$MAYASHORT \
+	-DMTOA_BASE_DIR=/milk/apps/arnold/MtoA-${MTOAVER}_${MAYASHORT} \
 	-DMAYA_LOCATION=/milk/apps/autodesk/maya/$MAYAVER \
 	-DBOOST_ROOT=$CENTRAL/include/$DISTRIBUTION/$COMPILER \
 	-DBoost_REGEX_LIBRARY=$CENTRAL/lib/$DISTRIBUTION/$COMPILER/libboost_regex.$DSO \
@@ -67,20 +67,20 @@ echo ""
 make -j 16
 
 # echo "mkdir " $PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/$VERSION
-mkdir -p $PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/$VERSION
+mkdir -p $PREFIX/addons/$DISTRIBUTION/maya$MAYASHORT/modules/abctoa/$VERSION
 
 echo ""
 echo "Running make install"
 echo ""
 make install
 
-export MOD_FILE=$PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa.mod
+export MOD_FILE=$PREFIX/addons/$DISTRIBUTION/maya$MAYASHORT/modules/abctoa.mod
 if [ ! -f $MOD_FILE ]; then
 	echo ""
 	echo "Writing maya module file :" $MOD_FILE
 	echo ""
 
-	echo "+ abctoa any $PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/\$ABCTOAVER" > $MOD_FILE
+	echo "+ abctoa any $PREFIX/addons/$DISTRIBUTION/maya$MAYASHORT/modules/abctoa/\$ABCTOAVER" > $MOD_FILE
 	echo "PATH +:=procedurals" >> $MOD_FILE
 	echo "ARNOLD_PLUGIN_PATH +:=procedurals" >> $MOD_FILE
 	echo "MTOA_EXTENSIONS_PATH +:=extensions" >> $MOD_FILE
@@ -91,7 +91,7 @@ echo ""
 echo "Installing procedurals"
 echo ""
 mkdir -p $PREFIX/addons/$DISTRIBUTION/arnold$ARNOLD_SHORT/abcToA-$VERSION
-cp $PREFIX/addons/$DISTRIBUTION/maya$MAYAVER/modules/abctoa/$VERSION/procedurals/* $PREFIX/addons/$DISTRIBUTION/arnold$ARNOLD_SHORT/abcToA-$VERSION/
+cp $PREFIX/addons/$DISTRIBUTION/maya$MAYASHORT/modules/abctoa/$VERSION/procedurals/* $PREFIX/addons/$DISTRIBUTION/arnold$ARNOLD_SHORT/abcToA-$VERSION/
 
 cd ..
 rm -rf BUILD

@@ -934,58 +934,39 @@ double CalculateTriangleArea(const AtVector& p0, const AtVector& p1, const AtVec
 
 //-*****************************************************************************
 
+// parameter_name <num_elements> <num_motionblur_keys> <data_type> <elem1> <elem2> <elem3> <elem4> ...
 void NormalizeRGB(AtNode* mesh, AtRGB &colorMultiplier){
 
     AtNode *poly = (AtNode*)AiNodeGetPtr(mesh, "node");
-    AtString name = AiNodeGetStr(poly, "name");
     AiMsgDebug("  [WriteGeo][NormalizeRGB] Normalise RGB");
-
     double surfaceArea = 0.f;
-    int counter = 0;
 
-    // VLIST
-    std::vector<AtVector> vlist;
-    for(unsigned int i=0; i < AiArrayGetNumElements(AiNodeGetArray(poly, "vlist")); i++){
-        AtVector vec = AiArrayGetVec(AiNodeGetArray(poly, "vlist"), i);
-        vlist.push_back(vec);
-    }
+    for(unsigned int e=0; e < AiArrayGetNumElements(AiNodeGetArray(poly, "nsides")); e++){
 
-    for(unsigned int i=0; i < AiArrayGetNumElements(AiNodeGetArray(poly, "nsides")); i++){
-        int num_vertices = AiArrayGetUInt(AiNodeGetArray(poly, "nsides"), i);
+        int element_nsides = AiArrayGetUInt(AiNodeGetArray(poly, "nsides"), e);
 
-        std::vector<int> vidxs;
-        for(unsigned int i=0; i < num_vertices; i++){
-            vidxs.push_back(counter);
-            counter += 1;
+        // build a list of element vectors
+        std::vector<AtVector> element_vectors;
+
+        for (unsigned int v=0; v < element_nsides; ++v){
+            int vidx_block = element_nsides * e;
+
+            int vlist_index = AiArrayGetUInt(AiNodeGetArray(poly, "vidxs"), vidx_block + v);
+            AtVector vec = AiArrayGetVec(AiNodeGetArray(poly, "vlist"), vlist_index);
+            element_vectors.push_back(vec);
         }
 
-        std::vector<int> proper_vidx;
-        for(unsigned int v=0; v < vidxs.size(); v++){
-            uint vx = AiArrayGetUInt(AiNodeGetArray(poly, "vidxs"), v);
-            proper_vidx.push_back(vx);
-        }
+        // we have all the vectors for all the sides, now we must find the triangles
+        // in the element (poly)
+        AtVector vector0 = element_vectors[0];
 
-        const int vertexCount = proper_vidx.size();
-
-        if (vertexCount){
-
-            const AtVector vector0 = AtVector(vlist[proper_vidx[0]].x, vlist[proper_vidx[0]].y, vlist[proper_vidx[0]].z);
-            // AiMsgDebug("  [WriteGeo][doNormalize] Vector0: %d, %d, %d", vector0.x, vector0.y, vector0.z);
-
-            for (int j = 1; j < vertexCount - 1; ++j) {
-
-                const AtVector vector1 = AtVector(vlist[proper_vidx[j]].x, vlist[proper_vidx[j]].y, vlist[proper_vidx[j]].z);
-                const AtVector vector2 = AtVector(vlist[proper_vidx[j + 1]].x, vlist[proper_vidx[j + 1]].y, vlist[proper_vidx[j + 1]].z);
-
-                // AiMsgDebug("  [WriteGeo][doNormalize] Vector1: %d, %d, %d", vector1.x, vector1.y, vector1.z);
-                // AiMsgDebug("  [WriteGeo][doNormalize] Vector2: %d, %d, %d", vector2.x, vector2.y, vector2.z);
-                surfaceArea += CalculateTriangleArea(vector0, vector1, vector2);
-
-            }
+        for (int i=1; i < element_nsides - 1 ; ++i){
+            AtVector vector1 = element_vectors[i];
+            AtVector vector2 = element_vectors[i+1];
+            surfaceArea += CalculateTriangleArea(vector0, vector1, vector2);
         }
     }
-
-    colorMultiplier = colorMultiplier / float(surfaceArea);
+    colorMultiplier = colorMultiplier / float(surfaceArea);    
     AiMsgDebug("  [WriteGeo][NormalizeRGB] surface  area : %f", float(surfaceArea));
 }
 
@@ -1034,7 +1015,7 @@ void createMeshLight(const std::string& name, const std::string& originalName, p
 template <typename primT>
 void createMeshLightShader(const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, MatrixSampleMap * xformSamples, AtNode* mesh, AtNode* meshLightNode)
 {
-    AiMsgDebug("  [WriteGeo][createMeshLightShader] Create meshlight shader - START");
+    AiMsgDebug("  [WriteGeo][createMeshLightShader] START - Create meshlight shader");
     typename primT::schema_type  &ps = prim.getSchema();
     //get tags
     std::vector<std::string> tags;
@@ -1097,7 +1078,7 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
          NormalizeRGB(mesh, colorMultiplier);
 
         AiNodeSetRGB(meshLightShader, "color_multiplier", colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
-        AiMsgDebug("[WriteGeo][createMeshLightShader] R : %f, G : %f, B : %f", colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
+        AiMsgDebug("  [WriteGeo][createMeshLightShader] R : %f, G : %f, B : %f", colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
 
     }
     else {
@@ -1121,7 +1102,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     std::string originalName = polymesh.getFullName();
     std::string name = args.nameprefix + originalName;
     AiMsgDebug("");    
-    AiMsgDebug("  [WriteGeo][ProcessPolyMesh] Name : %s", originalName.c_str());
+    // AiMsgDebug("  [WriteGeo][ProcessPolyMesh] Name : %s", originalName.c_str());
 
     SampleTimeSet sampleTimes;
 
@@ -1168,7 +1149,7 @@ void ProcessSubD( ISubD &subd, ProcArgs &args, MatrixSampleMap * xformSamples )
     std::string originalName = subd.getFullName();
     std::string name = args.nameprefix + originalName;
     AiMsgDebug("");
-    AiMsgDebug("  [WriteGeo][ProcessSubD] Name : %s", originalName.c_str());    
+    // AiMsgDebug("  [WriteGeo][ProcessSubD] Name : %s", originalName.c_str());    
 
     SampleTimeSet sampleTimes;
 

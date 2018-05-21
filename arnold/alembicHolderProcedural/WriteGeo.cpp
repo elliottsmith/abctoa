@@ -940,6 +940,7 @@ void NormalizeRGB(AtNode* mesh, AtRGB &colorMultiplier){
     AtNode *poly = (AtNode*)AiNodeGetPtr(mesh, "node");
     AiMsgDebug("  [WriteGeo][NormalizeRGB] Normalise RGB");
     double surfaceArea = 0.f;
+    int counter = 0;
 
     for(unsigned int e=0; e < AiArrayGetNumElements(AiNodeGetArray(poly, "nsides")); e++){
 
@@ -949,11 +950,10 @@ void NormalizeRGB(AtNode* mesh, AtRGB &colorMultiplier){
         std::vector<AtVector> element_vectors;
 
         for (unsigned int v=0; v < element_nsides; ++v){
-            int vidx_block = element_nsides * e;
-
-            int vlist_index = AiArrayGetUInt(AiNodeGetArray(poly, "vidxs"), vidx_block + v);
+            int vlist_index = AiArrayGetUInt(AiNodeGetArray(poly, "vidxs"), counter);
             AtVector vec = AiArrayGetVec(AiNodeGetArray(poly, "vlist"), vlist_index);
             element_vectors.push_back(vec);
+            counter += 1;
         }
 
         // we have all the vectors for all the sides, now we must find the triangles

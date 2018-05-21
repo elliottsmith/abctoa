@@ -90,11 +90,11 @@ void CABCViewerTranslator::ExportProcedural(AtNode* procedural, bool update)
 
     if (!update)
     {
-        if (m_DagNode.findPlug("overrideGlobalShader").asBool() == true)
-        {
+        // if (m_DagNode.findPlug("overrideGlobalShader").asBool() == true)
+        // {
 
-            ExportStandinsShaders(procedural);
-        }
+        //     ExportStandinsShaders(procedural);
+        // }
 
         AiNodeSetStr(procedural, "name", m_dagPath.partialPathName().asChar());
 

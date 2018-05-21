@@ -33,7 +33,7 @@ class PropertyWidgetColor(PropertyWidget):
       self.widget.clicked.connect(self.mayaColorPicker)
       self.layout().addWidget(self.widget)
 
-      self.default = params["value"]
+      self.default = [0.0, 0.0, 0.0]
       self.default_color = QColor(self.default[0] * 255, self.default[1] * 255, self.default[2]* 255)
       self.updatePalette(self.default_color)
 

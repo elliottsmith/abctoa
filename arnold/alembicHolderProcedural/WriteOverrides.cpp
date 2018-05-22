@@ -101,7 +101,22 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
 
                     if( val.isString() ) 
                     {
-                        AiNodeSetStr(node, attribute.c_str(), val.asCString());
+                        // this is a special case. when the value is a string and the attribute is
+                        // color, we know that this needs node linking rather than the setting of strings
+
+                        // currently, the image node needs to be in the scene, but should be exported to
+                        // the abc materials cache automatically
+                        if(attribute == "color"){
+
+                            AtNode* color = AiNodeLookUpByName(val.asCString());
+                            if( color != NULL ){
+                                AiMsgDebug("    [WriteOverrides][ApplyOverrides] Linking %s to %s", AiNodeGetName(color), AiNodeGetName(node));
+                                AiNodeLink(color, attribute.c_str(), node);
+                            }
+
+                        } else{
+                            AiNodeSetStr(node, attribute.c_str(), val.asCString());
+                        }
                     } else if( val.isArray() ) 
                     {
                         // build array

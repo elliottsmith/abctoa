@@ -215,6 +215,10 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         importinscene.triggered.connect(self.importinscene)
         menu.addAction(importinscene)
 
+        menu.addSeparator()
+        importxform = QtWidgets.QAction("Import Xform Scene", menu)
+        importxform.triggered.connect(self.importxform)
+        menu.addAction(importxform)
 
         menu.popup(QtGui.QCursor.pos())
 
@@ -226,7 +230,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
             cmds.setAttr(abcShader +".shader", self.cache.getAbcShader(), type="string")
             cmds.setAttr(abcShader +".shaderFrom", shader["shader"], type="string")
 
-
     def importDisplaceInscene(self):
         cmds.loadPlugin('abcMayaShader.so', qt=1)
         shader = self.cache.assignations.getDisplace(self.getPath(), self.interface.getLayer())
@@ -235,10 +238,27 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
             cmds.setAttr(abcShader +".shader", self.cache.getAbcShader(), type="string")
             cmds.setAttr(abcShader +".shaderFrom", shader["shader"], type="string")
 
-    def importinscene(self):
-        cmd = 'AbcImport  -ft "%s" "%s"' % (self.path[-1], self.cache.ABCcache.replace(os.path.sep, "/"))        
+    def importxform(self, reparent=True):
+        cmd = 'AbcImport  -ft "%s" "%s"' % (self.path[-1], self.cache.ABCcache.replace(os.path.sep, "/"))
+        if reparent:
+            cmd += ' -rpr "%s"' % '|'.join(self.cache.shape.split('|')[:-1])
         try:
-            print cmd
+            mel.eval(cmd)
+
+            # now clear the children of this node
+            fp = cmds.ls("%s" % self.path[-1], tr=True, l=True)
+            for e in cmds.listRelatives(fp[0], f=True):
+                cmds.delete(e)
+
+        except:
+            print "Error running", cmd        
+
+    def importinscene(self, reparent=True):
+
+        cmd = 'AbcImport  -ft "%s" "%s"' % (self.path[-1], self.cache.ABCcache.replace(os.path.sep, "/"))
+        if reparent:
+            cmd += ' -rpr "%s"' % '|'.join(self.cache.shape.split('|')[:-1])
+        try:
             mel.eval(cmd)
         except:
             print "Error running", cmd

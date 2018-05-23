@@ -1,6 +1,6 @@
 NAME:          abctoa
 DESCRIPTION:   Alembic to Arnold Suite
-VERSION:       3.1.19
+VERSION:       3.1.20
 DISTRIBUTIONS: [ "centos6" ]
 
 TARGETS:

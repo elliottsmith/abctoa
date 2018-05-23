@@ -8,7 +8,7 @@ project(abcToA)
 
 set(ABCTOA_MAJOR_VERSION 3)
 set(ABCTOA_MINOR_VERSION 1)
-set(ABCTOA_PATCH_VERSION 6)
+set(ABCTOA_PATCH_VERSION 21)
 set(ABCTOA_VERSION "${ABCTOA_MAJOR_VERSION}.${ABCTOA_MINOR_VERSION}.${ABCTOA_PATCH_VERSION}")
 
 IF(NOT MTOA_VERSION AND NOT $ENV{MTOA_VERSION} STREQUAL "")
@@ -65,7 +65,7 @@ endif(USE_NSIS)
 
 set(CPACK_PACKAGE_VERSION "${ABCTOA_MAJOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_PATCH "${ABCTOA_PATCH_VERSION}")
-set(CPACK_PACKAGE_VENDOR "Nozon")
+set(CPACK_PACKAGE_VENDOR "Milk VFX")
 set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "abcToA")
 
 set(CPACK_SOURCE_GENERATOR "TGZ")
@@ -182,6 +182,7 @@ set(SUBDIRECTORIES
         maya/abcMayaShader
         mtoa/abcMayaShaderTranslator
         arnold/abcMayaShaderProcedural
+        maya/AbcMilkImport
         )
 
 # loop over subdirectories

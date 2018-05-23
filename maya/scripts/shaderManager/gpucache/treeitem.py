@@ -262,7 +262,7 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
 
         If the to-be created node already exists, update it only
         """
-
+        self.interface.reset()
         # check weve not selected the pyside root node
         if self.path == []:
             print 'Invalid root node'

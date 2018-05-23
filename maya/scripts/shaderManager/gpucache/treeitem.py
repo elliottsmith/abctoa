@@ -19,13 +19,7 @@ import functools
 
 import maya.mel as mel
 import maya.cmds as cmds
-
-# class MyDelegate(QtGui.QItemDelegate):
-#     def __init__(self):
-#         QtGui.QItemDelegate.__init__(self)
-
-#     def sizeHint(self, option, index):
-#         return QtGui.QSize(32,32)
+import cask
 
 TRANSFORM = 1
 SHAPE = 2
@@ -60,8 +54,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         else:
             self.displayPath = self.path[-1]
 
-        #self.interface.hierarchyWidget.resizeColumnToContents(0)
-
         self.icon = None
         
         if itemType == "Transform":
@@ -78,12 +70,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         self.shaderText = ""
         self.displaceText = ""
         self.attributeText = ""
-
-        #self.setIcon(0, icon)
-
-        # icon2 = QtGui.QIcon()
-        # icon2.addFile(os.path.join(d, "../../../icons/sg.xpm"), QtCore.QSize(25,25))
-        # self.setIcon(1, icon2)
 
     def setHasChildren(self, hasChildren):
         self.hasChildren = hasChildren
@@ -109,11 +95,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
 
         elif column == 2 :
             return self.displaceText
-        
-
-        #shaderFromMainLayer = False
-        #if shader.get("fromfile", False) or shaderFromMainLayer:
-
 
     def getIcon(self, column):
         if column == 0 :
@@ -131,7 +112,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
 
         return super(abcTreeItem, self).data(column, role)
 
-
     def removeAssigns(self):
         self.setText(1, "")
         self.shaderText = ""
@@ -140,8 +120,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
 
     def getPath(self):
         return "/" + "/".join(self.path)
-
-
 
     def assignShaderFromFile(self, shader):
         self.shaderToAssign = shader
@@ -154,6 +132,7 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
     def pressed(self):
         menu = QtWidgets.QMenu(self.interface)
         shader = self.interface.getShader()
+
         if shader:
             if  cmds.nodeType(shader) == "displacementShader":
                 assignDisplacement = QtWidgets.QAction("Assign %s" % shader, menu)
@@ -215,10 +194,11 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         importinscene.triggered.connect(self.importinscene)
         menu.addAction(importinscene)
 
-        menu.addSeparator()
-        importxform = QtWidgets.QAction("Import Xform Scene", menu)
-        importxform.triggered.connect(self.importxform)
-        menu.addAction(importxform)
+        if self.icon == 1:
+            menu.addSeparator()
+            importxform = QtWidgets.QAction("Import Xform", menu)
+            importxform.triggered.connect(self.importxform)
+            menu.addAction(importxform)
 
         menu.popup(QtGui.QCursor.pos())
 
@@ -238,20 +218,84 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
             cmds.setAttr(abcShader +".shader", self.cache.getAbcShader(), type="string")
             cmds.setAttr(abcShader +".shaderFrom", shader["shader"], type="string")
 
-    def importxform(self, reparent=True):
-        cmd = 'AbcImport  -ft "%s" "%s"' % (self.path[-1], self.cache.ABCcache.replace(os.path.sep, "/"))
-        if reparent:
-            cmd += ' -rpr "%s"' % '|'.join(self.cache.shape.split('|')[:-1])
-        try:
-            mel.eval(cmd)
+    def build_path(self, cask_node, nodes):
+        """
+        Walk up the given alembic node, finding its parents, till we reach the top
+        return a list of parent transforms of the given node
+        """
+        if cask_node.parent.name != 'ABC':
+            nodes.insert(0, cask_node.parent.name)
+            self.build_path(cask_node.parent, nodes)
+        return nodes
 
-            # now clear the children of this node
-            fp = cmds.ls("%s" % self.path[-1], tr=True, l=True)
-            for e in cmds.listRelatives(fp[0], f=True):
+    def future_dag_path(self, clicked, archive):
+        """
+        Find the selected transforms matching our name, loop over them
+        and construct the future dag path
+        """
+
+        importxform = cask.find(archive.top, clicked, 'Xform')
+
+        # importxform should only match one
+        for foundnode in importxform:
+            node_hierarchy = self.build_path(foundnode, [])
+            node_hierarchy.append(foundnode.name)
+            
+            return '|' + '|'.join(node_hierarchy)
+
+    def delete_non_transforms(self, node, archive):
+        """
+        Iterate the relatives of the alembicHolder node, if the transform isnt in
+        the alembic archive, delete it
+        """
+
+        node_to_walk = cmds.ls(node, tr=True,  l=True)
+        for e in cmds.listRelatives(node_to_walk[0], f=True, allDescendents=True):
+
+            # if not in the alembic archive dont delete it
+            if cask.find(archive.top, e.split('|')[-1]) != []:
                 cmds.delete(e)
 
+    def importxform(self, reparent=True):
+        """
+        Import only the selected transform node.
+
+        If the to-be created node already exists, update it only
+        """
+
+        # check weve not selected the pyside root node
+        if self.path == []:
+            print 'Invalid root node'
+            return
+        print '\nImport Transforms : %s' % self.path[-1]
+
+        try:
+
+            # node to parent under (alembicHolder node)
+            parent_under = '|'.join(self.cache.shape.split('|')[:-1])
+            abc_file = self.cache.ABCcache.replace(os.path.sep, "/")
+            archive = cask.Archive(abc_file)
+
+            # the path the selected geometry will be imported to
+            node = self.future_dag_path(self.path[-1], archive)
+            DAG = parent_under + node
+            print 'DAG : %s' % DAG
+
+            if cmds.objExists(DAG):
+                # we use the 'connect' flag to connect the incoming geometry to the existing node
+                cmd = 'AbcImport "%s" -ft "%s" -ct %s -rpr %s' % (abc_file, self.path[-1], self.path[-1], parent_under)
+            else:
+                cmd = 'AbcImport "%s" -ft "%s" -rpr %s' % (abc_file, self.path[-1], parent_under)
+            
+            print cmd
+            mel.eval(cmd)
+
+            # delete any geo that was imported, preserving any nodes that have been put in the transform
+            # that didnt come from the abc file
+            self.delete_non_transforms(DAG, archive)
+
         except:
-            print "Error running", cmd        
+            print "Error running", cmd
 
     def importinscene(self, reparent=True):
 
@@ -259,6 +303,7 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         if reparent:
             cmd += ' -rpr "%s"' % '|'.join(self.cache.shape.split('|')[:-1])
         try:
+            print cmd
             mel.eval(cmd)
         except:
             print "Error running", cmd
@@ -268,16 +313,13 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         shaderName = str(self.shaderToAssign)+".message"
         self.cache.assignDisplacement(path, shaderName)
 
-
         selectedItems = self.interface.hierarchyWidget.selectedItems()
         if len(selectedItems) > 1:
             for item in selectedItems:
                 if item is not self:
                     item.cache.assignDisplacement(item.getPath(), shaderName)
 
-
         self.interface.checkShaders(self.interface.getLayer(), item=self)
-
 
     def assignShader(self):
         if not cmds.objExists(str(self.shaderToAssign)):
@@ -290,9 +332,7 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
             self.interface.createSG(str(self.shaderToAssign))
 
         path = self.getPath()
-
         self.cache.assignShader(path, self.shaderToAssign)
-
 
         selectedItems = self.interface.hierarchyWidget.selectedItems()
         if len(selectedItems) > 1:
@@ -300,16 +340,12 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
                 if item is not self:
                     item.cache.assignShader(item.getPath(), self.shaderToAssign)
 
-
         self.interface.checkShaders(self.interface.getLayer(), item=self)
         self.interface.hierarchyWidget.resizeColumnToContents(1)
 
-
     def deassignDisplace(self):
         path = self.getPath()
-
         self.cache.assignDisplacement(path, None)
-
 
         selectedItems = self.interface.hierarchyWidget.selectedItems()
         if len(selectedItems) > 1:
@@ -317,24 +353,19 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
                 if item is not self:
                     item.cache.assignDisplacement(item.getPath(), None)
 
-
         self.interface.checkShaders(self.interface.getLayer(), item=self)
-
         self.interface.hierarchyWidget.resizeColumnToContents(2)
-
 
     def deassignShader(self):
         path = self.getPath()
 
         self.cache.assignShader(path, None)
 
-
         selectedItems = self.interface.hierarchyWidget.selectedItems()
         if len(selectedItems) > 1:
             for item in selectedItems:
                 if item is not self:
                     item.cache.assignShader(item.getPath(), None)
-
 
         self.interface.checkShaders(self.interface.getLayer(), item=self)
         self.interface.hierarchyWidget.resizeColumnToContents(1)
@@ -372,8 +403,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
             if displace:
                 displaceFromMainLayer = True
 
-       
-
         if shader:
             self.setText(1, shader.get("shader"))
             self.shaderText = shader.get("shader")
@@ -396,12 +425,9 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
                 self.shaderText = "<b>%s</b>" % self.shaderText
             self.setFont( 1,  font )
 
-            
-
         else:
             self.setText(1, "")
             self.shaderText = ""
-
 
         if displace:
             self.setText(2, displace.get("shader"))
@@ -426,12 +452,9 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
 
             self.setFont( 2,  font )
             
-
         else:
             self.setText(2, "")
             self.displaceText = ""
-
-
 
     def checkProperties(self, layer=None):
         path = self.getPath()
@@ -442,7 +465,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
             layerOverrides = self.cacheAssignations.getLayerOverrides(layer)
             if not layerOverrides:
                 layerOverrides = dict(removeDisplacements=False, removeProperties=False, removeShaders=False)
-
 
             if layerOverrides["removeProperties"] == False:
                 attributes = self.cacheAssignations.getOverrides(path, layer)
@@ -475,7 +497,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
 
                 self.attributeText += "<br><font color='%s'><%s><u>%s</u> : %s</%s></font>" % (color, tag, attr, attributeValue, tag)
                 attributeTextTooltip += "<br><font color='%s'><%s>%s : %s</%s></font>" % (colortip, tag, attr, attributeValue, tag)
-
 
         self.setToolTip(0, attributeTextTooltip)
         self.interface.hierarchyWidget.resizeColumnToContents(0)

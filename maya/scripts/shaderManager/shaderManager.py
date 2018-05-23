@@ -44,6 +44,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 from maya.OpenMaya import MObjectHandle, MDGMessage, MMessage, MNodeMessage, MFnDependencyNode, MObject, MSceneMessage
 import maya.app.renderSetup.model.renderSetup as renderSetup
+import cask
 
 d = os.path.dirname(__file__)
 
@@ -150,9 +151,14 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.overrideProps.stateChanged.connect(self.overridePropsChanged)
         self.soloSelected.stateChanged.connect(self.soloSelectedChanged)        
         self.wildCardButton.pressed.connect(self.addWildCard)
-        self.locatorsButton.pressed.connect(self.importLocators)        
+        self.updateXformsButton.setEnabled(False)
+        self.updateXformsButton.pressed.connect(self.updateXforms)        
         self.layers_btn.clicked.connect(self.layers_clicked)
-    
+
+    def updateXforms(self):
+        """"""
+        print 'Updating Previously imported xforms'
+
     def layers_clicked(self):
         """"""
         layers_copy = CopyLayers(self)
@@ -225,7 +231,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
     def reset(self, shape=None, *args, **kwargs):
         """Reset the main window to initial state"""
-
         if shape:
             if cmds.objExists(shape):
                 cmds.select(shape)

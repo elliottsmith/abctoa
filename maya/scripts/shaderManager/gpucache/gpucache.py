@@ -75,6 +75,9 @@ class gpucache(object):
                 for i in range(iObj.getNumChildren()):
                     oType = "Unknown"
                     child = iObj.getChild(i)
+
+                    print '[shaderManager][gpucache] Item Header : %s' % child.getHeader()
+
                     if IXform.matches(child.getHeader()):
                         oType = "Transform"
                     elif IPoints.matches(child.getHeader()):
@@ -83,6 +86,8 @@ class gpucache(object):
                         oType = "Shape"
                     elif ICurves.matches(child.getHeader()):
                         oType = "Curves"
+                    elif ICameras.matches(child.getHeader()):
+                        oType = "Cameras"
                     elif ILight.matches(child.getHeader()):
                         oType = "Light"
                         light = ILight(child.getParent(), child.getName())
@@ -112,6 +117,7 @@ class gpucache(object):
                     elif ICollections.matches(child.getHeader()):
                         oType = "Collections"
                     
+                    print '[shaderManager][gpucache] Item Type : %s' % oType
                     results.append(dict(type=oType, name=child.getName()))
                     
 

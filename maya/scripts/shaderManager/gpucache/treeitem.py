@@ -28,8 +28,9 @@ WILDCARD = 4
 DISPLACE = 5
 TAG = 6
 POINTS = 7
-LIGHT = 8
+LIGHTS = 8
 CURVES = 9
+CAMERAS = 10
 
 class abcTreeItem(QtWidgets.QTreeWidgetItem):
     def __init__(self, cache, path, itemType, parent=None, *args, **kwargs):
@@ -63,7 +64,9 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         elif itemType == "Curves":
             self.icon = CURVES
         elif "Light" in itemType:
-            self.icon = LIGHT
+            self.icon = LIGHTS
+        elif "Camera" in itemType:
+            self.icon = CAMERAS
         else:
             self.icon = SHAPE
 
@@ -84,7 +87,7 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         if column == 0 :
             text = self.getDisplayPath()
 
-            if self.icon == SHAPE or self.icon == POINTS or self.icon == WILDCARD or self.icon == CURVES:    
+            if self.icon == SHAPE or self.icon == POINTS or self.icon == WILDCARD or self.icon == CURVES or self.icon == LIGHTS self.icon == CAMERAS:
                 ### display all attributes
                 text += "<br>" + self.attributeText
 

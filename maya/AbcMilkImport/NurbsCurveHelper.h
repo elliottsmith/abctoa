@@ -34,8 +34,8 @@
 //
 //-*****************************************************************************
 
-#ifndef ABCIMPORT_NURBSCURVEHELPER_H_
-#define ABCIMPORT_NURBSCURVEHELPER_H_
+#ifndef AbcMilkImport_NURBSCURVEHELPER_H_
+#define AbcMilkImport_NURBSCURVEHELPER_H_
 
 #include <maya/MObject.h>
 
@@ -52,4 +52,4 @@ MObject createCurves(const std::string & iName,
 MStatus readCurves(double iFrame, const Alembic::AbcGeom::ICurves & iNode,
     std::size_t iExpectedCurves, std::vector<MObject> & ioCurveObjects);
 
-#endif  // ABCIMPORT_NURBSCURVEHELPER_H_
+#endif  // AbcMilkImport_NURBSCURVEHELPER_H_

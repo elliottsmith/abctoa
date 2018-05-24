@@ -34,8 +34,8 @@
 //
 //-*****************************************************************************
 
-#ifndef ABCIMPORT_POINTHELPER_H_
-#define ABCIMPORT_POINTHELPER_H_
+#ifndef AbcMilkImport_POINTHELPER_H_
+#define AbcMilkImport_POINTHELPER_H_
 
 #include <maya/MObject.h>
 
@@ -50,4 +50,4 @@ MStatus create(double iFrame, const Alembic::AbcGeom::IPoints & iNode,
 MStatus read(double iFrame, const Alembic::AbcGeom::IPoints & iNode,
     MObject & iObject);
 
-#endif  // ABCIMPORT_POINTHELPER_H_
+#endif  // AbcMilkImport_POINTHELPER_H_

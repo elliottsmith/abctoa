@@ -34,8 +34,8 @@
 //
 //-*****************************************************************************
 
-#ifndef ABCIMPORT_CAMERAHELPER_H_
-#define ABCIMPORT_CAMERAHELPER_H_
+#ifndef AbcMilkImport_CAMERAHELPER_H_
+#define AbcMilkImport_CAMERAHELPER_H_
 
 #include <maya/MObject.h>
 
@@ -49,4 +49,4 @@ MObject create(Alembic::AbcGeom::ICamera & iNode, MObject & iParent);
 void read(double iFrame, Alembic::AbcGeom::ICamera & iCamera,
     std::vector<double> & oArray);
 
-#endif  // ABCIMPORT_CAMERAHELPER_H_
+#endif  // AbcMilkImport_CAMERAHELPER_H_

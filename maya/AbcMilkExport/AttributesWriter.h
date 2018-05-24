@@ -1,7 +1,7 @@
 //-*****************************************************************************
 //
-// Copyright (c) 2009-2011,
-//  Sony Pictures Imageworks, Inc. and
+// Copyright (c) 2009-2012,
+//  Sony Pictures Imageworks Inc. and
 //  Industrial Light & Magic, a division of Lucasfilm Entertainment Company Ltd.
 //
 // All rights reserved.
@@ -16,7 +16,7 @@
 // in the documentation and/or other materials provided with the
 // distribution.
 // *       Neither the name of Sony Pictures Imageworks, nor
-// Industrial Light & Magic nor the names of their contributors may be used
+// Industrial Light & Magic, nor the names of their contributors may be used
 // to endorse or promote products derived from this software without specific
 // prior written permission.
 //
@@ -34,22 +34,47 @@
 //
 //-*****************************************************************************
 
-#ifndef ABCIMPORT_H_
-#define ABCIMPORT_H_
+#ifndef _maya2hdf_AttributesWriter_h_
+#define _maya2hdf_AttributesWriter_h_
 
-#include <maya/MPxCommand.h>
+#include "Foundation.h"
+#include "MayaUtility.h"
 
-class AbcImport: public MPxCommand
+// class which holds a mapping of sampled attribute names to the attribute
+// plugs and will fill in the property map on various HDF nodes
+class AttributesWriter
 {
-public:
+  public:
+    // fills in the property maps for both static and sampled, and does
+    // the initial write at iFrame for sampled data
+    AttributesWriter(Alembic::Abc::OCompoundProperty & iArgGeom,
+                     Alembic::Abc::OCompoundProperty & iUserProps,
+                     Alembic::Abc::OObject & iParentObj,
+                     const MFnDependencyNode & iNode,
+                     Alembic::Util::uint32_t iTimeIndex,
+                     const JobArgs & iArgs);
 
-    AbcImport();
-    ~AbcImport() override;
+    ~AttributesWriter();
 
-    MStatus doIt(const MArgList& args) override;
+    void write();
+    bool isAnimated();
 
-    static MSyntax createSyntax();
-    static void*   creator();
+    static bool matchFilterOrAttribs(const MPlug & iPlug,
+                                     const JobArgs & iArgs,
+                                     bool& userAttrOut);
+
+    static bool hasAnyAttr(const MFnDependencyNode & iNode,
+                           const JobArgs & iArgs);
+
+  private:
+
+    std::vector < PlugAndObjArray >     mPlugObjArrayVec;
+    std::vector < PlugAndObjScalar >    mPlugObjScalarVec;
+
+    // animated visibility plug
+    PlugAndObjScalar mAnimVisibility;
 };
 
-#endif  // ABCIMPORT_H_
+typedef Alembic::Util::shared_ptr<AttributesWriter> AttributesWriterPtr;
+
+#endif  // _maya2hdf_AttributesWriter_h_

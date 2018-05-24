@@ -36,7 +36,7 @@
 
 #include "util.h"
 #include "NodeIteratorVisitorHelper.h"
-#include "AbcImport.h"
+#include "AbcMilkImport.h"
 
 #include <maya/MArgList.h>
 #include <maya/MArgParser.h>
@@ -55,7 +55,7 @@ namespace
 {
     MString usage(
 "                                                                           \n\
-AbcImport  [options] File                                                 \n\n\
+AbcMilkImport  [options] File                                                 \n\n\
 Options:                                                                    \n\
 -rpr/ reparent      DagPath                                                 \n\
                     reparent the whole hierarchy under a node in the        \n\
@@ -100,24 +100,24 @@ the input regular expressions.                                              \n\
 -h  / help          Print this message                                      \n\
 -d  / debug         Turn on debug message printout                        \n\n\
 Example:                                                                    \n\
-AbcImport -h;                                                               \n\
-AbcImport -d -m open \"/tmp/test.abc\";                                     \n\
-AbcImport -ftr -ct \"/\" -crt -rm \"/mcp/test.abc\";                        \n\
-AbcImport -ct \"root1 root2 root3 ...\" \"/mcp/test.abc\";                  \n"
+AbcMilkImport -h;                                                               \n\
+AbcMilkImport -d -m open \"/tmp/test.abc\";                                     \n\
+AbcMilkImport -ftr -ct \"/\" -crt -rm \"/mcp/test.abc\";                        \n\
+AbcMilkImport -ct \"root1 root2 root3 ...\" \"/mcp/test.abc\";                  \n"
 );  // usage
 
 };
 
 
-AbcImport::AbcImport()
+AbcMilkImport::AbcMilkImport()
 {
 }
 
-AbcImport::~AbcImport()
+AbcMilkImport::~AbcMilkImport()
 {
 }
 
-MSyntax AbcImport::createSyntax()
+MSyntax AbcMilkImport::createSyntax()
 {
     MSyntax syntax;
 
@@ -146,13 +146,13 @@ MSyntax AbcImport::createSyntax()
 }
 
 
-void* AbcImport::creator()
+void* AbcMilkImport::creator()
 {
-    return new AbcImport();
+    return new AbcMilkImport();
 }
 
 
-MStatus AbcImport::doIt(const MArgList & args)
+MStatus AbcMilkImport::doIt(const MArgList & args)
 {
     MStatus status;
 
@@ -330,7 +330,7 @@ MStatus AbcImport::doIt(const MArgList & args)
         }
         else
         {
-            MString theError("In AbcImport::doIt(), ");
+            MString theError("In AbcMilkImport::doIt(), ");
             theError += filename;
             theError += MString(" doesn't exist");
             printError(theError);

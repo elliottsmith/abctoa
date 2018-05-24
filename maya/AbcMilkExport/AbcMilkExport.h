@@ -1,6 +1,10 @@
-==========================================================================
+//-*****************************************************************************
 //
-// Copyright 2012 Autodesk, Inc. All rights reserved.
+// Copyright (c) 2009-2011,
+//  Sony Pictures Imageworks Inc. and
+//  Industrial Light & Magic, a division of Lucasfilm Entertainment Company Ltd.
+//
+// All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,22 +32,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-==========================================================================
+//-*****************************************************************************
 
+#ifndef _AbcMilkExport_AbcMilkExport_h_
+#define _AbcMilkExport_AbcMilkExport_h_
 
+#include "Foundation.h"
 
-Building the AbcMilkImport plug-in
-------------------------------
+class AbcMilkExport : public MPxCommand
+{
+  public:
+    AbcMilkExport();
+    ~AbcMilkExport() override;
+    MStatus doIt(const MArgList& args) override;
 
-Before building the AbcMilkImport plug-in, one needs to manually unzip the
-following file:
-    devkit/Alembic/include/AlembicPrivate/boost.zip
-to create the hierarchy:
-    devkit/Alembic/include/AlembicPrivate/boost/...
+    static MSyntax  createSyntax();
+    static void* creator();
+};
 
-The boost.zip contains the headers of the Boost C++ library that are
-necessary for succesfully compiling the plug-in.
-
-Afterward, you can use either the Makefile, the MSVC project or the
-Xcode project to build this plug-in using the procedure normally used
-for building any other devkit plug-in.
+#endif  // _AbcMilkExport_AbcMilkExport_h_

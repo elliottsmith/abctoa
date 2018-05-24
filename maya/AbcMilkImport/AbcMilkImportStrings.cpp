@@ -5,13 +5,13 @@
 // or which otherwise accompanies this software in either electronic
 // or hard copy form.
 
-#include "AbcImportStrings.h"
+#include "AbcMilkImportStrings.h"
 
 #include <maya/MStringResource.h>
 #include <maya/MString.h>
 #include <maya/MStringArray.h>
 
-namespace AbcImportStrings
+namespace AbcMilkImportStrings
 {
 	#define kPluginId  "AbcMilkImport"
 
@@ -27,7 +27,7 @@ namespace AbcImportStrings
 }
 
 //String registration
-MStatus AbcImportStrings::registerMStringResources()
+MStatus AbcMilkImportStrings::registerMStringResources()
 {
 	MStringResource::registerString( kErrorInvalidAlembic );
 	MStringResource::registerString( kErrorConnectionNotFound );
@@ -43,7 +43,7 @@ MStatus AbcImportStrings::registerMStringResources()
 }
 
 //string retrieval
-MString AbcImportStrings::getString(const MStringResourceId &stringId)
+MString AbcMilkImportStrings::getString(const MStringResourceId &stringId)
 {
 	MStatus status;
 	return MStringResource::getString(stringId, status);

@@ -34,8 +34,8 @@
 //
 //-*****************************************************************************
 
-#ifndef ABCIMPORT_ALEMBIC_NODE_H_
-#define ABCIMPORT_ALEMBIC_NODE_H_
+#ifndef AbcMilkImport_ALEMBIC_NODE_H_
+#define AbcMilkImport_ALEMBIC_NODE_H_
 
 #include "NodeIteratorVisitorHelper.h"
 
@@ -187,4 +187,4 @@ private:
     WriterData mData;
 };
 
-#endif  // ABCIMPORT_ALEMBIC_NODE_H_
+#endif  // AbcMilkImport_ALEMBIC_NODE_H_

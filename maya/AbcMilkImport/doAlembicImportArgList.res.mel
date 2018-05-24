@@ -30,7 +30,7 @@
 //
 // ****************************************************************************
 
-displayString -replace -value "AbcMilkImport plugin is not loaded" m_doAlembicImportArgList.kAbcImportNotLoaded;
+displayString -replace -value "AbcMilkImport plugin is not loaded" m_doAlembicImportArgList.kAbcMilkImportNotLoaded;
 displayString -replace -value "Alembic" m_doAlembicImportArgList.kAlembic;
 displayString -replace -value "All Files" m_doAlembicImportArgList.kAllFiles;
 displayString -replace -value "Import" m_doAlembicImportArgList.kImport3;

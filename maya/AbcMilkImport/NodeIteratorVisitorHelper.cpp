@@ -38,7 +38,7 @@
 #include "AlembicNode.h"
 #include "CreateSceneHelper.h"
 #include "NodeIteratorVisitorHelper.h"
-#include "AbcImportStrings.h"
+#include "AbcMilkImportStrings.h"
 
 #include <Alembic/AbcCoreFactory/IFactory.h>
 
@@ -73,7 +73,7 @@
 template <class T>
 void unsupportedWarning(T & iProp)
 {
-    MString warn = AbcImportStrings::getString(AbcImportStrings::kWarningUnsupportedAttr) ;
+    MString warn = AbcMilkImportStrings::getString(AbcMilkImportStrings::kWarningUnsupportedAttr) ;
     warn += iProp.getName().c_str();
     warn += " ";
     warn += PODName(iProp.getDataType().getPod());
@@ -1354,7 +1354,7 @@ void addProps(Alembic::Abc::ICompoundProperty & iParent, MObject & iObject,
         else if (propName.empty() || propName[0] == '.' ||
             propName.find('[') != std::string::npos)
         {
-            MString warn = AbcImportStrings::getString(AbcImportStrings::kWarningSkipOddlyNamed) ;
+            MString warn = AbcMilkImportStrings::getString(AbcMilkImportStrings::kWarningSkipOddlyNamed) ;
             warn += propName.c_str();
 
             printWarning(warn);
@@ -1366,7 +1366,7 @@ void addProps(Alembic::Abc::ICompoundProperty & iParent, MObject & iObject,
                 Alembic::Abc::IArrayProperty prop(iParent, propName);
                 if (prop.getNumSamples() == 0)
                 {
-                    MString warn = AbcImportStrings::getString(AbcImportStrings::kWarningSkipNoSamples) ;
+                    MString warn = AbcMilkImportStrings::getString(AbcMilkImportStrings::kWarningSkipNoSamples) ;
                     warn += propName.c_str();
 
                     printWarning(warn);
@@ -2868,7 +2868,7 @@ MString createScene(ArgData & iArgData)
     if (!archive.valid())
     {
         MString theError = iArgData.mFileName;
-        theError += MString( " " + AbcImportStrings::getString(AbcImportStrings::kErrorInvalidAlembic) );
+        theError += MString( " " + AbcMilkImportStrings::getString(AbcMilkImportStrings::kErrorInvalidAlembic) );
         printError(theError);
         return returnName;
     }
@@ -3033,7 +3033,7 @@ MString connectAttr(ArgData & iArgData)
                 theError += i;
                 theError += "] --> ";
                 theError += mFn.name();
-                theError += ".inMesh " + AbcImportStrings::getString(AbcImportStrings::kErrorConnectionNotMade);
+                theError += ".inMesh " + AbcMilkImportStrings::getString(AbcMilkImportStrings::kErrorConnectionNotMade);
                 printError(theError);
             }
         }
@@ -3199,7 +3199,7 @@ MString connectAttr(ArgData & iArgData)
                     != attrName.c_str()))
                 {
                     MString theError(attrName.c_str());
-                    theError += MString(" " + AbcImportStrings::getString(AbcImportStrings::kErrorConnectionNotFound));
+                    theError += MString(" " + AbcMilkImportStrings::getString(AbcMilkImportStrings::kErrorConnectionNotFound));
                     printError(theError);
                     continue;
                 }
@@ -3217,7 +3217,7 @@ MString connectAttr(ArgData & iArgData)
                     MString theError(srcPlug.name());
                     theError += MString(" --> ");
                     theError += dstPlug.name();
-                    theError += MString(" " + AbcImportStrings::getString(AbcImportStrings::kErrorConnectionNotMade));
+                    theError += MString(" " + AbcMilkImportStrings::getString(AbcMilkImportStrings::kErrorConnectionNotMade));
                     printError(theError);
                 }
             }
@@ -3226,7 +3226,7 @@ MString connectAttr(ArgData & iArgData)
 
     if (particleSize > 0)
     {
-        printWarning(AbcImportStrings::getString(AbcImportStrings::kWarningNoAnimatedParticleSupport));
+        printWarning(AbcMilkImportStrings::getString(AbcMilkImportStrings::kWarningNoAnimatedParticleSupport));
     }
 
     if (nSurfaceSize > 0)

@@ -34,8 +34,8 @@
 //
 //-*****************************************************************************
 
-#ifndef ABCIMPORT_ALEMBIC_IMPORT_FILE_TRANSLATOR_H_
-#define ABCIMPORT_ALEMBIC_IMPORT_FILE_TRANSLATOR_H_
+#ifndef AbcMilkImport_ALEMBIC_IMPORT_FILE_TRANSLATOR_H_
+#define AbcMilkImport_ALEMBIC_IMPORT_FILE_TRANSLATOR_H_
 
 #include <maya/MPxFileTranslator.h>
 
@@ -81,4 +81,4 @@ public:
     }
 };
 
-#endif  // ABCIMPORT_ALEMBIC_IMPORT_FILE_TRANSLATOR_H_
+#endif  // AbcMilkImport_ALEMBIC_IMPORT_FILE_TRANSLATOR_H_

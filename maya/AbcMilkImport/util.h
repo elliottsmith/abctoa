@@ -34,8 +34,8 @@
 //
 //-*****************************************************************************
 
-#ifndef ABCIMPORT_UTIL_H_
-#define ABCIMPORT_UTIL_H_
+#ifndef AbcMilkImport_UTIL_H_
+#define AbcMilkImport_UTIL_H_
 
 #include <cmath>
 #include <vector>
@@ -164,4 +164,4 @@ inline void printWarning(const MString & theWarning)
     MGlobal::displayWarning(theWarning);
 }
 
-#endif  // ABCIMPORT_UTIL_H_
+#endif  // AbcMilkImport_UTIL_H_

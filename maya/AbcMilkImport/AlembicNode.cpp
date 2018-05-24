@@ -477,7 +477,7 @@ MStatus AlembicNode::compute(const MPlug & plug, MDataBlock & dataBlock)
         mPolyInitialized = false;
 
         // When an alembic cache will be imported at the first time using
-        // AbcImport, we need to set mIncludeFilterAttr (filterHandle) to be
+        // AbcMilkImport, we need to set mIncludeFilterAttr (filterHandle) to be
         // mIncludeFilterString for later use. When we save a maya scene(.ma)
         // mIncludeFilterAttr will be saved. Then when we load the saved
         // .ma file, mIncludeFilterString will be set to be mIncludeFilterAttr.

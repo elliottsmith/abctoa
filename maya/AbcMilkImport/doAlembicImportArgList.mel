@@ -33,7 +33,7 @@
 //
 //  Description:
 //      This script imports an Alembic file to the current scene by
-//      AbcImport command.
+//      AbcMilkImport command.
 //
 //  Procedure Name:
 //      syncOptionVars
@@ -86,12 +86,12 @@ proc syncOptionVars(string $version, string $args[])
 //      doAlembicImportArgList
 //
 //  Description:
-//      Execute AbcImport command based on the argument list.
+//      Execute AbcMilkImport command based on the argument list.
 //
 //  Input Arguments:
 //      version - The version of the argument list.
 //
-//      args    - A list of arguments to invoke AbcImport.
+//      args    - A list of arguments to invoke AbcMilkImport.
 //
 //  Return Value:
 //      None.
@@ -191,7 +191,7 @@ global proc doAlembicImportArgList(string $version, string $args[])
     int $setCurrentTimeToStartFrame  = `optionVar -q Alembic_importSetCurrentTimeToStartFrame`;
     int $debug                       = `optionVar -q Alembic_importDebug`;
 
-    // build AbcImport command
+    // build AbcMilkImport command
     string $command = "AbcMilkImport ";
 
     if ($mode == 1) {
@@ -265,7 +265,7 @@ global proc doAlembicImportArgList(string $version, string $args[])
 
     // execute command
     if (!`pluginInfo -q -loaded AbcMilkImport`) {
-        error (uiRes("m_doAlembicImportArgList.kAbcImportNotLoaded"));
+        error (uiRes("m_doAlembicImportArgList.kAbcMilkImportNotLoaded"));
         return;
     }
     evalEcho($command);

@@ -1,6 +1,10 @@
-==========================================================================
+//-*****************************************************************************
 //
-// Copyright 2012 Autodesk, Inc. All rights reserved.
+// Copyright (c) 2009-2011,
+//  Sony Pictures Imageworks Inc. and
+//  Industrial Light & Magic, a division of Lucasfilm Entertainment Company Ltd.
+//
+// All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,22 +32,35 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-==========================================================================
+//-*****************************************************************************
 
+#ifndef _AbcMilkExport_MayaNurbsSurfaceWriter_h_
+#define _AbcMilkExport_MayaNurbsSurfaceWriter_h_
 
+#include "Foundation.h"
+#include "AttributesWriter.h"
+#include "MayaTransformWriter.h"
 
-Building the AbcMilkImport plug-in
-------------------------------
+#include <Alembic/AbcGeom/ONuPatch.h>
 
-Before building the AbcMilkImport plug-in, one needs to manually unzip the
-following file:
-    devkit/Alembic/include/AlembicPrivate/boost.zip
-to create the hierarchy:
-    devkit/Alembic/include/AlembicPrivate/boost/...
+class MayaNurbsSurfaceWriter
+{
+  public:
 
-The boost.zip contains the headers of the Boost C++ library that are
-necessary for succesfully compiling the plug-in.
+    MayaNurbsSurfaceWriter(MDagPath & iDag, Alembic::Abc::OObject & iParent,
+        Alembic::Util::uint32_t iTimeIndex, const JobArgs & iArgs);
+    void write();
+    bool isAnimated() const;
+    unsigned int getNumCVs();
+    AttributesWriterPtr getAttrs() {return mAttrs;};
 
-Afterward, you can use either the Makefile, the MSVC project or the
-Xcode project to build this plug-in using the procedure normally used
-for building any other devkit plug-in.
+  private:
+
+    bool mIsSurfaceAnimated;
+    MDagPath mDagPath;
+
+    AttributesWriterPtr mAttrs;
+    Alembic::AbcGeom::ONuPatchSchema mSchema;
+};
+
+#endif  // _AbcMilkExport_MayaNurbsSurfaceWriter_h_

@@ -35,8 +35,8 @@
 //-*****************************************************************************
 
 
-#ifndef ABCIMPORT_LOCATORHELPER_H_
-#define ABCIMPORT_LOCATORHELPER_H_
+#ifndef AbcMilkImport_LOCATORHELPER_H_
+#define AbcMilkImport_LOCATORHELPER_H_
 
 #include <maya/MObject.h>
 
@@ -54,4 +54,4 @@ void read(double iFrame,
           Alembic::AbcGeom::IXform & iLocator,
           std::vector< double > & oArray);
 
-#endif  // ABCIMPORT_LOCATORHELPER_H_
+#endif  // AbcMilkImport_LOCATORHELPER_H_

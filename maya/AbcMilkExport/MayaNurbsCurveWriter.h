@@ -1,6 +1,10 @@
-==========================================================================
+//-*****************************************************************************
 //
-// Copyright 2012 Autodesk, Inc. All rights reserved.
+// Copyright (c) 2009-2011,
+//  Sony Pictures Imageworks Inc. and
+//  Industrial Light & Magic, a division of Lucasfilm Entertainment Company Ltd.
+//
+// All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,22 +32,44 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-==========================================================================
+//-*****************************************************************************
 
+#ifndef _AbcMilkExport_MayaNurbsCurveWriter_h_
+#define _AbcMilkExport_MayaNurbsCurveWriter_h_
 
+#include "Foundation.h"
+#include "AttributesWriter.h"
+#include "MayaTransformWriter.h"
 
-Building the AbcMilkImport plug-in
-------------------------------
+#include <Alembic/AbcGeom/OCurves.h>
 
-Before building the AbcMilkImport plug-in, one needs to manually unzip the
-following file:
-    devkit/Alembic/include/AlembicPrivate/boost.zip
-to create the hierarchy:
-    devkit/Alembic/include/AlembicPrivate/boost/...
+class MayaNurbsCurveWriter
+{
+  public:
 
-The boost.zip contains the headers of the Boost C++ library that are
-necessary for succesfully compiling the plug-in.
+    MayaNurbsCurveWriter(MDagPath & iDag, Alembic::Abc::OObject & iParent,
+        Alembic::Util::uint32_t iTimeIndex, bool iIsCurveGrp,
+        const JobArgs & iArgs);
 
-Afterward, you can use either the Makefile, the MSVC project or the
-Xcode project to build this plug-in using the procedure normally used
-for building any other devkit plug-in.
+    void write();
+    bool isAnimated() const;
+    unsigned int getNumCVs();
+    unsigned int getNumCurves();
+    AttributesWriterPtr getAttrs() {return mAttrs;};
+
+  private:
+
+    void fillTopology();
+
+    bool mIsAnimated;
+    MDagPath mRootDagPath;
+    MDagPathArray mNurbsCurves;
+
+    AttributesWriterPtr mAttrs;
+    Alembic::AbcGeom::OCurvesSchema mSchema;
+
+    bool mIsCurveGrp;
+    unsigned int mCVCount;
+};
+
+#endif  // _AbcMilkExport_MayaNurbsCurveWriter_h_

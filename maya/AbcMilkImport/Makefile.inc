@@ -9,8 +9,8 @@
 # ==========================================================================
 #+
 
-AbcImport_EXTRA_C++FLAGS = -ftemplate-depth-60 
-AbcImport_EXTRA_INCLUDES = -I$(DEVKIT_ALEMBIC_INCDIR) \
+AbcMilkImport_EXTRA_C++FLAGS = -ftemplate-depth-60 
+AbcMilkImport_EXTRA_INCLUDES = -I$(DEVKIT_ALEMBIC_INCDIR) \
                            -I$(DEVKIT_ALEMBIC_INCDIR)/AlembicPrivate \
                            -I$(DEVKIT_ALEMBIC_INCDIR)/AlembicPrivate/ilmbase
-AbcImport_EXTRA_LFLAGS   = -L$(DEVKIT_ALEMBIC_LIBDIR)
+AbcMilkImport_EXTRA_LFLAGS   = -L$(DEVKIT_ALEMBIC_LIBDIR)

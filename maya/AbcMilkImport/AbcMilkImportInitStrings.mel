@@ -1,6 +1,6 @@
-==========================================================================
+// ****************************************************************************
 //
-// Copyright 2012 Autodesk, Inc. All rights reserved.
+// Copyright 2017 Autodesk, Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,22 +28,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-==========================================================================
+// ****************************************************************************
 
+//
+//
+//  Description:
+//      Procedure to register and initialize localizable
+//      string resources for AbcMilkImport and AbcExport plugins.
+//
 
-
-Building the AbcMilkImport plug-in
-------------------------------
-
-Before building the AbcMilkImport plug-in, one needs to manually unzip the
-following file:
-    devkit/Alembic/include/AlembicPrivate/boost.zip
-to create the hierarchy:
-    devkit/Alembic/include/AlembicPrivate/boost/...
-
-The boost.zip contains the headers of the Boost C++ library that are
-necessary for succesfully compiling the plug-in.
-
-Afterward, you can use either the Makefile, the MSVC project or the
-Xcode project to build this plug-in using the procedure normally used
-for building any other devkit plug-in.
+global proc AbcMilkImportInitStrings()
+{
+    loadPluginLanguageResources("AbcMilkImport", "AbcMilkImport.pres.mel");
+}

@@ -35,9 +35,9 @@
 //-*****************************************************************************
 
 #include "AlembicNode.h"
-#include "AbcImport.h"
+#include "AbcMilkImport.h"
 #include "AlembicImportFileTranslator.h"
-#include "AbcImportStrings.h"
+#include "AbcMilkImportStrings.h"
 
 #include <maya/MGlobal.h>
 #include <maya/MFnPlugin.h>
@@ -56,11 +56,11 @@ MStatus initializePlugin(MObject obj)
 
     // Register string resources
     //
-    plugin.registerUIStrings( AbcImportStrings::registerMStringResources, "AbcImportInitStrings" ) ;
+    plugin.registerUIStrings( AbcMilkImportStrings::registerMStringResources, "AbcMilkImportInitStrings" ) ;
 
     status = plugin.registerCommand("AbcMilkImport",
-                                AbcImport::creator,
-                                AbcImport::createSyntax);
+                                AbcMilkImport::creator,
+                                AbcMilkImport::createSyntax);
     if (!status)
     {
         status.perror("registerCommand");

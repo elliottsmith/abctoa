@@ -35,8 +35,8 @@
 //-*****************************************************************************
 
 
-#ifndef ABCIMPORT_TRANSFORMHELPER_H_
-#define ABCIMPORT_TRANSFORMHELPER_H_
+#ifndef AbcMilkImport_TRANSFORMHELPER_H_
+#define AbcMilkImport_TRANSFORMHELPER_H_
 
 #include <maya/MObject.h>
 
@@ -64,4 +64,4 @@ void read(double iFrame, Alembic::AbcGeom::IXform & iNode,
 // the transform stack can't be directly mapped to Maya's transform stack
 bool isComplex(const Alembic::AbcGeom::XformSample & iSamp);
 
-#endif  // ABCIMPORT_TRANSFORMHELPER_H_
+#endif  // AbcMilkImport_TRANSFORMHELPER_H_

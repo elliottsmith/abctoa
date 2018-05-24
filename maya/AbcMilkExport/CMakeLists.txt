@@ -1,4 +1,4 @@
-set(MAYAPLUGIN AbcMilkImport)
+set(MAYAPLUGIN AbcMilkExport)
 
 file(GLOB SRC "*.cpp" "*h")
 

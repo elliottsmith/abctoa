@@ -35,8 +35,8 @@
 //-*****************************************************************************
 
 
-#ifndef ABCIMPORT_MESHHELPER_H_
-#define ABCIMPORT_MESHHELPER_H_
+#ifndef AbcMilkImport_MESHHELPER_H_
+#define AbcMilkImport_MESHHELPER_H_
 
 #include <maya/MFnMesh.h>
 #include <maya/MObject.h>
@@ -65,4 +65,4 @@ void disconnectMesh(MObject & iMeshObject,
     std::vector<Prop> & iSampledPropList,
     std::size_t iFirstProp);
 
-#endif  // ABCIMPORT_MESHHELPER_H_
+#endif  // AbcMilkImport_MESHHELPER_H_

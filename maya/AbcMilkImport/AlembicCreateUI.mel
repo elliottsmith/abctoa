@@ -39,10 +39,10 @@ global proc AlembicCreateUI()
 {
     global string $gMainWindow;  // defined by Maya
 
-    // load AbcImport and AbcExport plugins
+    // load AbcMilkImport and AbcExport plugins
     source performAlembicExport;
-    if (!`pluginInfo -q -loaded AbcImport`) {
-        loadPlugin -quiet AbcImport;
+    if (!`pluginInfo -q -loaded AbcMilkImport`) {
+        loadPlugin -quiet AbcMilkImport;
     }
 
     source performAlembicImport;

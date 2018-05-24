@@ -34,8 +34,8 @@
 //
 //-*****************************************************************************
 
-#ifndef ABCIMPORT_CREATE_SCENE_H_
-#define ABCIMPORT_CREATE_SCENE_H_
+#ifndef AbcMilkImport_CREATE_SCENE_H_
+#define AbcMilkImport_CREATE_SCENE_H_
 
 #include <Alembic/AbcGeom/ICamera.h>
 #include <Alembic/AbcGeom/ICurves.h>
@@ -186,4 +186,4 @@ private:
 };  // class CreateSceneVisitor
 
 
-#endif  // ABCIMPORT_CREATE_SCENE_H_
+#endif  // AbcMilkImport_CREATE_SCENE_H_

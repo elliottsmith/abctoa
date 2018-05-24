@@ -35,8 +35,8 @@
 //-*****************************************************************************
 
 
-#ifndef ABCIMPORT_NURBSSURFACEHELPER_H_
-#define ABCIMPORT_NURBSSURFACEHELPER_H_
+#ifndef AbcMilkImport_NURBSSURFACEHELPER_H_
+#define AbcMilkImport_NURBSSURFACEHELPER_H_
 
 #include <maya/MObject.h>
 
@@ -50,5 +50,5 @@ MObject createNurbs(double iFrame, Alembic::AbcGeom::INuPatch & iNode,
 MObject readNurbs(double iFrame, Alembic::AbcGeom::INuPatch & iNode,
     MObject & iObject);
 
-#endif  // ABCIMPORT_NURBSSURFACEHELPER_H_
+#endif  // AbcMilkImport_NURBSSURFACEHELPER_H_
 

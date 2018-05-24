@@ -183,6 +183,7 @@ set(SUBDIRECTORIES
         mtoa/abcMayaShaderTranslator
         arnold/abcMayaShaderProcedural
         # maya/AbcMilkImport
+        # maya/AbcMilkExport
         )
 
 # loop over subdirectories

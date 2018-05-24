@@ -468,7 +468,7 @@ proc importOptions()
 //      version - The version of the argument list.
 //
 //  Return Value:
-//      A list of arguments to invoke AbcImport;
+//      A list of arguments to invoke AbcMilkImport;
 //
 global proc string[] captureAlembicImportOptionVars(int $version, int $mode)
 {

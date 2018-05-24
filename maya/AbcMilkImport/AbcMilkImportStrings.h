@@ -1,5 +1,5 @@
-#ifndef __AbcImportStrings_h__
-#define __AbcImportStrings_h__
+#ifndef __AbcMilkImportStrings_h__
+#define __AbcMilkImportStrings_h__
 // Copyright 2015 Autodesk, Inc. All rights reserved.
 // 
 // Use of this software is subject to the terms of the Autodesk
@@ -10,7 +10,7 @@
 #include <maya/MStringResourceId.h>
 
 
-namespace AbcImportStrings
+namespace AbcMilkImportStrings
 {
 	extern const MStringResourceId kErrorInvalidAlembic;
 	extern const MStringResourceId kErrorConnectionNotFound;

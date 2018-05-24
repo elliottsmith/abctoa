@@ -1,6 +1,10 @@
-// ****************************************************************************
+//-*****************************************************************************
 //
-// Copyright 2017 Autodesk, Inc. All rights reserved.
+// Copyright (c) 2009-2011,
+//  Sony Pictures Imageworks, Inc. and
+//  Industrial Light & Magic, a division of Lucasfilm Entertainment Company Ltd.
+//
+// All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -12,7 +16,7 @@
 // in the documentation and/or other materials provided with the
 // distribution.
 // *       Neither the name of Sony Pictures Imageworks, nor
-// Industrial Light & Magic, nor the names of their contributors may be used
+// Industrial Light & Magic nor the names of their contributors may be used
 // to endorse or promote products derived from this software without specific
 // prior written permission.
 //
@@ -28,16 +32,24 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// ****************************************************************************
+//-*****************************************************************************
 
-//
-//
-//  Description:
-//      Procedure to register and initialize localizable
-//      string resources for AbcImport and AbcExport plugins.
-//
+#ifndef AbcMilkImport_H_
+#define AbcMilkImport_H_
 
-global proc AbcImportInitStrings()
+#include <maya/MPxCommand.h>
+
+class AbcMilkImport: public MPxCommand
 {
-    loadPluginLanguageResources("AbcMilkImport", "AbcMilkImport.pres.mel");
-}
+public:
+
+    AbcMilkImport();
+    ~AbcMilkImport() override;
+
+    MStatus doIt(const MArgList& args) override;
+
+    static MSyntax createSyntax();
+    static void*   creator();
+};
+
+#endif  // AbcMilkImport_H_

@@ -34,8 +34,8 @@
 //
 //-*****************************************************************************
 
-#ifndef ABCIMPORT_NODE_ITERATOR_HELPER_H_
-#define ABCIMPORT_NODE_ITERATOR_HELPER_H_
+#ifndef AbcMilkImport_NODE_ITERATOR_HELPER_H_
+#define AbcMilkImport_NODE_ITERATOR_HELPER_H_
 
 #include <Alembic/Abc/IArrayProperty.h>
 #include <Alembic/Abc/IScalarProperty.h>
@@ -296,4 +296,4 @@ bool getUVandColorAttrs( Alembic::Abc::ICompoundProperty & iParent,
     std::vector< Alembic::AbcGeom::IC4fGeomParam > & ioC4s,
     bool iUnmarkedFaceVaryingColors);
 
-#endif  // ABCIMPORT_NODE_ITERATOR_HELPER_H_
+#endif  // AbcMilkImport_NODE_ITERATOR_HELPER_H_

@@ -31,11 +31,10 @@
 ==========================================================================
 
 
-
-Building the AbcMilkImport plug-in
+Building the AbcMilkExport plug-in
 ------------------------------
 
-Before building the AbcMilkImport plug-in, one needs to manually unzip the
+Before building the AbcMilkExport plug-in, one needs to manually unzip the
 following file:
     devkit/Alembic/include/AlembicPrivate/boost.zip
 to create the hierarchy:

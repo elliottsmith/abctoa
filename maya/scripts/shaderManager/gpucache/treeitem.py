@@ -21,6 +21,8 @@ import maya.mel as mel
 import maya.cmds as cmds
 import cask
 
+from shaderManagerUtils import import_xforms
+
 TRANSFORM = 1
 SHAPE = 2
 SHADER = 3
@@ -221,44 +223,6 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
             cmds.setAttr(abcShader +".shader", self.cache.getAbcShader(), type="string")
             cmds.setAttr(abcShader +".shaderFrom", shader["shader"], type="string")
 
-    def build_path(self, cask_node, nodes):
-        """
-        Walk up the given alembic node, finding its parents, till we reach the top
-        return a list of parent transforms of the given node
-        """
-        if cask_node.parent.name != 'ABC':
-            nodes.insert(0, cask_node.parent.name)
-            self.build_path(cask_node.parent, nodes)
-        return nodes
-
-    def future_dag_path(self, clicked, archive):
-        """
-        Find the selected transforms matching our name, loop over them
-        and construct the future dag path
-        """
-
-        importxform = cask.find(archive.top, clicked, 'Xform')
-
-        # importxform should only match one
-        for foundnode in importxform:
-            node_hierarchy = self.build_path(foundnode, [])
-            node_hierarchy.append(foundnode.name)
-            
-            return '|' + '|'.join(node_hierarchy)
-
-    def delete_non_transforms(self, node, archive):
-        """
-        Iterate the relatives of the alembicHolder node, if the transform isnt in
-        the alembic archive, delete it
-        """
-
-        node_to_walk = cmds.ls(node, tr=True,  l=True)
-        for e in cmds.listRelatives(node_to_walk[0], f=True, allDescendents=True):
-
-            # if not in the alembic archive dont delete it
-            if cask.find(archive.top, e.split('|')[-1]) != []:
-                cmds.delete(e)
-
     def importxform(self, reparent=True):
         """
         Import only the selected transform node.
@@ -272,33 +236,11 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
             return
         print '\nImport Transforms : %s' % self.path[-1]
 
-        try:
+        abcfile = self.cache.ABCcache.replace(os.path.sep, "/")
+        transform_names = [self.path[-1]]
+        parent_under = '|'.join(self.cache.shape.split('|')[:-1])
 
-            # node to parent under (alembicHolder node)
-            parent_under = '|'.join(self.cache.shape.split('|')[:-1])
-            abc_file = self.cache.ABCcache.replace(os.path.sep, "/")
-            archive = cask.Archive(abc_file)
-
-            # the path the selected geometry will be imported to
-            node = self.future_dag_path(self.path[-1], archive)
-            DAG = parent_under + node
-            print 'DAG : %s' % DAG
-
-            if cmds.objExists(DAG):
-                # we use the 'connect' flag to connect the incoming geometry to the existing node
-                cmd = 'AbcImport "%s" -ft "%s" -ct %s -rpr %s' % (abc_file, self.path[-1], self.path[-1], parent_under)
-            else:
-                cmd = 'AbcImport "%s" -ft "%s" -rpr %s' % (abc_file, self.path[-1], parent_under)
-            
-            print cmd
-            mel.eval(cmd)
-
-            # delete any geo that was imported, preserving any nodes that have been put in the transform
-            # that didnt come from the abc file
-            self.delete_non_transforms(DAG, archive)
-
-        except:
-            print "Error running", cmd
+        import_xforms(abcfile=abcfile, transform_names=transform_names, parent_under=parent_under, update=True)
 
     def importinscene(self, reparent=True):
 

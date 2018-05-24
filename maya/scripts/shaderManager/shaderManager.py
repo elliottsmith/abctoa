@@ -36,7 +36,7 @@ reload(shader_widget)
 from ui import UI_ABCHierarchy
 reload(UI_ABCHierarchy)
 
-from shaderManagerUtils import CopyLayers
+from shaderManagerUtils import CopyLayers, import_xforms, get_previously_imported_transforms
 
 # arnold / maya
 from arnold import *
@@ -151,13 +151,23 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         self.overrideProps.stateChanged.connect(self.overridePropsChanged)
         self.soloSelected.stateChanged.connect(self.soloSelectedChanged)        
         self.wildCardButton.pressed.connect(self.addWildCard)
-        self.updateXformsButton.setEnabled(False)
         self.updateXformsButton.pressed.connect(self.updateXforms)        
         self.layers_btn.clicked.connect(self.layers_clicked)
 
     def updateXforms(self):
         """"""
         print 'Updating Previously imported xforms'
+
+        # ensure that the abcfile is the current one
+        self.reset()
+
+        for parent in self.ABCViewerNode.keys():
+
+            abcfile = str(self.ABCViewerNode[parent].ABCcache)
+            parent_under = '|'.join(self.ABCViewerNode[parent].shape.split('|')[:-1])
+            transform_names = get_previously_imported_transforms(abcfile, parent_under)
+
+            import_xforms(abcfile=abcfile, transform_names=transform_names, parent_under=parent_under, update=True)
 
     def layers_clicked(self):
         """"""

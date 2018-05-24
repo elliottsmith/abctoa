@@ -76,7 +76,7 @@ class gpucache(object):
                     oType = "Unknown"
                     child = iObj.getChild(i)
 
-                    print '[shaderManager][gpucache] Item Header : %s' % child.getHeader()
+                    # print '[shaderManager][gpucache] Item Header : %s' % child.getHeader()
 
                     if IXform.matches(child.getHeader()):
                         oType = "Transform"
@@ -117,7 +117,7 @@ class gpucache(object):
                     elif ICollections.matches(child.getHeader()):
                         oType = "Collections"
                     
-                    print '[shaderManager][gpucache] Item Type : %s' % oType
+                    # print '[shaderManager][gpucache] Item Type : %s' % oType
                     results.append(dict(type=oType, name=child.getName()))
                     
 

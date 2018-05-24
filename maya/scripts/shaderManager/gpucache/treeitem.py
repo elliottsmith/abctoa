@@ -14,13 +14,14 @@
 from PySide2 import QtWidgets
 from PySide2 import QtGui
 from PySide2 import QtCore
-import os
+import os, sys
 import functools
 
 import maya.mel as mel
 import maya.cmds as cmds
 import cask
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from shaderManagerUtils import import_xforms
 
 TRANSFORM = 1
@@ -89,7 +90,7 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         if column == 0 :
             text = self.getDisplayPath()
 
-            if self.icon == SHAPE or self.icon == POINTS or self.icon == WILDCARD or self.icon == CURVES or self.icon == LIGHTS self.icon == CAMERAS:
+            if self.icon == SHAPE or self.icon == POINTS or self.icon == WILDCARD or self.icon == CURVES or self.icon == LIGHTS or self.icon == CAMERAS:
                 ### display all attributes
                 text += "<br>" + self.attributeText
 

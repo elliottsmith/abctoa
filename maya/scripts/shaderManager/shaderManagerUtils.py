@@ -36,13 +36,16 @@ def delete_non_transforms(parent_under, transform_data, archive):
 
     for tr in transform_data:
         dag_path = tr['dag_path']
+        # print 'DAG path : %s' % dag_path
         node_to_walk = cmds.ls(dag_path, tr=True,  l=True)
 
         for e in cmds.listRelatives(node_to_walk[0], f=True, allDescendents=True):
-
+            
             # if it was never in the alembic archive DONT delete it
-            if cask.find(archive.top, e.split('|')[-1]) != []:
-                print 'Deleting : %s' % e
+            e = e.split('|')[-1]
+
+            if cask.find(archive.top, e) != []:
+                print 'Deleting new : %s' % e
                 cmds.delete(e)
 
 def import_xforms(abcfile, transform_names, parent_under, update):
@@ -104,12 +107,25 @@ def get_previously_imported_transforms(abcfile, root):
 
     previous = []
     lowest_transforms = []
+    descendents = cmds.listRelatives(root, f=True, allDescendents=True)        
+        
+    for d in descendents:
+        # print 'Descendent : %s' % d
+        children = cmds.listRelatives(d, children=True)
+        
+        if not children:
+            # the xform doesnt have any children
+            last = d.split('|')[-1]
+            if last not in lowest_transforms:
+                lowest_transforms.append(last)
 
-    for d in cmds.listRelatives(root, f=True, allDescendents=True):
-
-        last = d.split('|')[-1]
-        if last not in lowest_transforms:
-            lowest_transforms.append(last)
+        # OR - the xform does have children, but none that are from the alembic
+        if children:
+            for c in children:
+                if cask.find(archive.top, str(c)) != []:
+                    last = c.split('|')[-1]
+                    if last not in lowest_transforms:
+                        lowest_transforms.append(last)                
 
     for i in lowest_transforms:
         # if the descendent transform is in the alembic archive
@@ -117,6 +133,7 @@ def get_previously_imported_transforms(abcfile, root):
         if cask.find(archive.top, str(i)) != []:
             previous.append(i)
 
+    print 'Previously Imported : %s' % previous
     return previous
 
 class CopyLayers(QtWidgets.QWidget):    

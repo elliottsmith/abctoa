@@ -49,12 +49,6 @@
 #include <Alembic/AbcGeom/ISubD.h>
 #include <Alembic/AbcGeom/IXform.h>
 
-// MTypes.h includes windows.h
-// Suppress min/max macros
-#if defined(_WIN32) && !defined(NOMINMAX)
-    #define NOMINMAX
-#endif
-
 #include <maya/MObject.h>
 #include <maya/MPlug.h>
 #include <maya/MDataHandle.h>
@@ -248,7 +242,7 @@ public:
 class ArgData
 {
 public:
-    ArgData(MString iFileName = "",
+    ArgData(std::vector<std::string>& iFileNames,
         bool    iDebugOn = false,
         MObject iReparentObj = MObject::kNullObj,
         bool    iConnect = false,
@@ -261,24 +255,24 @@ public:
     ArgData(const ArgData & rhs);
     ArgData & operator=(const ArgData & rhs);
 
-    MString     mFileName;
-    double      mSequenceStartTime;
-    double      mSequenceEndTime;
-    bool        mDebugOn;
+    std::vector<std::string>     mFileNames;
+    double                     mSequenceStartTime;
+    double                     mSequenceEndTime;
+    bool                       mDebugOn;
 
-    MObject     mReparentObj;
+    MObject                    mReparentObj;
 
-    bool        mRecreateColorSets;
+    bool                       mRecreateColorSets;
 
     // optional information for the "connect" flag
-    bool        mConnect;
-    MString     mConnectRootNodes;
-    bool        mCreateIfNotFound;
-    bool        mRemoveIfNoUpdate;
-    MString     mIncludeFilterString;
-    MString     mExcludeFilterString;
+    bool                       mConnect;
+    MString                    mConnectRootNodes;
+    bool                       mCreateIfNotFound;
+    bool                       mRemoveIfNoUpdate;
+    MString                    mIncludeFilterString;
+    MString                    mExcludeFilterString;
 
-    WriterData  mData;
+    WriterData                 mData;
 };  // ArgData
 
 // traverse and create the corresponding maya hierarchy

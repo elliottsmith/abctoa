@@ -36,6 +36,7 @@
 
 #include "AbcMilkExport.h"
 #include "AbcWriteJob.h"
+#include "Export.h"
 #include "MayaUtility.h"
 
 #include <maya/MFnPlugin.h>
@@ -327,6 +328,21 @@ try
             else if (arg == "-nn" || arg == "-nonormals")
             {
                 jobArgs.noNormals = true;
+            }
+
+            else if (arg == "-uvo" || arg == "-uvsonly")
+            {
+                jobArgs.writeMeshes = true;
+                jobArgs.writeUVs= true;
+                jobArgs.writeGeometry = false;
+                jobArgs.noNormals = true;
+                jobArgs.writeCurvesGroup = false;
+                jobArgs.writeTransforms = false;
+                jobArgs.writeLocators = false;
+                jobArgs.writeParticles = false;
+                jobArgs.writeCameras = false;
+                jobArgs.writeNurbsSurfaces = false;
+                jobArgs.writeNurbsCurves = false;
             }
 
             else if (arg == "-pr" || arg == "-preroll")
@@ -667,21 +683,48 @@ try
                 }
 
                 MPlug abcFilePlug = alembicNode.findPlug("abc_File");
-                if (abcFilePlug.isNull()) {
-                    continue;
+                if (!abcFilePlug.isNull())
+                {
+                    MFileObject alembicFile;
+                    alembicFile.setRawFullName(abcFilePlug.asString());
+                    if (alembicFile.exists())
+                    {
+                        if (alembicFile.resolvedFullName() == absoluteFile.resolvedFullName())
+                        {
+                            MString error = "Can't export to an Alembic file which is in use: ";
+                            error += absoluteFile.resolvedFullName();
+                            MGlobal::displayError(error);
+                            return MS::kFailure;
+                        }
+                    }
                 }
 
-                MFileObject alembicFile;
-                alembicFile.setRawFullName(abcFilePlug.asString());
-                if (!alembicFile.exists()) {
-                    continue;
+                MPlug abcLayerFilePlug = alembicNode.findPlug("abc_layerFiles");
+                if (!abcLayerFilePlug.isNull())
+                {
+                    MFnStringArrayData fnSAD( abcLayerFilePlug.asMObject() );
+                    MStringArray layerFilenames = fnSAD.array();
+
+                    for( unsigned int l = 0; l < layerFilenames.length(); l++ )
+                    {
+                        MFileObject thisAlembicFile;
+                        thisAlembicFile.setRawFullName(abcFilePlug.asString());
+
+                        if (!thisAlembicFile.exists())
+                        {
+                            continue;
+                        }
+
+                        if (thisAlembicFile.resolvedFullName() == absoluteFile.resolvedFullName())
+                        {
+                            MString error = "Can't export to an Alembic file which is in use: ";
+                            error += absoluteFile.resolvedFullName();
+                            MGlobal::displayError(error);
+                            return MS::kFailure;
+                        }
+                    }
                 }
 
-                if (alembicFile.resolvedFullName() == absoluteFile.resolvedFullName()) {
-                    MString error = "Can't export to an Alembic file which is in use.";
-                    MGlobal::displayError(error);
-                    return MS::kFailure;
-                }
             }
 
             std::ofstream ofs(fileName.c_str());
@@ -1103,7 +1146,7 @@ catch (std::exception & e)
 
 
 
-MStatus initializePlugin(MObject obj)
+ALEMBIC_MAYA_PLUGIN_EXPORT  MStatus initializePlugin(MObject obj)
 {
     MStatus status;
     MFnPlugin plugin(obj, "Alembic", AbcMilkExport_VERSION, "Any");
@@ -1117,8 +1160,6 @@ MStatus initializePlugin(MObject obj)
         status.perror("registerCommand");
     }
 
-    MGlobal::executeCommandOnIdle("AlembicCreateUI");
-
     MString info = "AbcMilkExport v";
     info += AbcMilkExport_VERSION;
     info += " using ";
@@ -1128,7 +1169,7 @@ MStatus initializePlugin(MObject obj)
     return status;
 }
 
-MStatus uninitializePlugin(MObject obj)
+ALEMBIC_MAYA_PLUGIN_EXPORT MStatus uninitializePlugin(MObject obj)
 {
     MStatus status;
     MFnPlugin plugin(obj);
@@ -1138,8 +1179,6 @@ MStatus uninitializePlugin(MObject obj)
     {
         status.perror("deregisterCommand");
     }
-
-    MGlobal::executeCommandOnIdle("AlembicDeleteUI");
 
     return status;
 }

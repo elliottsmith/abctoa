@@ -159,6 +159,7 @@ struct JobArgs
         excludeInvisible = false;
         filterEulerRotations = false;
         noNormals = false;
+        setFirstAnimShape = false;
         stripNamespace = 0;
         useSelectionList = false;
         worldSpace = false;
@@ -167,20 +168,39 @@ struct JobArgs
         writeColorSets = false;
         writeFaceSets = false;
         writeUVSets = false;
+        writeGeometry = true;
+        writeCurvesGroup = true;
+        writeTransforms = true;
+        writeLocators = true;
+        writeParticles = true;
+        writeMeshes = true;
+        writeCameras = true;
+        writeNurbsSurfaces = true;
+        writeNurbsCurves = true;
         autoSubd = false;
     }
 
     bool excludeInvisible;
     bool filterEulerRotations;
     bool noNormals;
+    bool setFirstAnimShape;
     unsigned int stripNamespace;
     bool useSelectionList;
+    bool writeGeometry;
     bool worldSpace;
     bool writeVisibility;
     bool writeUVs;
     bool writeColorSets;
     bool writeFaceSets;
     bool writeUVSets;
+    bool writeCurvesGroup;
+    bool writeTransforms;
+    bool writeLocators;
+    bool writeParticles;
+    bool writeMeshes;
+    bool writeCameras;
+    bool writeNurbsSurfaces;
+    bool writeNurbsCurves;
     bool autoSubd;
 
     std::string melPerFrameCallback;

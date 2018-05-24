@@ -525,7 +525,12 @@ MayaTransformWriter::MayaTransformWriter(Alembic::AbcGeom::OObject & iParent,
         }
 
         mAttrs = AttributesWriterPtr(new AttributesWriter(cp, up, obj, joint,
-            iTimeIndex, iArgs));
+            iTimeIndex, iArgs, false));
+
+        if (!iArgs.writeTransforms)
+        {
+            return;
+        }
 
         if (!iArgs.worldSpace)
         {
@@ -580,7 +585,11 @@ MayaTransformWriter::MayaTransformWriter(Alembic::AbcGeom::OObject & iParent,
         }
 
         mAttrs = AttributesWriterPtr(new AttributesWriter(cp, up, obj, trans,
-            iTimeIndex, iArgs));
+            iTimeIndex, iArgs, false));
+        if (!iArgs.writeTransforms)
+        {
+            return;
+        }
 
         if (!iArgs.worldSpace)
         {
@@ -733,7 +742,12 @@ MayaTransformWriter::MayaTransformWriter(MayaTransformWriter & iParent,
         }
 
         mAttrs = AttributesWriterPtr(new AttributesWriter(cp, up, obj, joint,
-            iTimeIndex, iArgs));
+            iTimeIndex, iArgs, false));
+
+        if (!iArgs.writeTransforms)
+        {
+            return;
+        }
 
         pushTransformStack(joint, iTimeIndex == 0);
     }
@@ -757,7 +771,12 @@ MayaTransformWriter::MayaTransformWriter(MayaTransformWriter & iParent,
         }
 
         mAttrs = AttributesWriterPtr(new AttributesWriter(cp, up, obj, trans,
-            iTimeIndex, iArgs));
+            iTimeIndex, iArgs, false));
+
+        if (!iArgs.writeTransforms)
+        {
+            return;
+        }
 
         pushTransformStack(trans, iTimeIndex == 0);
     }

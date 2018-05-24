@@ -38,11 +38,11 @@
 #include "AlembicNode.h"
 #include "CreateSceneHelper.h"
 #include "NodeIteratorVisitorHelper.h"
-#include "AbcMilkImportStrings.h"
 
 #include <Alembic/AbcCoreFactory/IFactory.h>
 
 #include <maya/MDoubleArray.h>
+#include <maya/MFloatArray.h>
 #include <maya/MIntArray.h>
 #include <maya/MFnIntArrayData.h>
 #include <maya/MPlug.h>
@@ -51,6 +51,7 @@
 #include <maya/MStringArray.h>
 #include <maya/MFnData.h>
 #include <maya/MFnDoubleArrayData.h>
+#include <maya/MFnFloatArrayData.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnNumericData.h>
@@ -73,7 +74,7 @@
 template <class T>
 void unsupportedWarning(T & iProp)
 {
-    MString warn = AbcMilkImportStrings::getString(AbcMilkImportStrings::kWarningUnsupportedAttr) ;
+    MString warn = "Unsupported attr, skipping: ";
     warn += iProp.getName().c_str();
     warn += " ";
     warn += PODName(iProp.getDataType().getPod());
@@ -491,7 +492,7 @@ bool addArrayProp(Alembic::Abc::IArrayProperty & iProp, MObject & iParent)
                 }
                 else
                 {
-                    MFnDoubleArrayData fnData;
+                    MFnFloatArrayData fnData;
                     MObject arrObj;
 
                     if (iProp.isConstant())
@@ -499,7 +500,7 @@ bool addArrayProp(Alembic::Abc::IArrayProperty & iProp, MObject & iParent)
                         Alembic::AbcCoreAbstract::ArraySamplePtr samp;
                         iProp.get(samp);
 
-                        MDoubleArray arr((float *) samp->getData(),
+                        MFloatArray arr((float *) samp->getData(),
                             static_cast<unsigned int>(samp->size()));
                         arrObj = fnData.create(arr);
                         if (!plug.isNull())
@@ -510,12 +511,12 @@ bool addArrayProp(Alembic::Abc::IArrayProperty & iProp, MObject & iParent)
                     }
                     else
                     {
-                        MDoubleArray arr;
+                        MFloatArray arr;
                         arrObj = fnData.create(arr);
                     }
 
                     attrObj = typedAttr.create(attrName, attrName,
-                        MFnData::kDoubleArray, arrObj);
+                        MFnData::kFloatArray, arrObj);
                 }
 
             }
@@ -1059,6 +1060,9 @@ addScalarExtentThreeProp(Alembic::Abc::IScalarProperty& iProp,
             if (numChildren > extent)
                 numChildren = extent;
 
+            if (numChildren > 3)
+                numChildren = 3;
+
             for (unsigned int i = 0; i < numChildren; ++i)
                 plug.child(i).setValue(val[i]);
         }
@@ -1354,7 +1358,7 @@ void addProps(Alembic::Abc::ICompoundProperty & iParent, MObject & iObject,
         else if (propName.empty() || propName[0] == '.' ||
             propName.find('[') != std::string::npos)
         {
-            MString warn = AbcMilkImportStrings::getString(AbcMilkImportStrings::kWarningSkipOddlyNamed) ;
+            MString warn = "Skipping oddly named property: ";
             warn += propName.c_str();
 
             printWarning(warn);
@@ -1366,7 +1370,7 @@ void addProps(Alembic::Abc::ICompoundProperty & iParent, MObject & iObject,
                 Alembic::Abc::IArrayProperty prop(iParent, propName);
                 if (prop.getNumSamples() == 0)
                 {
-                    MString warn = AbcMilkImportStrings::getString(AbcMilkImportStrings::kWarningSkipNoSamples) ;
+                    MString warn = "Skipping property with no samples: ";
                     warn += propName.c_str();
 
                     printWarning(warn);
@@ -2809,12 +2813,12 @@ void WriterData::getFrameRange(double & oMin, double & oMax)
     }
 }
 
-ArgData::ArgData(MString iFileName,
+ArgData::ArgData(std::vector<std::string>& iFileNames,
     bool iDebugOn, MObject iReparentObj, bool iConnect,
     MString iConnectRootNodes, bool iCreateIfNotFound, bool iRemoveIfNoUpdate,
     bool iRecreateColorSets, MString iFilterString,
     MString iExcludeFilterString) :
-        mFileName(iFileName),
+        mFileNames(iFileNames),
         mDebugOn(iDebugOn), mReparentObj(iReparentObj),
         mRecreateColorSets(iRecreateColorSets),
         mConnect(iConnect),
@@ -2835,7 +2839,7 @@ ArgData::ArgData(const ArgData & rhs)
 
 ArgData & ArgData::operator=(const ArgData & rhs)
 {
-    mFileName = rhs.mFileName;
+    mFileNames = rhs.mFileNames;
     mSequenceStartTime = rhs.mSequenceStartTime;
     mSequenceEndTime = rhs.mSequenceEndTime;
 
@@ -2864,11 +2868,12 @@ MString createScene(ArgData & iArgData)
     Alembic::Abc::IArchive archive;
     Alembic::AbcCoreFactory::IFactory factory;
     factory.setPolicy(Alembic::Abc::ErrorHandler::kQuietNoopPolicy);
-    archive = factory.getArchive(iArgData.mFileName.asChar());
+    archive = factory.getArchive(iArgData.mFileNames);
+
     if (!archive.valid())
     {
-        MString theError = iArgData.mFileName;
-        theError += MString( " " + AbcMilkImportStrings::getString(AbcMilkImportStrings::kErrorInvalidAlembic) );
+        MString theError = (*iArgData.mFileNames.begin()).c_str();
+        theError += MString(" not a valid Alembic file.");
         printError(theError);
         return returnName;
     }
@@ -2943,13 +2948,34 @@ MString connectAttr(ArgData & iArgData)
 
     // set AlembicNode name
     MString fileName;
-    stripFileName(iArgData.mFileName, fileName);
+    stripFileName((*iArgData.mFileNames.begin()).c_str(), fileName);
     MString alembicNodeName = fileName +"_AlembicNode";
     alembicNodeFn.setName(alembicNodeName, &status);
 
-    // set input file name
+    // set input file name (Deprecated but leaving here for legacy support)
     MPlug plug = alembicNodeFn.findPlug("abc_File", true, &status);
-    plug.setValue(iArgData.mFileName);
+    plug.setValue((*iArgData.mFileNames.begin()).c_str());
+
+    // set input layer filename(s)
+    MPlug layerFilesPlug = alembicNodeFn.findPlug("abc_layerFiles", true, &status);
+
+    if( status == MStatus::kSuccess )
+    {
+        MStringArray filenameStorage;
+        std::vector< std::string > &argFilenames = iArgData.mFileNames;
+
+        for( size_t i = 0; i < argFilenames.size(); i++ )
+        {
+            filenameStorage.append( argFilenames[i].c_str() );
+        }
+
+        MObject updatedFilenameData = MFnStringArrayData().create( filenameStorage, &status );
+
+        if( status = MStatus::kSuccess )
+        {
+            layerFilesPlug.setValue( updatedFilenameData );
+        }
+    }
 
     // set sequence start and end in frames
     MTime sec(1.0, MTime::kSeconds);
@@ -3033,7 +3059,7 @@ MString connectAttr(ArgData & iArgData)
                 theError += i;
                 theError += "] --> ";
                 theError += mFn.name();
-                theError += ".inMesh " + AbcMilkImportStrings::getString(AbcMilkImportStrings::kErrorConnectionNotMade);
+                theError += ".inMesh connection not made";
                 printError(theError);
             }
         }
@@ -3199,7 +3225,7 @@ MString connectAttr(ArgData & iArgData)
                     != attrName.c_str()))
                 {
                     MString theError(attrName.c_str());
-                    theError += MString(" " + AbcMilkImportStrings::getString(AbcMilkImportStrings::kErrorConnectionNotFound));
+                    theError += MString(" not found for connection");
                     printError(theError);
                     continue;
                 }
@@ -3217,7 +3243,7 @@ MString connectAttr(ArgData & iArgData)
                     MString theError(srcPlug.name());
                     theError += MString(" --> ");
                     theError += dstPlug.name();
-                    theError += MString(" " + AbcMilkImportStrings::getString(AbcMilkImportStrings::kErrorConnectionNotMade));
+                    theError += MString(" connection not made");
                     printError(theError);
                 }
             }
@@ -3226,7 +3252,7 @@ MString connectAttr(ArgData & iArgData)
 
     if (particleSize > 0)
     {
-        printWarning(AbcMilkImportStrings::getString(AbcMilkImportStrings::kWarningNoAnimatedParticleSupport));
+        printWarning("Currently no support for animated particle system");
     }
 
     if (nSurfaceSize > 0)

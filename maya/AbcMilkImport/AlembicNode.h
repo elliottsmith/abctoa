@@ -71,7 +71,7 @@ public:
         mOutRead = std::vector<bool>(9, false);
     }
 
-    ~AlembicNode() override {}
+    virtual ~AlembicNode() {}
 
     // avoid calling createSceneVisitor twice by getting the
     // list of hdf reader pointers
@@ -85,6 +85,7 @@ public:
     // input attributes
     static MObject mTimeAttr;
     static MObject mAbcFileNameAttr;
+    static MObject mAbcLayerFileNamesAttr;
     static MObject mSpeedAttr;
     static MObject mOffsetAttr;
     static MObject mCycleTypeAttr;
@@ -106,27 +107,31 @@ public:
     static MObject mEndFrameAttr;
 
     // override virtual methods from MPxNode
-    MStatus compute(const MPlug & plug, MDataBlock & dataBlock) override;
+    virtual MStatus compute(const MPlug & plug, MDataBlock & dataBlock);
 
     // return a pointer to a new instance of the class
     // (derived from MPxNode) that implements the new node type
     static void* creator() { return (new AlembicNode()); }
 
     // override virtual methods from MPxNode
-	MStatus setDependentsDirty(const MPlug& plug, MPlugArray& plugArray) override;
-    bool isPassiveOutput(const MPlug & plug) const override;
-    SchedulingType schedulingType()const override;
+    virtual MStatus setDependentsDirty(const MPlug& plug, MPlugArray& plugArray);
+    virtual bool isPassiveOutput(const MPlug & plug) const;
+#if MAYA_API_VERSION >= 201600
+    virtual SchedulingType schedulingType()const;
+#endif
 
     // initialize all the attributes to default values
     static MStatus initialize();
 
     // override virtual methods from MPxNode, returns the list of
     // files to archive.
-    MStringArray getFilesToArchive(bool shortName,
+    virtual MStringArray getFilesToArchive(bool shortName,
                                            bool unresolvedName,
-                                           bool markCouldBeImageSequence) const override;
-    	void getExternalContent(MExternalContentInfoTable& table) const override;
-		void setExternalContent(const MExternalContentLocationTable& table) override;
+                                           bool markCouldBeImageSequence) const;
+#if defined(MAYA_WANT_EXTERNALCONTENTTABLE)
+    virtual void getExternalContent(MExternalContentInfoTable& table) const;
+    virtual void setExternalContent(const MExternalContentLocationTable& table);
+#endif
 
     void   setDebugMode(bool iDebugOn){ mDebugOn = iDebugOn; }
     void   setIncludeFilterString(const MString & iIncludeFilterString)

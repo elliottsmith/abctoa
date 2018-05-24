@@ -37,7 +37,7 @@
 #include "AlembicNode.h"
 #include "AbcMilkImport.h"
 #include "AlembicImportFileTranslator.h"
-#include "AbcMilkImportStrings.h"
+#include "Export.h"
 
 #include <maya/MGlobal.h>
 #include <maya/MFnPlugin.h>
@@ -47,16 +47,12 @@
 // Interesting trivia: 0x2697 is the unicode character for Alembic
 const MTypeId AlembicNode::mMayaNodeId(0x00082697);
 
-MStatus initializePlugin(MObject obj)
+ALEMBIC_MAYA_PLUGIN_EXPORT MStatus initializePlugin(MObject obj)
 {
     const char * pluginVersion = "1.0";
     MFnPlugin plugin(obj, "Alembic", pluginVersion, "Any");
 
     MStatus status;
-
-    // Register string resources
-    //
-    plugin.registerUIStrings( AbcMilkImportStrings::registerMStringResources, "AbcMilkImportInitStrings" ) ;
 
     status = plugin.registerCommand("AbcMilkImport",
                                 AbcMilkImport::creator,
@@ -86,8 +82,6 @@ MStatus initializePlugin(MObject obj)
         status.perror("registerFileTranslator");
     }
 
-    MGlobal::executeCommandOnIdle("AlembicCreateUI");
-
     MString info = "AbcMilkImport v";
     info += pluginVersion;
     info += " using ";
@@ -97,7 +91,7 @@ MStatus initializePlugin(MObject obj)
     return status;
 }
 
-MStatus uninitializePlugin(MObject obj)
+ALEMBIC_MAYA_PLUGIN_EXPORT  MStatus uninitializePlugin(MObject obj)
 {
     MFnPlugin plugin(obj);
 
@@ -120,8 +114,6 @@ MStatus uninitializePlugin(MObject obj)
     {
         status.perror("deregisterCommand");
     }
-
-    MGlobal::executeCommandOnIdle("AlembicDeleteUI");
 
     return status;
 }

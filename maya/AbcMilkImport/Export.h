@@ -1,6 +1,6 @@
 //-*****************************************************************************
 //
-// Copyright (c) 2009-2011,
+// Copyright (c) 2009-2016,
 //  Sony Pictures Imageworks, Inc. and
 //  Industrial Light & Magic, a division of Lucasfilm Entertainment Company Ltd.
 //
@@ -34,22 +34,14 @@
 //
 //-*****************************************************************************
 
-#ifndef AbcMilkImport_H_
-#define AbcMilkImport_H_
+#ifndef _Alembic_Maya_Export_h_
+#define _Alembic_Maya_Export_h_
 
-#include <maya/MPxCommand.h>
+#if defined _WIN32 || defined _WIN64
+    #define ALEMBIC_MAYA_PLUGIN_EXPORT __declspec(dllexport)
+#else
+    #define ALEMBIC_MAYA_PLUGIN_EXPORT __attribute__ ((visibility ("default")))
+#endif
 
-class AbcMilkImport: public MPxCommand
-{
-public:
+#endif /* _Alembic_Maya_Export_h_ */
 
-    AbcMilkImport();
-    ~AbcMilkImport();
-
-    MStatus doIt(const MArgList& args);
-
-    static MSyntax createSyntax();
-    static void*   creator();
-};
-
-#endif  // AbcMilkImport_H_

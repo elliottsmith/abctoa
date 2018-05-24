@@ -43,8 +43,8 @@ class AbcMilkExport : public MPxCommand
 {
   public:
     AbcMilkExport();
-    ~AbcMilkExport() override;
-    MStatus doIt(const MArgList& args) override;
+    virtual ~AbcMilkExport();
+    MStatus doIt(const MArgList& args);
 
     static MSyntax  createSyntax();
     static void* creator();

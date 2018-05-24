@@ -61,19 +61,18 @@ MayaPointPrimitiveWriter::MayaPointPrimitiveWriter(
     }
 
     mAttrs = AttributesWriterPtr(new AttributesWriter(cp, up, obj, particle,
-        iTimeIndex, iArgs));
+        iTimeIndex, iArgs, true));
 
     MObject object = iDag.node();
     if (iTimeIndex != 0 && util::isAnimated(object))
     {
         mIsAnimated = true;
     }
-    else
-    {
-        iTimeIndex = 0;
-    }
 
-    write(iFrame);
+    if (!mIsAnimated || iArgs.setFirstAnimShape)
+    {
+        write(iFrame);
+    }
 }
 
 void MayaPointPrimitiveWriter::write(double iFrame)

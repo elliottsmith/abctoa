@@ -136,6 +136,40 @@ def get_previously_imported_transforms(abcfile, root):
     print 'Previously Imported : %s' % previous
     return previous
 
+def get_xform_shape():
+    tr = cmds.ls( type= 'transform', sl=1, l=1) + cmds.ls(type= 'alembicHolder', sl=1, l=1)
+    if len(tr) == 0:
+        return
+    for x in tr:
+        if cmds.nodeType(x) == "alembicHolder":
+            shape = x
+        else:
+            shapes = cmds.listRelatives(x, shapes=True, f=1)
+            if not shapes:
+                continue
+            shape = shapes[0]
+            return shape
+
+def prompt_import_xforms():
+    """"""
+
+    result = cmds.promptDialog(
+            title='Import Xforms',
+            message='Enter comma separated transform names:',
+            button=['OK', 'Cancel'],
+            defaultButton='OK',
+            cancelButton='Cancel',
+            dismissString='Cancel')
+
+    if result == 'OK':
+        text = cmds.promptDialog(query=True, text=True)
+        
+        transform_names = text.replace(' ', '').split(',')
+        update = True
+        parent_under = cmds.ls(sl=True)[0]
+        abcfile = str(cmds.getAttr('%s.cacheFileNames[0]' % get_xform_shape()))
+        import_xforms(abcfile, transform_names, parent_under, update)
+
 class CopyLayers(QtWidgets.QWidget):    
     def __init__(self, win):        
         super(CopyLayers, self).__init__(win)

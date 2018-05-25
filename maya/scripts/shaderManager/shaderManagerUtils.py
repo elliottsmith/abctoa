@@ -28,26 +28,6 @@ def get_future_dag_path(transform, parent_under, archive):
 
         return parent_under + '|' + '|'.join( node_hierarchy )
 
-def delete_non_transforms(parent_under, transform_data, archive):
-    """
-    Iterate the relatives of the alembicHolder node, if the transform isnt in
-    the alembic archive, delete it
-    """
-
-    for tr in transform_data:
-        dag_path = tr['dag_path']
-        # print 'DAG path : %s' % dag_path
-        node_to_walk = cmds.ls(dag_path, tr=True,  l=True)
-
-        for e in cmds.listRelatives(node_to_walk[0], f=True, allDescendents=True):
-            
-            # if it was never in the alembic archive DONT delete it
-            e = e.split('|')[-1]
-
-            if cask.find(archive.top, e) != []:
-                print 'Deleting new : %s' % e
-                cmds.delete(e)
-
 def import_xforms(abcfile, transform_names, parent_under, update):
     """
     Imports and optionally, updates transforms from an alembic file.
@@ -59,8 +39,6 @@ def import_xforms(abcfile, transform_names, parent_under, update):
         update : (bool) update previously imported transforms
     """
     archive = cask.Archive(abcfile)
-
-    transform_data = []
     update_data =[]
 
     for tr in transform_names:
@@ -71,30 +49,30 @@ def import_xforms(abcfile, transform_names, parent_under, update):
         data['exists'] = cmds.objExists(data['dag_path'])
 
         if not data['exists']:
-            transform_data.append(data)
+            update_data.append(data)
         elif data['exists'] and update:
             update_data.append(data)
 
-    if transform_data != []:
-        # import the transforms that have never been imported - ie, nothing to connect or update
-        cmd = 'AbcImport "%s" -d -rpr "%s" -ft "%s"' % (abcfile, parent_under, ' '.join( [ i['transform'] for i in transform_data ] ))
-        try:
-            print '\n%s\n' % cmd
-            mel.eval(cmd)
-            delete_non_transforms(parent_under, transform_data, archive)
+    if get_previously_imported_transforms(abcfile, parent_under) == []:
 
-        except Exception as e:
-            print "Error running import transforms : %s" % e
+        # this doesnt use the -ct and -crt flags, which will cause the import to fail if root nodes are not present
+        if update and update_data != []:
+            cmd = 'AbcImport "%s" -d -rpr "%s" -ft "%s" -eft "Shape"' % (abcfile, parent_under, ' '.join( [ i['transform'] for i in update_data ] ))
 
-    # now deal with the updates
+            try:
+                print '\n%s\n' % cmd
+                mel.eval(cmd)
+            except Exception as e:
+                print "Error running update transforms : %s" % e
+        return
+
+    # conntect type AbcImport
     if update and update_data != []:
-        cmd = 'AbcImport "%s" -d -rpr "%s" -ft "%s" -ct "%s"' % (abcfile, parent_under, ' '.join( [ i['transform'] for i in update_data ] ), parent_under)
+        cmd = 'AbcImport "%s" -d -rpr "%s" -ft "%s" -ct "%s" -crt -eft "Shape"' % (abcfile, parent_under, ' '.join( [ i['transform'] for i in update_data ] ), parent_under)
 
         try:
             print '\n%s\n' % cmd
             mel.eval(cmd)
-            delete_non_transforms(parent_under, update_data, archive)
-
         except Exception as e:
             print "Error running update transforms : %s" % e
 
@@ -108,24 +86,25 @@ def get_previously_imported_transforms(abcfile, root):
     previous = []
     lowest_transforms = []
     descendents = cmds.listRelatives(root, f=True, allDescendents=True)        
-        
-    for d in descendents:
-        # print 'Descendent : %s' % d
-        children = cmds.listRelatives(d, children=True)
-        
-        if not children:
-            # the xform doesnt have any children
-            last = d.split('|')[-1]
-            if last not in lowest_transforms:
-                lowest_transforms.append(last)
 
-        # OR - the xform does have children, but none that are from the alembic
-        if children:
-            for c in children:
-                if cask.find(archive.top, str(c)) != []:
-                    last = c.split('|')[-1]
-                    if last not in lowest_transforms:
-                        lowest_transforms.append(last)                
+    if descendents:
+        for d in descendents:
+            # print 'Descendent : %s' % d
+            children = cmds.listRelatives(d, children=True)
+
+            if not children:
+                # the xform doesnt have any children
+                last = d.split('|')[-1]
+                if last not in lowest_transforms:
+                    lowest_transforms.append(last)
+
+            # OR - the xform does have children, but none that are from the alembic
+            if children:
+                for c in children:
+                    if cask.find(archive.top, str(c)) != []:
+                        last = c.split('|')[-1]
+                        if last not in lowest_transforms:
+                            lowest_transforms.append(last)
 
     for i in lowest_transforms:
         # if the descendent transform is in the alembic archive

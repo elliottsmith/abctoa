@@ -165,9 +165,13 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
             abcfile = str(self.ABCViewerNode[parent].ABCcache)
             parent_under = '|'.join(self.ABCViewerNode[parent].shape.split('|')[:-1])
-            transform_names = get_previously_imported_transforms(abcfile, parent_under)
 
-            import_xforms(abcfile=abcfile, transform_names=transform_names, parent_under=parent_under, update=True)
+            cmd = 'AbcImport "%s" -d -rpr "%s" -ct "%s" -eft "Shape"' % (abcfile, parent_under, parent_under)
+            try:
+                print '\n%s\n' % cmd
+                mel.eval(cmd)
+            except Exception as e:
+                print "Error running update transforms : %s" % e
 
     def layers_clicked(self):
         """"""
@@ -1250,9 +1254,3 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
                 item = pitem
 
         self.createWildCard(item)
-    
-    def importLocators(self):
-    	"""Import items matching the name 'locator' as maya geo"""
-    	
-    	for cache in self.ABCViewerNode:
-    		cmds.AbcImport(self.ABCViewerNode[cache].ABCcache, ft="locator")

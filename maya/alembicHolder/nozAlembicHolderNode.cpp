@@ -105,6 +105,7 @@ MObject nozAlembicHolder::aSkipDisplacements;
 
 MObject nozAlembicHolder::aUpdateAssign;
 MObject nozAlembicHolder::aUpdateCache;
+MObject nozAlembicHolder::aUpdateTransforms;
 
 // for bbox
 MObject nozAlembicHolder::aBoundMin;
@@ -330,6 +331,10 @@ MStatus nozAlembicHolder::initialize() {
     nAttr.setReadable(false);
     nAttr.setWritable(false);
 
+    aUpdateTransforms = nAttr.create("updateTransforms", "upt", MFnNumericData::kBoolean, false, &stat);
+    nAttr.setDefault(false);
+    nAttr.setKeyable(false);
+
     aForceReload = nAttr.create("forceReload", "frel", MFnNumericData::kBoolean, false, &stat);
     nAttr.setDefault(false);
     nAttr.setKeyable(false);
@@ -371,6 +376,7 @@ MStatus nozAlembicHolder::initialize() {
 
 	addAttribute(aUpdateAssign);
     addAttribute(aUpdateCache);
+    addAttribute(aUpdateTransforms);    
     addAttribute(aBoundMin);
     addAttribute(aBoundMax);
 

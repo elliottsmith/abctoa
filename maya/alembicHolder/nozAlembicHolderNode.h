@@ -160,6 +160,7 @@ public:
 	
 	static    MObject	 aUpdateAssign;
 	static    MObject    aUpdateCache;
+    static    MObject    aUpdateTransforms;
 
     static    MObject    aBoundMin;
     static    MObject    aBoundMax;

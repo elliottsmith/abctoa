@@ -1,5 +1,6 @@
 from pymel.core import *
 import maya.cmds as cmds
+from maya.OpenMaya import MNodeMessage
 
 from milk.shotgun.v1_1.tank import get_context
 from alembicHolder.cmds import abcToApi
@@ -39,6 +40,20 @@ class BaseTemplate(LocalizedTemplate):
         self.beginScrollLayout()
         self.buildBody(nodeName)
         self.endScrollLayout()
+        self.attrChangeCBMsgId = MNodeMessage.addAttributeChangedCallback(abcToApi.name_to_node(nodeName), self.attrChangeCB)
+
+    def attrChangeCB(self, msg, plug, otherplug, *clientData):
+        """Listen for a change to the 'cacheFileName' attribute"""
+
+        if 'cacheFileNames' in plug.name():
+            if cmds.getAttr(plug.name()):
+                if os.path.isfile(cmds.getAttr(plug.name())):
+                    node = plug.name().split('.')[0]
+                    
+                    if cmds.getAttr('%s.updateTransforms' % node): 
+                        parent_under = cmds.ls(sl=True)[0].split('Shape')[0]
+                        abcfile = cmds.getAttr('%s.cacheFileNames[0]' % parent_under)
+                        abcToApi.update_xforms(abcfile, parent_under)
 
 class AEalembicHolderTemplate(BaseTemplate):
     """
@@ -225,6 +240,7 @@ class AEalembicHolderTemplate(BaseTemplate):
         """
         self.beginLayout(name="Cache File", collapse=False)
         self.callCustom(self._abcWidget, self._abcConnect, "cacheFileNames")
+        self.addControl(control="updateTransforms", label="Auto update transforms")
         self.addControl(control="cacheGeomPath", label="Geometry Path")
         self.addControl(control="cacheSelectionPath", label="Selection Path")
         self.addControl(control="boundingBoxExtendedMode", label="Bounding Box Extended Mode")

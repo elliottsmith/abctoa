@@ -21,8 +21,11 @@ import maya.mel as mel
 import maya.cmds as cmds
 import cask
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
-from shaderManagerUtils import import_xforms
+# sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+# from shaderManagerUtils import import_xforms
+
+from alembicHolder.cmds import abcToApi
+
 
 TRANSFORM = 1
 SHAPE = 2
@@ -241,11 +244,11 @@ class abcTreeItem(QtWidgets.QTreeWidgetItem):
         transform_names = [self.path[-1]]
         parent_under = '|'.join(self.cache.shape.split('|')[:-1])
 
-        import_xforms(abcfile=abcfile, transform_names=transform_names, parent_under=parent_under, update=True)
+        abcToApi.import_xforms(abcfile=abcfile, transform_names=transform_names, parent_under=parent_under, update=True)
 
     def importinscene(self, reparent=True):
 
-        cmd = 'AbcImport  -ft "%s" "%s"' % (self.path[-1], self.cache.ABCcache.replace(os.path.sep, "/"))
+        cmd = 'AbcImport -ft "%s" "%s"' % (self.path[-1], self.cache.ABCcache.replace(os.path.sep, "/"))
         if reparent:
             cmd += ' -rpr "%s"' % '|'.join(self.cache.shape.split('|')[:-1])
         try:

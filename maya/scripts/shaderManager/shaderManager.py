@@ -36,7 +36,7 @@ reload(shader_widget)
 from ui import UI_ABCHierarchy
 reload(UI_ABCHierarchy)
 
-from shaderManagerUtils import CopyLayers, import_xforms, get_previously_imported_transforms
+from shaderManagerUtils import CopyLayers
 
 # arnold / maya
 from arnold import *
@@ -45,6 +45,7 @@ import maya.mel as mel
 from maya.OpenMaya import MObjectHandle, MDGMessage, MMessage, MNodeMessage, MFnDependencyNode, MObject, MSceneMessage
 import maya.app.renderSetup.model.renderSetup as renderSetup
 import cask
+from alembicHolder.cmds import abcToApi
 
 d = os.path.dirname(__file__)
 
@@ -156,7 +157,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
     def updateXforms(self):
         """"""
-        print 'Updating Previously imported xforms'
 
         # ensure that the abcfile is the current one
         self.reset()
@@ -165,13 +165,7 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
             abcfile = str(self.ABCViewerNode[parent].ABCcache)
             parent_under = '|'.join(self.ABCViewerNode[parent].shape.split('|')[:-1])
-
-            cmd = 'AbcImport "%s" -d -rpr "%s" -ct "%s" -eft "Shape"' % (abcfile, parent_under, parent_under)
-            try:
-                print '\n%s\n' % cmd
-                mel.eval(cmd)
-            except Exception as e:
-                print "Error running update transforms : %s" % e
+            abcToApi.update_xforms(abcfile, parent_under)
 
     def layers_clicked(self):
         """"""

@@ -127,6 +127,7 @@ void WalkObject( IObject & parent, const ObjectHeader &i_ohead, ProcArgs &args,
             {
                 TimeSamplingPtr ts = xs.getTimeSampling();
                 size_t numSamples = xs.getNumSamples();
+                bool inherits = xs.getInheritsXforms();
 
                 SampleTimeSet sampleTimes;
                 GetRelevantSampleTimes( args, ts, numSamples, sampleTimes,
@@ -159,10 +160,12 @@ void WalkObject( IObject & parent, const ObjectHeader &i_ohead, ProcArgs &args,
                 }
                 if ( xformSamples )
                 {
-                    ConcatenateXformSamples(args,
-                            *xformSamples,
-                            localXformSamples,
-                            *concatenatedXformSamples.get());
+                    if (inherits){
+                        ConcatenateXformSamples(args, 
+                                *xformSamples,
+                                localXformSamples,
+                                *concatenatedXformSamples.get());
+                    }
                 }
 
 

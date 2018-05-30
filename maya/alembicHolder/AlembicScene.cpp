@@ -231,6 +231,7 @@ void AlembicScene::sampleHierarchy(chrono_t time, DrawableSampleVector& out_samp
                 Alembic::AbcGeom::XformSample floor_xform;
                 Alembic::AbcGeom::XformSample ceil_xform;
                 const auto xform_schema = xform.getSchema();
+                bool inherits = xform_schema.getInheritsXforms();
 
                 // Interpolate matrices.
                 index_t floor_index, ceil_index;
@@ -242,7 +243,11 @@ void AlembicScene::sampleHierarchy(chrono_t time, DrawableSampleVector& out_samp
                 const float alpha = (ceil_time == floor_time) ? 0 : float((time - floor_time) / (ceil_time - floor_time));
                 const auto xform_matrix = M44f(floor_xform.getMatrix()) * (1 - alpha) + M44f(ceil_xform.getMatrix()) * alpha;
 
-                world_matrix = xform_matrix * world_matrix;
+                if (inherits){
+                    world_matrix = xform_matrix * world_matrix;
+                } else{
+                    world_matrix = xform_matrix;
+                }
             }
 
             // Drawable.

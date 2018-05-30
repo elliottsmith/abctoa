@@ -42,6 +42,12 @@ class BaseTemplate(LocalizedTemplate):
         self.endScrollLayout()
         self.attrChangeCBMsgId = MNodeMessage.addAttributeChangedCallback(abcToApi.name_to_node(nodeName), self.attrChangeCB)
 
+    def checkTime(self):
+        """Ensure alembicHolder is connected to time"""
+        shape = cmds.ls(sl=True)[0]
+        if not cmds.isConnected("time1.outTime", "%s.time" % shape):
+            cmds.connectAttr("time1.outTime", "%s.time" % shape)
+
     def attrChangeCB(self, msg, plug, otherplug, *clientData):
         """Listen for a change to the 'cacheFileName' attribute"""
 
@@ -54,6 +60,8 @@ class BaseTemplate(LocalizedTemplate):
                         parent_under = cmds.ls(sl=True)[0].split('Shape')[0]
                         abcfile = cmds.getAttr('%s.cacheFileNames[0]' % parent_under)
                         abcToApi.update_xforms(abcfile, parent_under)
+
+        self.checkTime()
 
 class AEalembicHolderTemplate(BaseTemplate):
     """

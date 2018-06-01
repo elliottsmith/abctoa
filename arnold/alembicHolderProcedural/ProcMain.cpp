@@ -728,6 +728,7 @@ procedural_init
         }
     }
 
+    AiCritSecEnter(&args->lock);
     IObject root = archive.getTop();
     PathList path;
     TokenizePath( args->objectpath, "/", path );
@@ -755,6 +756,7 @@ procedural_init
             }
         }
     }
+    AiCritSecLeave(&args->lock);
     return 1;
 }
 

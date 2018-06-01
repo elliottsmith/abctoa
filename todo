@@ -1,0 +1,13 @@
+- research into alembic 1.7 layering - model + rig + anim + lookdev + lighting
+
+- multi cacheFileNames attribute editor support
+
+- write out user attributes for alembic lights - export transform to arnold light in proc
+
+- ordered wildcards - either modify jsoncpp to not alphabetically sort dict keys or find some other way
+
+- publish lookdev from attribute editor
+
+- connect unconnected shaders to alembicHolder
+
+- 'imported' attribute for xforms / shapes that have been AbcImported

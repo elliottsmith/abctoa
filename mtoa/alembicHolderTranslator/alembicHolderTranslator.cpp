@@ -272,7 +272,7 @@ void CABCViewerTranslator::ExportStandinsShaders(AtNode* procedural)
         }
         else
         {
-            AiMsgWarning("[alembicHolderTranslator] [translator %s] ShadingGroup %s has no surfaceShader input", GetTranslatorName().asChar(), MFnDependencyNode(shadingGroupPlug.node()).name().asChar());
+            AiMsgWarning(" translator %sShadingGroup %s has no surfaceShader input", GetTranslatorName().asChar(), MFnDependencyNode(shadingGroupPlug.node()).name().asChar());
             AiNodeSetPtr(procedural, "shader", NULL);
         }
     }
@@ -288,7 +288,6 @@ void CABCViewerTranslator::ExportMotion(AtNode* anode)
 
 void CABCViewerTranslator::NodeInitializer(CAbTranslator context){
 
-    AiMsgInfo("  [CABCViewerTranslator::NodeInitializer] %s", context.maya.asChar());
     CExtensionAttrHelper helper(context.maya, "procedural");
     CShapeTranslator::MakeCommonAttributes(helper);
 

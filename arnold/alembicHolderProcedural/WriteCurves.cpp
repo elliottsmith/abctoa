@@ -188,6 +188,7 @@ AtNode* writeCurves(
     const SampleTimeSet& sampleTimes
     )
 {
+    AiMsgInfo("%s", name.c_str());
     // initialise some vars
     std::vector<AtVector> vlist;
     std::vector<float> radius;
@@ -229,7 +230,7 @@ AtNode* writeCurves(
     AiNodeSetByte( curvesNode, "visibility", 0 );
     if (!curvesNode)
     {
-        AiMsgError("[WriteCurves] Failed to make points node for %s", prim.getFullName().c_str());
+        AiMsgError(" Failed to make points node for %s", prim.getFullName().c_str());
         return NULL;
     }
 
@@ -406,7 +407,7 @@ AtNode* writeCurves(
         // HACK
         if(useVelocities && isFirstSample)
         {
-            AiMsgDebug("[WriteCurves] faking additional samples for motion blur");
+            AiMsgDebug(" Faking additional samples for motion blur");
             // no sample, motion needed and first sample - eeeek
             
             // default is 1.0f/args.fps = 1.00/24 = 0.0416666
@@ -462,7 +463,6 @@ AtNode* writeCurves(
     // positive int
     unsigned int w_end = 0;
 
-    AiMsgDebug("[WriteCurves] calculate the final radius");
     for ( size_t i = 0; i < numCurves ; i++ )
     {
         // for each in size_t numCurves, get the index from the Int32ArraySamplePtr get method
@@ -474,7 +474,6 @@ AtNode* writeCurves(
         // radius will always be empty if widthSamp is NULL
         if ( !radius.empty() && ( basis == 1 || basis == 2 ) /* for spline & catmull */ )
         {
-            AiMsgDebug("[WriteCurves] b-spline / catmull-rom basis");
             unsigned int w_start = w_end;
             w_end += c_verts;
 
@@ -482,13 +481,11 @@ AtNode* writeCurves(
 
             for ( size_t r=0; r < this_range.size(); ++r )
             {
-                AiMsgDebug("[WriteCurves] %f > finalRadius", this_range[r]);
                 finalRadius.push_back(this_range[r]);
             }
         }
         else if ( !radius.empty() && basis == 0 /* for bezier */ )
         {
-            AiMsgDebug("[WriteCurves] bezier basis");
             //  skip the control points.
             
             unsigned int w_start = w_end;
@@ -497,33 +494,24 @@ AtNode* writeCurves(
 
             for (size_t r = 0; r < this_range.size() ; r+=3)
             {
-                AiMsgDebug("[WriteCurves] %f > finalRadius", this_range[r]);
                 finalRadius.push_back(this_range[r]);
             }
-        }
-        else {
-            AiMsgDebug("[WriteCurves] unknown basis");
         }
     }
 
     if (!radius.empty() && finalRadius.empty()){
-        AiMsgDebug("[WriteCurves] Swapping finalRadius for radius");
         finalRadius.swap(radius);
     }
 
     if(!finalRadius.empty()){
-        AiMsgDebug("[WriteCurves] setting finalRadius");
         AiNodeSetArray(curvesNode, "radius", AiArrayConvert( finalRadius.size(), 1, AI_TYPE_FLOAT, (void*)(&(finalRadius[0]))));        
     } else {
-        AiMsgDebug("[WriteCurves] setting radiusCurves");
         AiNodeSetArray(curvesNode, "radius", AiArray( 1 , 1, AI_TYPE_FLOAT, radiusCurves));
     }
 
     if(!useVelocities){
-        AiMsgDebug("[WriteCurves] setting points");
         AiNodeSetArray(curvesNode, "points", AiArrayConvert( vlist.size() / sampleTimes.size(), sampleTimes.size(), AI_TYPE_VECTOR, (void*)(&(vlist[0]))));
     } else {
-        AiMsgDebug("[WriteCurves] setting points with velocities");
         AiNodeSetArray(curvesNode, "points", AiArrayConvert( vlist.size() / 2, 2, AI_TYPE_VECTOR, (void*)(&(vlist[0]))));
     }
 
@@ -536,7 +524,6 @@ AtNode* writeCurves(
 
     // add the node to the nodeCache
     args.nodeCache->addNode(cacheId, curvesNode);
-    AiMsgDebug("[WriteCurves] finished");
     return curvesNode;
 
 }
@@ -552,6 +539,7 @@ void createInstance(
     MatrixSampleMap * xformSamples,
     AtNode* points)
 {
+    AiMsgInfo("%s:ginstance", name.c_str());
     Alembic::AbcGeom::ICurvesSchema  &ps = prim.getSchema();
     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
 
@@ -613,7 +601,6 @@ void ProcessCurves( ICurves &curves, ProcArgs &args,
 
     // create new name with args prefix
     std::string name = args.nameprefix + originalName;
-    AiMsgDebug("[WriteCurves] name : %s", name.c_str());
 
     // init sampleTimes obj and add samples to it
     SampleTimeSet sampleTimes;
@@ -621,7 +608,6 @@ void ProcessCurves( ICurves &curves, ProcArgs &args,
 
     // create a hash id of curves and attributes
     std::string cacheId = getHash(name, originalName, curves, args, sampleTimes);
-    AiMsgDebug("[WriteCurves] hash : %s", cacheId.c_str());
 
     // now we try and retrieve the arnold mesh node from the node cache as it might already exist
     AtNode* curvesNode = args.nodeCache->getCachedNode(cacheId);
@@ -629,16 +615,12 @@ void ProcessCurves( ICurves &curves, ProcArgs &args,
     if(curvesNode == NULL)
     { 
         // We don't have a cache, so we much create this points object.        
-        AiMsgDebug("[WriteCurves] create curve node");
         curvesNode = writeCurves(name, originalName, cacheId, curves, args, sampleTimes);
-    } else {
-        AiMsgDebug("[WriteCurves] curve node exists");
     }
 
     if(curvesNode != NULL)
     {
         // we can create the instance, with correct transform, attributes & shaders.
-        AiMsgDebug("[WriteCurves] create ginstance node");
         createInstance(name, originalName, curves, args, xformSamples, curvesNode);
     }
     AiMsgDebug("");

@@ -14,7 +14,6 @@ NodeCache::NodeCache(AtCritSec mycs)
 
 NodeCache::~NodeCache()
 {
-    // AiMsgDebug("    [NodeCache] Removing %i nodes from the cache", ArnoldNodeCache.size());
     ArnoldNodeCache.clear();
 
 }
@@ -26,7 +25,6 @@ NodeCache::~NodeCache()
 //-*************************************************************************
 AtNode* NodeCache::getCachedNode(const std::string& cacheId)
 {
-    // AiMsgDebug("  [NodeCache] Searching for %s", cacheId.c_str());
     AtScopedLock sc(lock);
     std::map<std::string, std::string>::const_iterator I = ArnoldNodeCache.find(cacheId);
     if (I != ArnoldNodeCache.end())
@@ -55,7 +53,6 @@ NodeCollector::NodeCollector(AtCritSec mycs, AtNode *procedural)
 
 NodeCollector::~NodeCollector()
 {
-    // AiMsgDebug("    [NodeCache] Deleting node collector (%i collected nodes)", ArnoldNodeCollector.size());
     ArnoldNodeCollector.clear();
 }
 
@@ -66,7 +63,6 @@ NodeCollector::~NodeCollector()
 void NodeCollector::addNode(AtNode* node)
 {
     AtScopedLock sc(lock);
-    // AiMsgDebug("    [NodeCache] Adding node %s and type %s", AiNodeGetName(node), AiNodeEntryGetName(AiNodeGetNodeEntry (node)));
     ArnoldNodeCollector.push_back(node);
 }
 
@@ -83,7 +79,6 @@ AtNode* NodeCollector::getNode(int num)
         return ArnoldNodeCollector[num];
     else
     {
-        // AiMsgError("    [NodeCache] Returning null node!");
         return 0;
     }
 }
@@ -98,7 +93,6 @@ FileCache::FileCache(AtCritSec mycs)
 
 FileCache::~FileCache()
 {
-    // AiMsgDebug("    [NodeCache] Removing %i files from the file cache", ArnoldFileCache.size());
     for (std::map<std::string, std::vector<CachedNodeFile>* >::iterator it = ArnoldFileCache.begin();
          it != ArnoldFileCache.end(); ++it)
     {
@@ -131,8 +125,6 @@ const std::vector<CachedNodeFile>& FileCache::getCachedFile(const std::string& c
                 ArnoldFileCacheProc.erase(J);
             return emptyCreatedNodes;
         }
-
-
     }
     else
         return emptyCreatedNodes;
@@ -180,9 +172,7 @@ std::string FileCache::getHash(const std::vector<std::string>& fileNames,
         fileNameConcatenated += (*ii);
 
     buffer << hash(fileNameConcatenated) << "@" << frame << "@" << hash(shaderBuff.str()) << "@" << hash(displaceBuff.str()) << "@" << hash(attributesRoot.toStyledString());
-
     return buffer.str();
-
 }
 
 //-*************************************************************************

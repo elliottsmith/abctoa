@@ -174,9 +174,7 @@ std::string getHash(
     }
 
     buffer << "@" << computeHash(hashAttributes);
-
     cacheId = buffer.str();
-
     return cacheId;
 
 }
@@ -191,8 +189,7 @@ AtNode* writePoints(
     )
 
 {
-    //GLOBAL_LOCK;
-
+    AiMsgInfo("%s", name.c_str());
     std::vector<AtVector> vidxs;
     std::vector<float> radius;
 
@@ -206,20 +203,16 @@ AtNode* writePoints(
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
  
     //get tags
-    
     std::vector<std::string> tags;
     getAllTags(prim, tags, &args);
 
-
     AtNode* pointsNode = AiNode( "points" );
-
     AiNodeSetStr( pointsNode, "name", (name + ":src").c_str() );
     AiNodeSetByte( pointsNode, "visibility", 0 );
 
     if (!pointsNode)
     {
-        AiMsgError("[WritePoint] Failed to make points node for %s",
-                prim.getFullName().c_str());
+        AiMsgError(" Failed to make points node for %s", prim.getFullName().c_str());
         return NULL;
     }
 
@@ -450,6 +443,7 @@ void createInstance(
     MatrixSampleMap * xformSamples,
     AtNode* points)
 {
+    AiMsgInfo("%s:ginstance", name.c_str());
     Alembic::AbcGeom::IPointsSchema  &ps = prim.getSchema();
     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
 
@@ -496,7 +490,6 @@ void createInstance(
         ApplyShaders(originalName, instanceNode, tags, args);
 
     args.createdNodes->addNode(instanceNode);
-
 }
 
 void ProcessPoint( IPoints &points, ProcArgs &args,
@@ -508,7 +501,6 @@ void ProcessPoint( IPoints &points, ProcArgs &args,
 
     std::string originalName = points.getFullName();
     std::string name = args.nameprefix + originalName;
-
 
     SampleTimeSet sampleTimes;
     getSampleTimes(points, args, sampleTimes);
@@ -524,6 +516,4 @@ void ProcessPoint( IPoints &points, ProcArgs &args,
     // we can create the instance, with correct transform, attributes & shaders.
     if(pointsNode != NULL)
         createInstance(name, originalName, points, args, xformSamples, pointsNode);
-
 }
-

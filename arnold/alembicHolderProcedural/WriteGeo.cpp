@@ -314,7 +314,6 @@ inline void doNormals( primT& prim, AtNode *meshNode, const SampleTimeSet& sampl
 template<> 
 inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const SampleTimeSet& sampleTimes, size_t numVertexSamples, const std::vector<unsigned int>& vidxs)
 {
-    // AiMsgDebug("  [WriteGeo][doNormals]");
     if (AiNodeGetInt(meshNode, "subdiv_type") == 0 && sampleTimes.size() > 0) // if the mesh has subdiv, we don't need normals as they are recomputed by arnold!
     {
         std::vector<float> nlist;
@@ -401,7 +400,7 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
 template <typename primT>
 AtNode* writeMesh( const std::string& name, const std::string& originalName, const std::string& cacheId, primT & prim, ProcArgs & args, const SampleTimeSet& sampleTimes )
 {
-    AiMsgDebug("  [WriteGeo][writeMesh] START - %s", name.c_str());
+    AiMsgInfo("%s", name.c_str());
     typename primT::schema_type  &ps = prim.getSchema();
     TimeSamplingPtr ts = ps.getTimeSampling();
 
@@ -465,9 +464,6 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                }
                base += curNum;
             }
-            // old method, BAAAAAAAD
-            //vidxs.insert( vidxs.end(), sample.getFaceIndices()->get(),
-                    //sample.getFaceIndices()->get() + vidxSize );
         }
 
         if(numSampleTimes == 1 && (args.shutterOpen != args.shutterClose) && (ps.getVelocitiesProperty().valid()) && isFirstSample )
@@ -542,7 +538,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
 
     if (!meshNode)
     {
-        AiMsgError("  [WriteGeo][writeMesh] Failed to make polymesh node for %s",
+        AiMsgError(" Failed to make polymesh node for %s",
                 prim.getFullName().c_str());
         return NULL;
     }
@@ -743,13 +739,13 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                 IFaceSetSchema::Sample faceSetSample = faceSet.getSchema().getValue( frameSelector );
 
                 const int* faceArray((int *)faceSetSample.getFaces()->getData()); 
-                AiMsgDebug("  [WriteGeo][writeMesh] Faceset %s on %s with %i faces",  faceSetNames[i].c_str(), originalName.c_str(),  faceSetSample.getFaces()->size());
+                AiMsgDebug(" Faceset %s on %s with %i faces",  faceSetNames[i].c_str(), originalName.c_str(),  faceSetSample.getFaces()->size());
                 for( int f = 0; f < (int) faceSetSample.getFaces()->size(); f++)
                 {
                     if(faceArray[f] <= nsides.size() )
                         faceSetArray[faceArray[f]] = (uint8_t) i;
                     else
-                        AiMsgWarning("  [WriteGeo][writeMesh] Face set is higher than nsides side");
+                        AiMsgWarning(" Face set is higher than nsides side");
                 }
             }
         }
@@ -767,7 +763,6 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
 
     args.createdNodes->addNode(meshNode);
     args.nodeCache->addNode(cacheId, meshNode);
-    // AiMsgDebug("  [WriteGeo][writeMesh] FINISH");
     return meshNode;
 }
 
@@ -777,7 +772,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
 template <typename primT>
 AtNode* createInstance(const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, MatrixSampleMap * xformSamples, AtNode* mesh)
 {
-    AiMsgDebug("  [WriteGeo][createInstance] START - %s:ginstance", name.c_str());
+    AiMsgInfo("%s:ginstance", name.c_str());
     typename primT::schema_type  &ps = prim.getSchema();
     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
 
@@ -831,7 +826,7 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
             {
                 if ( ps.hasFaceSet( faceSetNames[i] ) )
                 {
-                    // AiMsgInfo("Faceset %s on %s",  faceSetNames[i].c_str(), originalName.c_str());
+                    AiMsgDebug(" Faceset %s on %s",  faceSetNames[i].c_str(), originalName.c_str());
                     std::string faceSetNameForShading = originalName + "/" + faceSetNames[i];
                     AtNode* shaderForFaceSet  = getShader(faceSetNameForShading, tags, args);
                     if(shaderForFaceSet == NULL)
@@ -849,13 +844,11 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
         else
             ApplyShaders(originalName, instanceNode, tags, args);
     } else {
-        AiMsgDebug("  [WriteGeo][createInstance] Node type doesn't have a shader parameter");
+        AiMsgDebug(" Node type doesn't have a shader parameter");
     }
 
-    // AiMsgDebug("  [WriteGeo][createInstance] Linking 'ginstance' to 'polymesh'");
     AiNodeSetPtr( instanceNode, "node", mesh );
     args.createdNodes->addNode(instanceNode);  
-    // AiMsgDebug("  [WriteGeo][createInstance] FINISH");        
     return instanceNode;
 }
 
@@ -864,7 +857,6 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
 template <typename primT>
 bool isMeshLight(const std::string& originalName, primT & prim, ProcArgs & args)
 {
-    // AiMsgDebug("  [WriteGeo][isMeshLight]");
     typename primT::schema_type  &ps = prim.getSchema();
 
     TimeSamplingPtr ts = ps.getTimeSampling();
@@ -921,7 +913,6 @@ bool isMeshLight(const std::string& originalName, primT & prim, ProcArgs & args)
             }
         }
     }
-
     return false;
 }
 
@@ -938,7 +929,6 @@ double CalculateTriangleArea(const AtVector& p0, const AtVector& p1, const AtVec
 void NormalizeRGB(AtNode* mesh, AtRGB &colorMultiplier){
 
     AtNode *poly = (AtNode*)AiNodeGetPtr(mesh, "node");
-    AiMsgDebug("  [WriteGeo][NormalizeRGB] Normalise RGB");
     double surfaceArea = 0.f;
     int counter = 0;
 
@@ -967,7 +957,7 @@ void NormalizeRGB(AtNode* mesh, AtRGB &colorMultiplier){
         }
     }
     colorMultiplier = colorMultiplier / float(surfaceArea);    
-    AiMsgDebug("  [WriteGeo][NormalizeRGB] surface  area : %f", float(surfaceArea));
+    AiMsgDebug(" Normalized RGB - r : %f, g : %f, b : %f", float(colorMultiplier.r), float(colorMultiplier.g), float(colorMultiplier.b));
 }
 
 //-*************************************************************************
@@ -975,7 +965,7 @@ void NormalizeRGB(AtNode* mesh, AtRGB &colorMultiplier){
 template <typename primT>
 void createMeshLight(const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, MatrixSampleMap * xformSamples, AtNode* mesh)
 {
-    AiMsgDebug("  [WriteGeo][createMeshLight] Create meshlight - START");
+    AiMsgDebug(" Create meshlight");
     std::string meshlightname = name + ":meshlight";
 
     typename primT::schema_type  &ps = prim.getSchema();
@@ -1015,7 +1005,7 @@ void createMeshLight(const std::string& name, const std::string& originalName, p
 template <typename primT>
 void createMeshLightShader(const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, MatrixSampleMap * xformSamples, AtNode* mesh, AtNode* meshLightNode)
 {
-    AiMsgDebug("  [WriteGeo][createMeshLightShader] START - Create meshlight shader");
+    AiMsgDebug(" Create meshlight shader");
     typename primT::schema_type  &ps = prim.getSchema();
     //get tags
     std::vector<std::string> tags;
@@ -1078,8 +1068,6 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
          NormalizeRGB(mesh, colorMultiplier);
 
         AiNodeSetRGB(meshLightShader, "color_multiplier", colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
-        AiMsgDebug("  [WriteGeo][createMeshLightShader] R : %f, G : %f, B : %f", colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
-
     }
     else {
         AiNodeSetByte(mesh, "visibility", AI_RAY_SPECULAR_REFLECT);
@@ -1088,7 +1076,6 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 
     // set the ptr
     AiNodeSetPtr(mesh, "shader", meshLightShader);    
-    // AiMsgDebug("  [WriteGeo][createMeshLightShader] Create meshlight shader - FINISH");    
     args.createdNodes->addNode(meshLightShader);
 }
 
@@ -1096,14 +1083,12 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 // ProcessPolyMesh
 void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xformSamples)
 {
+    AiMsgInfo("");
     if ( !polymesh.valid() )
         return;
 
     std::string originalName = polymesh.getFullName();
     std::string name = args.nameprefix + originalName;
-    AiMsgDebug("");    
-    // AiMsgDebug("  [WriteGeo][ProcessPolyMesh] Name : %s", originalName.c_str());
-
     SampleTimeSet sampleTimes;
 
     getSampleTimes(polymesh, args, sampleTimes);
@@ -1115,7 +1100,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
       // We don't have a cache, so we much create this mesh.
       meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
     } else {
-        AiMsgDebug("  [WriteGeo][ProcessPolyMesh] Found Cached : %s", originalName.c_str());   
+        AiMsgDebug(" Found Cached : %s", originalName.c_str());   
     }
 
     AtNode *instanceNode = NULL;
@@ -1123,11 +1108,6 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     {
       // we can create the instance, with correct transform, attributes & shaders.      
       instanceNode = createInstance(name, originalName, polymesh, args, xformSamples, meshNode);      
-    }
-
-    if(instanceNode == NULL)
-    {
-        AiMsgWarning("  [WriteGeo][ProcessPolyMesh] GINSTANCE NULL : %s", originalName.c_str()); 
     }
 
     if(isMeshLight(originalName, polymesh, args))
@@ -1141,14 +1121,12 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
 // ProcessSubD
 void ProcessSubD( ISubD &subd, ProcArgs &args, MatrixSampleMap * xformSamples )
 {
+    AiMsgInfo("");
     if ( !subd.valid() )
         return;
 
     std::string originalName = subd.getFullName();
     std::string name = args.nameprefix + originalName;
-    AiMsgDebug("");
-    // AiMsgDebug("  [WriteGeo][ProcessSubD] Name : %s", originalName.c_str());    
-
     SampleTimeSet sampleTimes;
 
     getSampleTimes( subd, args, sampleTimes);
@@ -1165,7 +1143,7 @@ void ProcessSubD( ISubD &subd, ProcArgs &args, MatrixSampleMap * xformSamples )
       if(meshNode)
         AiNodeSetStr( meshNode, "subdiv_type", "catclark" );
     } else {
-        AiMsgDebug("  [WriteGeo][ProcessSubD] Found Cached : %s", originalName.c_str());   
+        AiMsgDebug(" Found Cached : %s", originalName.c_str());   
     }
 
     // we can create the instance, with correct transform, attributes & shaders.

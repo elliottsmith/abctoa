@@ -57,12 +57,12 @@ AtNode* renameAndCloneNodeByParent(AtNode* node, AtNode* parent)
     {
         AtNode* copy = AiNodeClone(node);
         AiNodeSetStr(copy, "name", newName.asChar());
-        AiMsgDebug("[abcExporterUtils] renaming %s to %s", AiNodeGetName(node), AiNodeGetName(copy));
+        AiMsgDebug(" Renaming %s to %s", AiNodeGetName(node), AiNodeGetName(copy));
         return copy;
     }
     else
     {
-        AiMsgDebug("[abcExporterUtils] %s already exists", AiNodeGetName(existingNode));
+        AiMsgDebug(" s already exists", AiNodeGetName(existingNode));
         return existingNode;
     }
 }
@@ -119,14 +119,10 @@ void getAllArnoldNodes(AtNode* node, AtNodeSet* nodes)
                     AtNode* linkedNode = (AtNode*)AiArrayGetPtr(paramArray, i);
                     if(linkedNode != NULL)
                     {
-                        //AiMsgDebug("[abcExporterUtils] we have a link to %s for %s", AiNodeGetName(linkedNode), AiNodeGetName(node));
-                        //linkedNode = renameAndCloneNodeByParent(linkedNode, node);
-                        //AiArraySetPtr(paramArray, i, linkedNode);
                         nodes->insert(linkedNode);
                         getAllArnoldNodes(linkedNode, nodes);
                     }
                 }
-
             }
             else
             {
@@ -139,14 +135,10 @@ void getAllArnoldNodes(AtNode* node, AtNodeSet* nodes)
                         MString paramNameArray = MString(paramName) + "[" + MString(to_string(i).c_str()) +"]";
                         if (AiNodeIsLinked(node, paramNameArray.asChar()))
                         {
-                            //AiMsgDebug("[abcExporterUtils] %s has a link", paramNameArray.asChar());
                             AtNode* linkedNode = NULL;
                             linkedNode = AiNodeGetLink(node, paramNameArray.asChar(), &comp);
                             if(linkedNode)
                             {
-                                //AiMsgDebug("[abcExporterUtils] we have a link to %s on %s", AiNodeGetName(linkedNode), paramNameArray.asChar());
-                                //linkedNode = renameAndCloneNodeByParent(linkedNode, node);
-                                //relink(linkedNode, node, paramNameArray.asChar(), comp);
                                 nodes->insert(linkedNode);
                                 getAllArnoldNodes(linkedNode, nodes);
                             }
@@ -164,8 +156,6 @@ void getAllArnoldNodes(AtNode* node, AtNodeSet* nodes)
                                         linkedNode = AiNodeGetLink(node, compAttrName.asChar(), &comp);
                                         if(linkedNode)
                                         {
-                                            //linkedNode = renameAndCloneNodeByParent(linkedNode, node);
-                                            //relink(linkedNode, node, compAttrName.asChar(), comp);
                                             nodes->insert(linkedNode);
                                             getAllArnoldNodes(linkedNode, nodes);
                                         }
@@ -187,9 +177,6 @@ void getAllArnoldNodes(AtNode* node, AtNodeSet* nodes)
                 linkedNode = AiNodeGetLink(node, paramName, &comp);
                 if(linkedNode)
                 {
-                    // CRASHING HERE
-                    //linkedNode = renameAndCloneNodeByParent(linkedNode, node);
-                    //relink(linkedNode, node, paramName, comp);
                     nodes->insert(linkedNode);
                     getAllArnoldNodes(linkedNode, nodes);
                 }
@@ -207,8 +194,6 @@ void getAllArnoldNodes(AtNode* node, AtNodeSet* nodes)
                             linkedNode = AiNodeGetLink(node, compAttrName.asChar(), &comp);
                             if(linkedNode)
                             {
-                                //linkedNode = renameAndCloneNodeByParent(linkedNode, node);
-                                //relink(linkedNode, node, compAttrName.asChar(), comp);
                                 nodes->insert(linkedNode);
                                 getAllArnoldNodes(linkedNode, nodes);
                             }
@@ -220,9 +205,7 @@ void getAllArnoldNodes(AtNode* node, AtNodeSet* nodes)
     }
 
     AiParamIteratorDestroy(iter);
-
 }
-
 
 void processArrayValues(AtNode* sit, const char *paramName, AtArray* paramArray, int outputType, Mat::OMaterial matObj, MString nodeName, MString containerName)
 {
@@ -343,8 +326,6 @@ void processArrayValues(AtNode* sit, const char *paramName, AtArray* paramArray,
             vals.push_back(AiArrayGetStr(paramArray, i).c_str());
         prop.set(vals);
     }
-
-    // cout << "exported " << AiArrayGetNumElements(paramArray) << " array values of type " << typeArray << " for " << nodeName.asChar() << "." << paramName << endl;
 }
 
 
@@ -369,8 +350,8 @@ void processArrayParam(AtNode* sit, const char *paramName, AtArray* paramArray, 
 
                 MString paramNameArray = MString(paramName) + "[" + MString(to_string(i).c_str()) +"]";
 
-                AiMsgDebug("[abcExporterUtils] %s.%s is linked", nodeName.asChar(), paramName);
-                AiMsgDebug("[abcExporterUtils] Exporting link from %s.%s to %s.%s", nodeNameLinked.asChar(), paramNameArray.asChar(), nodeName.asChar(), paramName);
+                AiMsgDebug(" %s.%s is linked", nodeName.asChar(), paramName);
+                AiMsgDebug(" Exporting link from %s.%s to %s.%s", nodeNameLinked.asChar(), paramNameArray.asChar(), nodeName.asChar(), paramName);
                 matObj.getSchema().setNetworkNodeConnection(nodeName.asChar(), paramNameArray.asChar(), nodeNameLinked.asChar(), "");
 
             }
@@ -394,7 +375,7 @@ void processLinkedParam(AtNode* sit, int inputType, int outputType,  Mat::OMater
 
         if(AiNodeGetLink(sit, paramName))
         {
-            AiMsgDebug("[abcExporterUtils] %s.%s is linked", nodeName.asChar(), paramName);
+            AiMsgDebug(" %s.%s is linked", nodeName.asChar(), paramName);
             exportLink(sit, matObj, nodeName, paramName, containerName);
         }
         else
@@ -406,16 +387,10 @@ void processLinkedParam(AtNode* sit, int inputType, int outputType,  Mat::OMater
                 MString compAttrName = MString(paramName) + "." + componentNames[i];
                 if(AiNodeIsLinked(sit, compAttrName.asChar()))
                 {
-                    //cout << "exporting link : " << nodeName << "." << compAttrName.asChar() << endl;
                     exportLink(sit, matObj, nodeName, compAttrName.asChar(), containerName);
-
                 }
             }
-
         }
-
-
-
     }
     else
         exportParameter(sit, matObj, inputType, nodeName, paramName, interfacing);
@@ -427,7 +402,7 @@ void exportLink(AtNode* sit, Mat::OMaterial matObj, MString nodeName, const char
 {
     AiMsgTab (+2);
     int comp;
-    AiMsgDebug("[abcExporterUtils] Checking link %s.%s", nodeName.asChar(), paramName);
+    AiMsgDebug(" Checking link %s.%s", nodeName.asChar(), paramName);
 
     AtNode* linked = AiNodeGetLink(sit, paramName, &comp);
     int outputType = AiNodeEntryGetOutputType(AiNodeGetNodeEntry(linked));
@@ -467,7 +442,7 @@ void exportLink(AtNode* sit, Mat::OMaterial matObj, MString nodeName, const char
         }
 
     }
-    AiMsgDebug("[abcExporterUtils] Exporting link from %s.%s to %s.%s", nodeNameLinked.asChar(), outPlug.c_str(), nodeName.asChar(), paramName);
+    AiMsgDebug(" Exporting link from %s.%s to %s.%s", nodeNameLinked.asChar(), outPlug.c_str(), nodeName.asChar(), paramName);
     matObj.getSchema().setNetworkNodeConnection(nodeName.asChar(), paramName, nodeNameLinked.asChar(), outPlug);
 
     AiMsgTab (-2);
@@ -552,9 +527,7 @@ void exportParameterFromArray(AtNode* sit, Mat::OMaterial matObj, AtArray* param
         Abc::OStringProperty prop(matObj.getSchema().getNetworkNodeParameters(nodeName.asChar()), paramName);
         prop.set(AiArrayGetStr(paramArray, index).c_str());
     }
-
 }
-
 
 bool isDefaultValue(AtNode* node, const char* paramName)
 {
@@ -609,8 +582,6 @@ bool isDefaultValue(AtNode* node, const char* paramName)
         default:
             return false;
     }
-
-
     return false;
 }
 
@@ -643,7 +614,6 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, MString nodeN
     else if (type == AI_TYPE_FLOAT)
     {
         // type float
-
         Alembic::AbcCoreAbstract::MetaData md;
         const AtNodeEntry* arnoldNodeEntry = AiNodeGetNodeEntry(sit);
         float val;
@@ -680,7 +650,6 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, MString nodeN
         AtRGB a_val = AiNodeGetRGB(sit, paramName);
         Imath::C3f color_val( a_val.r, a_val.g, a_val.b );
         prop.set(color_val);
-        //cout << "exporting RGB value of " <<  a_val.r << " " << a_val.g << " " << a_val.b << " for " << nodeName.asChar() <<"."<<paramName << endl;
     }
     else if (type == AI_TYPE_RGBA)
     {
@@ -689,7 +658,6 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, MString nodeN
         AtRGBA a_val = AiNodeGetRGBA(sit, paramName);
         Imath::C4f color_val( a_val.r, a_val.g, a_val.b, a_val.a );
         prop.set(color_val);
-        //cout << "exporting RGB value of " <<  a_val.r << " " << a_val.g << " " << a_val.b << " for " << nodeName.asChar() <<"."<<paramName << endl;
     }
     else if (type == AI_TYPE_VECTOR2)
     {
@@ -717,7 +685,6 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, MString nodeN
     if(interfacing && strcmp(paramName,"name") != 0)
         if (type == AI_TYPE_BYTE || type == AI_TYPE_INT || type == AI_TYPE_UINT || type == AI_TYPE_ENUM || type == AI_TYPE_FLOAT || type == AI_TYPE_BOOLEAN || type == AI_TYPE_RGB ||type == AI_TYPE_STRING)
         {
-
             MString interfaceName = MString(AiNodeGetName(sit)) + ":" + MString(paramName);
             matObj.getSchema().setNetworkInterfaceParameterMapping(interfaceName.asChar(), nodeName.asChar(), paramName);
         }

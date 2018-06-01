@@ -73,7 +73,7 @@ void CAbcShaderTranslator::ProcessExtraParameter(AtNode* anode, MObject oAttr, M
                 break;
              default:
                 // not supported: k2Short, k2Long, k3Short, k3Long, kAddr
-                AiMsgError("[abcMayaShaderTranslator] Unsupported user attribute type");
+                AiMsgError(" Unsupported user attribute type");
                 break;
          }
     }

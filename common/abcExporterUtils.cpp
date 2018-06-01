@@ -78,7 +78,6 @@ void getAllArnoldNodes(AtNode* node, AtNodeSet* nodes)
                         std::string paramNameArray = std::string(paramName) + "[" + to_string(i) +"]";
 						if (AiNodeIsLinked(node, paramNameArray.c_str()))
                         {
-                            //AiMsgDebug("[abcExporterUtils] %s has a link", paramNameArray.c_str());
                             AtNode* linkedNode = NULL;
                             linkedNode = AiNodeGetLink(node, paramNameArray.c_str(), &comp);
                             if(linkedNode)
@@ -294,16 +293,10 @@ void processArrayParam(AtNode* sit, const char *paramName, AtArray* paramArray, 
             if(linkedNode != NULL)
             {
                 std::string nodeNameLinked = containerName + ":" + std::string(AiNodeGetName(linkedNode));
-
                 std::string paramNameArray = std::string(paramName) + "[" + to_string(i) +"]";
-
-                //AiMsgDebug("[abcExporterUtils] %s.%s is linked", nodeName.c_str(), paramName);
-                //AiMsgDebug("[abcExporterUtils] Exporting link from %s.%s to %s.%s", nodeNameLinked.c_str(), paramNameArray.c_str(), nodeName.c_str(), paramName);
                 matObj.getSchema().setNetworkNodeConnection(nodeName.c_str(), paramNameArray.c_str(), nodeNameLinked.c_str(), "");
-
             }
         }
-
     }
     else
     {
@@ -321,10 +314,8 @@ void processLinkedParam(AtNode* sit, int inputType, int outputType,  Mat::OMater
     if (AiNodeIsLinked(sit, paramName.c_str()))
     {
         // check what is linked exactly
-
         if(AiNodeGetLink(sit, paramName.c_str()))
         {
-            //AiMsgDebug("[abcExporterUtils] %s.%s is linked", nodeName.c_str(), paramName.c_str());
             exportLink(sit, matObj, nodeName, paramName, containerName);
         }
         else
@@ -337,12 +328,9 @@ void processLinkedParam(AtNode* sit, int inputType, int outputType,  Mat::OMater
                 std::string compAttrName = paramName + "." + componentNames[i];
                 if(AiNodeIsLinked(sit, compAttrName.c_str()))
                 {
-                    //cout << "exporting link : " << nodeName << "." << compAttrName.c_str() << endl;
                     exportLink(sit, matObj, nodeName, compAttrName, containerName);
-
                 }
             }
-
         }
     }
     else
@@ -351,12 +339,11 @@ void processLinkedParam(AtNode* sit, int inputType, int outputType,  Mat::OMater
     AiMsgTab (-2);
 }
 
-
 void exportLink(AtNode* sit, Mat::OMaterial matObj, std::string nodeName, std::string paramName, std::string containerName)
 {
     AiMsgTab (+2);
     int comp;
-    AiMsgDebug("[abcExporterUtils] Checking link %s.%s", nodeName.c_str(), paramName.c_str());
+    AiMsgDebug(" Checking link %s.%s", nodeName.c_str(), paramName.c_str());
 
     AtNode* linked = AiNodeGetLink(sit, paramName.c_str(), &comp);
     int outputType = AiNodeEntryGetOutputType(AiNodeGetNodeEntry(linked));
@@ -364,7 +351,6 @@ void exportLink(AtNode* sit, Mat::OMaterial matObj, std::string nodeName, std::s
     std::string nodeNameLinked = containerName + ":" + std::string(AiNodeGetName(linked));
 
     //We need to replace the "." stuff from the name as we does it from the exporter.
-
     nodeNameLinked = pystring::replace(nodeNameLinked, ".message", "");
     nodeNameLinked = pystring::replace(nodeNameLinked, ".", "_");
 
@@ -396,9 +382,7 @@ void exportLink(AtNode* sit, Mat::OMaterial matObj, std::string nodeName, std::s
         }
 
     }
-    //AiMsgDebug("[abcExporterUtils] Exporting link from %s.%s to %s.%s", nodeNameLinked.c_str(), outPlug.c_str(), nodeName.c_str(), paramName);
     matObj.getSchema().setNetworkNodeConnection(nodeName.c_str(), paramName, nodeNameLinked.c_str(), outPlug);
-
     AiMsgTab (-2);
 }
 
@@ -407,7 +391,7 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, std::string n
 {
 	const char* c_paramName = paramName.c_str();
 	const char* c_nodeName = nodeName.c_str();
-    //header->setMetaData(md);
+
     if (type == AI_TYPE_INT || type == AI_TYPE_ENUM)
     {
         //type int
@@ -419,7 +403,6 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, std::string n
         //type int
         Abc::OUInt32Property prop(matObj.getSchema().getNetworkNodeParameters(c_nodeName), c_paramName);
         prop.set(AiNodeGetUInt(sit, c_paramName));
-
     }
     else if (type == AI_TYPE_BYTE)
     {
@@ -429,12 +412,10 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, std::string n
         //type Byte
         Abc::OUInt32Property prop(matObj.getSchema().getNetworkNodeParameters(c_nodeName), c_paramName, md);
         prop.set(AiNodeGetByte(sit, c_paramName));
-
     }
     else if (type == AI_TYPE_FLOAT)
     {
         // type float
-
         Alembic::AbcCoreAbstract::MetaData md;
         const AtNodeEntry* arnoldNodeEntry = AiNodeGetNodeEntry(sit);
         float val;
@@ -456,7 +437,6 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, std::string n
 
         Abc::OFloatProperty prop(matObj.getSchema().getNetworkNodeParameters(c_nodeName), c_paramName, md);
         prop.set(AiNodeGetFlt(sit, c_paramName));
-
     }
     else if (type == AI_TYPE_BOOLEAN)
     {
@@ -471,7 +451,6 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, std::string n
         AtRGB a_val = AiNodeGetRGB(sit, c_paramName);
         Imath::C3f color_val( a_val.r, a_val.g, a_val.b );
         prop.set(color_val);
-        //cout << "exporting RGB value of " <<  a_val.r << " " << a_val.g << " " << a_val.b << " for " << c_nodeName <<"."<<paramName << endl;
     }
     else if (type == AI_TYPE_RGBA)
     {
@@ -480,7 +459,6 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, std::string n
         AtRGBA a_val = AiNodeGetRGBA(sit, c_paramName);
         Imath::C4f color_val( a_val.r, a_val.g, a_val.b, a_val.a );
         prop.set(color_val);
-        //cout << "exporting RGB value of " <<  a_val.r << " " << a_val.g << " " << a_val.b << " for " << c_nodeName <<"."<<paramName << endl;
     }
     else if (type == AI_TYPE_VECTOR2)
     {
@@ -511,7 +489,6 @@ void exportParameter(AtNode* sit, Mat::OMaterial matObj, int type, std::string n
             std::string interfaceName = std::string(AiNodeGetName(sit)) + ":" + paramName;
             matObj.getSchema().setNetworkInterfaceParameterMapping(interfaceName.c_str(), c_nodeName, c_paramName);
         }
-
 }
 
 
@@ -568,8 +545,5 @@ bool isDefaultValue(AtNode* node, const char* paramName)
         default:
             return false;
     }
-
-
     return false;
 }
-

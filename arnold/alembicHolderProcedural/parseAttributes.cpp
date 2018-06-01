@@ -231,7 +231,7 @@ bool isVisibleForArnold(IObject child, ProcArgs* args)
                             uint16_t vis = args->attributesRoot[*it][itr.key().asString()].asInt();
                             if(vis <= minVis)
                             {
-                                AiMsgDebug("    [parseAttributes][isVisibleForArnold] Object %s is invisible", name.c_str());
+                                AiMsgDebug(" Object %s is invisible", name.c_str());
                                 return false;
                             }
 
@@ -319,7 +319,7 @@ AtNode* createNetwork(IObject object, std::string prefix, ProcArgs & args)
         {
             std::string nodeType = "<undefined>";
             abcnode.getNodeType(nodeType);
-            AiMsgDebug("    [parseAttributes][createNetwork] Creating %s node named %s", nodeType.c_str(), abcnode.getName().c_str());
+            AiMsgDebug(" Creating %s node named %s", nodeType.c_str(), abcnode.getName().c_str());
             AtNode* aShader = AiNode (nodeType.c_str());
 
             std::string name = prefix + "_" + abcnode.getName();
@@ -371,7 +371,7 @@ AtNode* createNetwork(IObject object, std::string prefix, ProcArgs & args)
             size_t numConnections = abcnode.getNumConnections();
             if(numConnections)
             {
-                AiMsgDebug("[parseAttributes][createNetwork] Linking nodes");
+                AiMsgDebug(" Linking nodes");
                 std::string inputName, connectedNodeName, connectedOutputName;
                 for (size_t j = 0; j < numConnections; ++j)
                 {
@@ -412,12 +412,12 @@ AtNode* createNetwork(IObject object, std::string prefix, ProcArgs & args)
                         {
                             if(connectedOutputName.length() == 0)
                             {
-                                AiMsgDebug("    [parseAttributes][createNetwork] Linking %s to %s.%s", connectedNodeName.c_str(), abcnode.getName().c_str(), inputName.c_str());
+                                AiMsgDebug(" Linking %s to %s.%s", connectedNodeName.c_str(), abcnode.getName().c_str(), inputName.c_str());
                                 AiNodeLink(aShaders[connectedNodeName.c_str()], inputName.c_str(), aShaders[abcnode.getName().c_str()]);
                             }
                             else
                             {
-                                AiMsgDebug("    [parseAttributes][createNetwork] Linking %s.%s to %s.%s", connectedNodeName.c_str(), connectedOutputName.c_str(), abcnode.getName().c_str(), inputName.c_str());
+                                AiMsgDebug(" Linking %s.%s to %s.%s", connectedNodeName.c_str(), connectedOutputName.c_str(), abcnode.getName().c_str(), inputName.c_str());
                                 AiNodeLinkOutput(aShaders[connectedNodeName.c_str()], connectedOutputName.c_str(), aShaders[abcnode.getName().c_str()], inputName.c_str());
                             }
                         }
@@ -523,7 +523,7 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
         }
         else
         {
-            AiMsgWarning("    [parseAttributes][ParseShaders] Can't find shader %s", shaderName.c_str());
+            AiMsgWarning(" Can't find shader %s", shaderName.c_str());
         }
     }
 }

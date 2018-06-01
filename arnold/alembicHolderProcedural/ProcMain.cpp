@@ -239,10 +239,8 @@ void WalkObject( IObject & parent, const ObjectHeader &i_ohead, ProcArgs &args,
     else
     {
 
-        AiMsgError("[ProcMain] could not determine type of %s", ohead.getName().c_str());
-        AiMsgError("[ProcMain] %s has MetaData: %s", ohead.getName().c_str(), ohead.getMetaData().serialize().c_str());
-        if ( IXform::matches( ohead ) )
-            AiMsgError("[ProcMain] but we are matching");
+        AiMsgError(" Could not determine type of %s", ohead.getName().c_str());
+        AiMsgError(" %s has MetaData: %s", ohead.getName().c_str(), ohead.getMetaData().serialize().c_str());
     }
 
     if ( nextParentObject.valid() )
@@ -344,7 +342,7 @@ procedural_init
     args->nodeCache = g_cache->g_nodeCache;
     args->lock = g_cache->mycs;
     args->createdNodes = new NodeCollector(args->lock, node);
-
+    AiCritSecEnter(&args->lock);
 
     AtString abcfile = AiNodeGetStr(node, "abcShaders");
     if(abcfile.empty() == false)
@@ -353,12 +351,12 @@ procedural_init
         IArchive archive = factory.getArchive(abcfile.c_str());
         if (!archive.valid())
         {
-            AiMsgWarning("[ProcMain] Invalid alembic shaders file : %s", abcfile);
+            AiMsgWarning(" Invalid alembic shaders file : %s", abcfile);
         }
         else
     {
   
-            AiMsgDebug("[ProcMain] Loading alembic shaders file : %s", abcfile);
+            AiMsgDebug(" Loading alembic shaders file : %s", abcfile);
             Abc::IObject materialsObject(archive.getTop(), "materials");
             args->useAbcShaders = true;
             args->materialsObject = materialsObject;
@@ -591,14 +589,14 @@ procedural_init
 
         std::string s;
         for (const auto &piece : args->filenames) s += piece;
-        AiMsgInfo("[ProcMain] Found cached instance of filenames : %s in the FileCache", s.c_str());
+        AiMsgDebug(" Found cached instance of filenames : %s in the FileCache", s.c_str());
         for(int i = 0; i <  createdNodes.size(); i++)
         {
-            AiMsgDebug("[ProcMain] Instancing obj %i", i);
+            AiMsgDebug(" Instancing obj %i", i);
             CachedNodeFile cachedNode = createdNodes[i];
             AtNode *obj = cachedNode.node;
             
-            AiMsgDebug("[ProcMain] Getting obj %i %s and type %s", i, AiNodeGetName(obj), AiNodeEntryGetName(AiNodeGetNodeEntry (obj)));
+            AiMsgDebug(" Getting obj %i %s and type %s", i, AiNodeGetName(obj), AiNodeEntryGetName(AiNodeGetNodeEntry (obj)));
             if(AiNodeEntryGetType(AiNodeGetNodeEntry(obj)) == AI_NODE_SHAPE)
             {
                 AtNode *instance = AiNode("ginstance");
@@ -714,21 +712,20 @@ procedural_init
     if (!archive.valid())
     {
         for(size_t i = 0; i < args->filenames.size(); i++)
-            AiMsgError("[ProcMain] Invalid alembic file : %s", args->filenames[i].c_str());
+            AiMsgError(" Invalid alembic file : %s", args->filenames[i].c_str());
         return 0;
     }
     else
     {
         for (size_t i = 0; i < args->filenames.size(); i++){
-            AiMsgDebug("");
-            AiMsgDebug("**********************************************************************************************************************************");
-            AiMsgDebug("[ProcMain] Arnold Node : %s", AiNodeGetName(node));
-            AiMsgDebug("[ProcMain] Alembic File : %s", args->filenames[i].c_str());            
-            AiMsgDebug("**********************************************************************************************************************************");
+            AiMsgInfo("");
+            AiMsgInfo("**********************************************************************************************************************************");
+            AiMsgInfo("Arnold Node : %s", AiNodeGetName(node));
+            AiMsgInfo("Alembic File : %s", args->filenames[i].c_str());            
+            AiMsgInfo("**********************************************************************************************************************************");
         }
     }
 
-    AiCritSecEnter(&args->lock);
     IObject root = archive.getTop();
     PathList path;
     TokenizePath( args->objectpath, "/", path );

@@ -94,6 +94,12 @@ class AEalembicHolderTemplate(BaseTemplate):
         if ret:
             cmds.setAttr(self.cache, ret[0], type="string")
 
+            # now check if we need to update transforms
+            shape = self.cache.split('.')[0]
+            node = cmds.listRelatives(shape, parent=True)[0]
+            if cmds.getAttr('%s.updateTransforms' % node):
+                abcToApi.update_xforms(ret[0], node)
+
     def _abcImport(self, args):
         """
         Import the alembic file via abcToApi

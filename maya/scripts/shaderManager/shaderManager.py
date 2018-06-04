@@ -523,9 +523,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
             self.delNodeCBMsgId = MDGMessage.addNodeRemovedCallback( self.delNodeCB )
 
             self.layerChangedJob = cmds.scriptJob( event = ["renderLayerManagerChange", self.setCurrentLayer])
-            self.selectionChangedJob = cmds.scriptJob( event = ["SelectionChanged", self.selectionChanged])
-            self.attributeChangedJob = cmds.scriptJob( attributeChange = ["%s.cacheFileNames" % abcToApi.getCurrentSelection(), self.cacheAttrChanged], disregardIndex=True)
-
         except:
             pass
 
@@ -534,8 +531,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
 
         try:
             cmds.scriptJob( kill=self.layerChangedJob, force=True)
-            cmds.scriptJob( kill=self.selectionChangedJob, force=True)
-            cmds.scriptJob( kill=self.attributeChangedJob, force=True)
 
             for cache in self.ABCViewerNode.values():
                 cache.setSelection("")
@@ -581,28 +576,6 @@ class ShaderManager(QtWidgets.QMainWindow, UI_ABCHierarchy.Ui_NAM):
         if curLayeridx != -1:
             self.renderLayer.setCurrentIndex(curLayeridx)
         self.curLayer = curLayer
-
-    def selectionChanged(self):
-        """ Selction changed callback"""
-        selected = abcToApi.getCurrentSelection()
-        
-        # check time is connected to alembicHolder and that shaders / displacements that
-        # are seen in the json assignments string exists in the scene
-        if selected:
-            abcToApi.checkTime(selected)
-            abcToApi.checkShadersAssignation(selected)
-            abcToApi.checkLayersOverride(selected)
-
-    def cacheAttrChanged(self):
-        """ Update transform on nodes that have changed the cacheFileNames attribue"""
-
-        selected = abcToApi.getCurrentTransformSelection()
-        if selected:
-            cachename = cmds.getAttr("%s.cacheFileNames[0]" % selected)
-
-            if os.path.isfile(cachename):
-                if cmds.getAttr('%s.updateTransforms' % selected):
-                    abcToApi.update_xforms(cachename, selected)
 
     def layerChanged(self, index):
         """Layer changed slot"""

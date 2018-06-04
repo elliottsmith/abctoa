@@ -895,9 +895,10 @@ def checkLayersOverride(shape):
     if layersOverride:
         layersOverride = json.loads(layersOverride)
         for layer in layersOverride:
-            for k in layersOverride[layer]['shaders'].keys():
-                if not k in required:
-                    required.append(k)
+            if layersOverride[layer].has_key('shaders'):
+                for k in layersOverride[layer]['shaders'].keys():
+                    if not k in required:
+                        required.append(k)
 
     shape_connections = cmds.listAttr("%s.shaders" % shape, multi=True)
 

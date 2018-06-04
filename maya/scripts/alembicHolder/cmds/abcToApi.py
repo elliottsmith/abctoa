@@ -9,7 +9,7 @@ import logging
 import pymel.core as pm
 import maya.cmds as cmds
 import maya.mel as mel
-from maya.OpenMaya import MSelectionList, MObject
+from maya.OpenMaya import MSelectionList, MObject, MGlobal
 
 # milk libs
 from mayautils.v1_2.tank import find_shader_package_from_shader_file
@@ -842,3 +842,110 @@ def name_to_node(name):
     node = MObject()
     selectionList.getDependNode(0, node)
     return node
+
+def checkTime(shape):
+
+    if not cmds.isConnected("time1.outTime", "%s.time" % shape):
+        message = 'Connecting : time1.outTime to %s.time' % shape
+        cmds.connectAttr("time1.outTime", "%s.time" % shape)
+        print message
+        MGlobal.displayInfo(message)
+
+def checkShadersAssignation(shape):
+    """Ensure that required shaders are connected to alembicHolder"""
+    # print 'Checking ShadersAssignation connections : %s' % shape
+    required = []
+    connected = []      
+
+    # find the shaders / displacement that are required
+    shadersAssignation = cmds.getAttr("%s.shadersAssignation" % shape)
+    if shadersAssignation:
+        shadersAssignation = json.loads(shadersAssignation)
+        for shader in shadersAssignation.keys():
+            if not shader in required:
+                required.append(shader)
+    
+    shape_connections = cmds.listAttr("%s.shaders" % shape, multi=True)
+
+    # go find the connected shaders
+    if shape_connections:
+        for con in shape_connections:
+            connected_shader = cmds.listConnections("%s.%s" % (shape, con))[0]
+            connected.append(connected_shader)
+    
+    port = len(connected)
+    for req in required:
+        # print 'checking : %s' % req
+        if req not in connected:
+            if cmds.objExists(req):
+                cmds.connectAttr( req + ".message", shape + ".shaders[%i]" % port)
+                port += 1
+                # print 'Connected %s to %s' % (req, shape)
+            else:
+                cmds.warning("Missing shader : %s" % req)
+
+def checkLayersOverride(shape):
+    """Ensure that required shaders are connected to alembicHolder"""
+    # print 'Checking LayersOverride connections : %s' % shape
+    required = []
+    connected = []      
+
+    # find the shaders / displacement that are required
+    layersOverride = cmds.getAttr("%s.layersOverride" % shape)
+    if layersOverride:
+        layersOverride = json.loads(layersOverride)
+        for layer in layersOverride:
+            for k in layersOverride[layer]['shaders'].keys():
+                if not k in required:
+                    required.append(k)
+
+    shape_connections = cmds.listAttr("%s.shaders" % shape, multi=True)
+
+    # go find the connected shaders
+    if shape_connections:
+        for con in shape_connections:
+            connected_shader = cmds.listConnections("%s.%s" % (shape, con))[0]
+            connected.append(connected_shader)
+    
+    port = len(connected)
+    for req in required:
+        # print 'checking : %s' % req
+        if req not in connected:
+            if cmds.objExists(req):
+                cmds.connectAttr( req + ".message", shape + ".shaders[%i]" % port)
+                port += 1
+                # print 'Connected %s to %s' % (req, shape)
+            else:
+                cmds.warning("Missing shader : %s" % req)
+
+def getCurrentSelection():
+    node = cmds.ls(sl=True)
+    if node:
+        node = node[0]
+        if cmds.nodeType(node) == 'alembicHolder':
+            shape = node
+            return shape
+        else:
+            relatives = cmds.listRelatives(node, shapes=True, f=1)
+            if relatives:
+                for i in relatives:
+                    if cmds.nodeType(i) == "alembicHolder":
+                        shape = i
+                        return shape
+    return None
+
+def getCurrentTransformSelection():
+    node = cmds.ls(sl=True)
+    if node:
+        node = node[0]
+        if cmds.nodeType(node) == 'transform':
+            xform = node
+            return xform
+        else:
+            relatives = cmds.listRelatives(node, shapes=True, f=1)
+            if relatives:
+                for i in relatives:
+                    if cmds.nodeType(i) == "transform":
+                        xform = i
+                        return xform
+    return None                   

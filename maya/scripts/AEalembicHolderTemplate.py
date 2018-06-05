@@ -92,12 +92,12 @@ class AEalembicHolderTemplate(BaseTemplate):
         """
         ret = cmds.fileDialog2(fileFilter="Alembic (*.abc)", fileMode=1, dialogStyle=2, caption="Select Alembic File")
         if ret:
-            cmds.setAttr(self.cache, ret[0], type="string")
+            selected = abcToApi.getCurrentSelection()
+            cmds.setAttr("%s.cacheFileNames[0]" % selected, ret[0], type="string")
 
             # now check if we need to update transforms
-            shape = self.cache.split('.')[0]
-            node = cmds.listRelatives(shape, parent=True)[0]
-            if cmds.getAttr('%s.updateTransforms' % node):
+            node = cmds.listRelatives(selected, parent=True)[0]
+            if cmds.getAttr('%s.updateTransforms' % selected):
                 abcToApi.update_xforms(ret[0], node)
 
     def _abcImport(self, args):
@@ -137,7 +137,8 @@ class AEalembicHolderTemplate(BaseTemplate):
         """
         ret = cmds.fileDialog2(fileFilter="Json (*.json)", fileMode=1, dialogStyle=2, caption="Select Json File")
         if ret:
-            cmds.setAttr(self.json, ret[0], type="string")
+            selected = abcToApi.getCurrentSelection()
+            cmds.setAttr("%s.jsonFile" % selected, ret[0], type="string")
             cmds.refreshEditorTemplates()
 
     def _jsonImport(self, args):
@@ -177,7 +178,8 @@ class AEalembicHolderTemplate(BaseTemplate):
         """
         ret = cmds.fileDialog2(fileFilter="Alembic (*.abc)", fileMode=1, dialogStyle=2, caption="Select Alembic File")
         if ret:
-            cmds.setAttr(self.shaders, ret[0], type="string")
+            selected = abcToApi.getCurrentSelection()
+            cmds.setAttr("%s.abcShaders" % selected, ret[0], type="string")
             cmds.refreshEditorTemplates()
 
     def _shadersImport(self, args):

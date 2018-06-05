@@ -769,10 +769,11 @@ def import_xforms(abcfile, transform_names, parent_under, update):
             cmd = 'AbcImport "%s" -d -rpr "%s" -ft "%s" -eft "Shape"' % (abcfile, parent_under, ' '.join( [ i['transform'] for i in update_data ] ))
 
             try:
-                print '\n%s\n' % cmd
                 mel.eval(cmd)
+                MGlobal.displayInfo(cmd)
             except Exception as e:
-                print "Error running update transforms : %s" % e
+                message = "Error running import transforms : %s" % e
+                MGlobal.displayError(message)
         return
 
     # conntect type AbcImport
@@ -780,10 +781,11 @@ def import_xforms(abcfile, transform_names, parent_under, update):
         cmd = 'AbcImport "%s" -d -rpr "%s" -ft "%s" -ct "%s" -crt -eft "Shape"' % (abcfile, parent_under, ' '.join( [ i['transform'] for i in update_data ] ), parent_under)
 
         try:
-            print '\n%s\n' % cmd
             mel.eval(cmd)
+            MGlobal.displayInfo(cmd)            
         except Exception as e:
-            print "Error running update transforms : %s" % e
+            message = "Error running import transforms : %s" % e
+            MGlobal.displayError(message)
 
 def get_previously_imported_transforms(abcfile, root):
     """
@@ -798,7 +800,6 @@ def get_previously_imported_transforms(abcfile, root):
 
     if descendents:
         for d in descendents:
-            # print 'Descendent : %s' % d
             children = cmds.listRelatives(d, children=True)
 
             if not children:
@@ -821,22 +822,21 @@ def get_previously_imported_transforms(abcfile, root):
         if cask.find(archive.top, str(i)) != []:
             previous.append(i)
 
-    print 'Previously Imported : %s' % previous
     return previous
 
 def update_xforms(abcfile, parent_under):
-    """"""
-    print 'Updating Previously imported xforms'
-
+    """Update previously imported transforms"""
+    
     cmd = 'AbcImport "%s" -d -rpr "%s" -ct "%s" -eft "Shape"' % (abcfile, parent_under, parent_under)
     try:
-        print '\n%s\n' % cmd
         mel.eval(cmd)
+        MGlobal.displayInfo(cmd)
     except Exception as e:
-        print "Error running update transforms : %s" % e
+        message = "Error running update transforms : %s" % e
+        MGlobal.displayError(message)
 
 def name_to_node(name):
-    """ """
+    """Open Maya utility to convert a given node name to MObject"""
     selectionList = MSelectionList()
     selectionList.add(name)
     node = MObject()
@@ -844,16 +844,14 @@ def name_to_node(name):
     return node
 
 def checkTime(shape):
-
+    """Connect alembicHolder to time"""
     if not cmds.isConnected("time1.outTime", "%s.time" % shape):
         message = 'Connecting : time1.outTime to %s.time' % shape
         cmds.connectAttr("time1.outTime", "%s.time" % shape)
-        print message
         MGlobal.displayInfo(message)
 
 def checkShadersAssignation(shape):
     """Ensure that required shaders are connected to alembicHolder"""
-    # print 'Checking ShadersAssignation connections : %s' % shape
     required = []
     connected = []      
 
@@ -875,18 +873,18 @@ def checkShadersAssignation(shape):
     
     port = len(connected)
     for req in required:
-        # print 'checking : %s' % req
         if req not in connected:
             if cmds.objExists(req):
                 cmds.connectAttr( req + ".message", shape + ".shaders[%i]" % port)
                 port += 1
-                # print 'Connected %s to %s' % (req, shape)
+                message = 'Connected %s to %s' % (req, shape)
+                MGlobal.displayInfo(message)
             else:
-                cmds.warning("Missing shader : %s" % req)
+                message = "Missing shader : %s" % req
+                MGlobal.displayWarning(message)
 
 def checkLayersOverride(shape):
     """Ensure that required shaders are connected to alembicHolder"""
-    # print 'Checking LayersOverride connections : %s' % shape
     required = []
     connected = []      
 
@@ -910,16 +908,18 @@ def checkLayersOverride(shape):
     
     port = len(connected)
     for req in required:
-        # print 'checking : %s' % req
         if req not in connected:
             if cmds.objExists(req):
                 cmds.connectAttr( req + ".message", shape + ".shaders[%i]" % port)
                 port += 1
-                # print 'Connected %s to %s' % (req, shape)
+                message = 'Connected %s to %s' % (req, shape)
+                MGlobal.displayInfo(message)
             else:
-                cmds.warning("Missing shader : %s" % req)
+                message = "Missing shader : %s" % req
+                MGlobal.displayWarning(message)
 
 def getCurrentSelection():
+    """Return the shape of the currently selected alembicHolder"""
     node = cmds.ls(sl=True)
     if node:
         node = node[0]
@@ -936,6 +936,7 @@ def getCurrentSelection():
     return None
 
 def getCurrentTransformSelection():
+    """Return the transform of the currently selected alembicHolder"""
     node = cmds.ls(sl=True)
     if node:
         node = node[0]

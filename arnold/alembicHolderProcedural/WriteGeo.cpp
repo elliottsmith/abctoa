@@ -1146,7 +1146,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     AtNode* meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
 
     //if(meshNode == NULL)
-    { 
+    //{ 
       // We don't have a cache, so we much create this mesh.
       //meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
     //}

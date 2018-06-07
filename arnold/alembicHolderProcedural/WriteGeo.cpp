@@ -465,7 +465,6 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
     size_t numSampleTimes = sampleTimes.size();
     bool isFirstSample = true;
 
-    AiMsgInfo("  [sample iterator]");
     for ( SampleTimeSet::iterator I = sampleTimes.begin();
           I != sampleTimes.end(); ++I, isFirstSample = false)
     {
@@ -574,12 +573,10 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
         }
     }
 
-    AiMsgInfo("  [process params]");
     // UVs.
     ProcessIndexedBuiltinParam(ps.getUVsParam(), singleSampleTimes, uvlist, uvidxs, 2);
 
     // Set the meshNode.
-    AiMsgInfo("  [create polymesh node]");
     AtNode* meshNode = AiNode( "polymesh" );
 
     if (!meshNode)

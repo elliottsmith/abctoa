@@ -1150,7 +1150,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
       meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
     }
     else {
-        AiMsgDebug(" Found Cached : %s", originalName.c_str());
+        AiMsgInfo(" Found Cached : %s", originalName.c_str());
     }
 
     AtNode *instanceNode = NULL;
@@ -1199,7 +1199,7 @@ void ProcessSubD( ISubD &subd, ProcArgs &args, MatrixSampleMap * xformSamples )
       if(meshNode)
         AiNodeSetStr( meshNode, "subdiv_type", "catclark" );
     } else {
-        AiMsgDebug(" Found Cached : %s", originalName.c_str());   
+        AiMsgInfo(" Found Cached : %s", originalName.c_str());   
     }
 
     // we can create the instance, with correct transform, attributes & shaders.

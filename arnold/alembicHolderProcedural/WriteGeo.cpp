@@ -1126,8 +1126,10 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
 
     if(meshNode == NULL)
     { 
+      AiCritSecEnter(&args.lock);
       // We don't have a cache, so we much create this mesh.
       meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
+      AiCritSecLeave(&args.lock); 
     } else {
         AiMsgDebug(" Found Cached : %s", originalName.c_str());   
     }

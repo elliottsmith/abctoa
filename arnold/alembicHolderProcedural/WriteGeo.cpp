@@ -805,7 +805,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
     }
 
     args.createdNodes->addNode(meshNode);
-    args.nodeCache->addNode(cacheId, meshNode);
+    //args.nodeCache->addNode(cacheId, meshNode);
     return meshNode;
 }
 
@@ -1142,16 +1142,17 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     getSampleTimes(polymesh, args, sampleTimes);
     std::string cacheId = getHash(name, originalName, polymesh, args, sampleTimes);
 
-    AtNode* meshNode = args.nodeCache->getCachedNode(cacheId);
+    //AtNode* meshNode = args.nodeCache->getCachedNode(cacheId);
+    AtNode* meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
 
-    if(meshNode == NULL)
+    //if(meshNode == NULL)
     { 
       // We don't have a cache, so we much create this mesh.
-      meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
-    }
-    else {
-        AiMsgInfo(" Found Cached : %s", originalName.c_str());
-    }
+      //meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
+    //}
+    //else {
+    //    AiMsgInfo(" Found Cached : %s", originalName.c_str());
+    //}
 
     AtNode *instanceNode = NULL;
     if(meshNode != NULL)

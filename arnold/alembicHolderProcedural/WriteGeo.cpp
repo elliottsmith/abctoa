@@ -1139,6 +1139,11 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
       instanceNode = createInstance(name, originalName, polymesh, args, xformSamples, meshNode);      
     }
 
+    if(instanceNode != NULL)
+    {
+        AiMsgWarning("NULL : %s:ginstance", name.c_str());
+    }
+
     if(isMeshLight(originalName, polymesh, args))
     {
       // Handling meshLights.

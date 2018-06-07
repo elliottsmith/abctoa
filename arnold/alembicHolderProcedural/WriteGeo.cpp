@@ -577,6 +577,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
     ProcessIndexedBuiltinParam(ps.getUVsParam(), singleSampleTimes, uvlist, uvidxs, 2);
 
     // Set the meshNode.
+    AiMsgInfo("  [create polymesh node]");
     AtNode* meshNode = AiNode( "polymesh" );
 
     if (!meshNode)
@@ -806,6 +807,9 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
 
     args.createdNodes->addNode(meshNode);
     //args.nodeCache->addNode(cacheId, meshNode);
+    if(meshNode == NULL){
+        AiMsgWarning("  [polymesh NULL]");
+    }
     return meshNode;
 }
 

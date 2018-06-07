@@ -484,6 +484,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                 if ( n > 255 )
                 {
                     // TODO, warning about unsupported face
+                    AiMsgWarning("  [poly sample face counts greater than 255 : %i]", n );
                     return NULL;
                 }
 

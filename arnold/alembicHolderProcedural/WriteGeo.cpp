@@ -1135,8 +1135,10 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     AtNode *instanceNode = NULL;
     if(meshNode != NULL)
     {
+      AiCritSecEnter(&args.lock);
       // we can create the instance, with correct transform, attributes & shaders.      
-      instanceNode = createInstance(name, originalName, polymesh, args, xformSamples, meshNode);      
+      instanceNode = createInstance(name, originalName, polymesh, args, xformSamples, meshNode);
+      AiCritSecLeave(&args.lock);     
     }
 
     if(instanceNode != NULL)

@@ -708,7 +708,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                     (void*)&vidxs[0]));
 
     AiNodeSetArray(meshNode, "nsides",
-            AiArrayConvert(nsides.size(), 1, AI_TYPE_BYTE,
+            AiArrayConvert(nsides.size(), 1, AI_TYPE_UINT,
                     &(nsides[0])));
 
     AiNodeSetArray(meshNode, "vlist",
@@ -891,7 +891,11 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
     }
 
     AiNodeSetPtr( instanceNode, "node", mesh );
-    args.createdNodes->addNode(instanceNode);  
+    args.createdNodes->addNode(instanceNode);
+    
+    if(instanceNode == NULL){
+        AiMsgWarning("  [ginstance NULL]");
+    }
     return instanceNode;
 }
 
@@ -1133,40 +1137,40 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     std::string originalName = polymesh.getFullName();
     std::string name = args.nameprefix + originalName;
     SampleTimeSet sampleTimes;
-
+    
+    AiCritSecEnter(&args.lock);
     getSampleTimes(polymesh, args, sampleTimes);
     std::string cacheId = getHash(name, originalName, polymesh, args, sampleTimes);
+
     AtNode* meshNode = args.nodeCache->getCachedNode(cacheId);
 
     if(meshNode == NULL)
     { 
-      AiCritSecEnter(&args.lock);
       // We don't have a cache, so we much create this mesh.
       meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
-      AiCritSecLeave(&args.lock); 
-    } else {
-        AiMsgDebug(" Found Cached : %s", originalName.c_str());   
+    }
+    else {
+        AiMsgDebug(" Found Cached : %s", originalName.c_str());
     }
 
     AtNode *instanceNode = NULL;
     if(meshNode != NULL)
     {
-      AiCritSecEnter(&args.lock);
-      // we can create the instance, with correct transform, attributes & shaders.      
-      instanceNode = createInstance(name, originalName, polymesh, args, xformSamples, meshNode);
-      AiCritSecLeave(&args.lock);     
+        // we can create the instance, with correct transform, attributes & shaders.      
+        instanceNode = createInstance(name, originalName, polymesh, args, xformSamples, meshNode);
     }
-
-    if(instanceNode != NULL)
-    {
-        AiMsgWarning("NULL : %s:ginstance", name.c_str());
+    else{
+        AiMsgWarning("NULL MESH %s", originalName.c_str());
     }
+    
 
     if(isMeshLight(originalName, polymesh, args))
     {
       // Handling meshLights.
       createMeshLight(name, originalName, polymesh, args, xformSamples, instanceNode);    
     }
+
+    AiCritSecLeave(&args.lock); 
 }
 
 //-*************************************************************************

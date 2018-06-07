@@ -708,7 +708,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                     (void*)&vidxs[0]));
 
     AiNodeSetArray(meshNode, "nsides",
-            AiArrayConvert(nsides.size(), 1, AI_TYPE_UINT,
+            AiArrayConvert(nsides.size(), 1, AI_TYPE_BYTE,
                     &(nsides[0])));
 
     AiNodeSetArray(meshNode, "vlist",

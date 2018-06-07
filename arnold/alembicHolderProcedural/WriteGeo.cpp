@@ -459,13 +459,13 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
     std::vector<unsigned int> vidxs;
     std::vector<uint8_t> nsides;
     std::vector<float> vlist;
-
     std::vector<float> uvlist;
     std::vector<unsigned int> uvidxs;
 
     size_t numSampleTimes = sampleTimes.size();
-
     bool isFirstSample = true;
+
+    AiMsgInfo("  [sample iterator]");
     for ( SampleTimeSet::iterator I = sampleTimes.begin();
           I != sampleTimes.end(); ++I, isFirstSample = false)
     {
@@ -573,6 +573,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
         }
     }
 
+    AiMsgInfo("  [process params]");
     // UVs.
     ProcessIndexedBuiltinParam(ps.getUVsParam(), singleSampleTimes, uvlist, uvidxs, 2);
 

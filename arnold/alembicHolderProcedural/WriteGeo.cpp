@@ -1134,14 +1134,14 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xformSamples)
 {
     AiMsgInfo("");
+    AiMsgInfo("  [AiCritSecEnter]");
+    AiCritSecEnter(&args.lock);    
     if ( !polymesh.valid() )
         return;
 
     std::string originalName = polymesh.getFullName();
     std::string name = args.nameprefix + originalName;
     SampleTimeSet sampleTimes;
-    
-    AiCritSecEnter(&args.lock);
     getSampleTimes(polymesh, args, sampleTimes);
     std::string cacheId = getHash(name, originalName, polymesh, args, sampleTimes);
 
@@ -1164,7 +1164,8 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
         AiMsgWarning("NULL MESH %s", originalName.c_str());
     }
 
-    AiCritSecLeave(&args.lock); 
+    AiCritSecLeave(&args.lock);
+    AiMsgInfo("  [AiCritSecLeave]");
 }
 
 //-*************************************************************************

@@ -1135,8 +1135,8 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xformSamples)
 {
     AiMsgInfo("");
-    AiMsgInfo("[AiCritSecEnter]");
-    AiCritSecEnter(&args.lock);    
+    // AiMsgInfo("[AiCritSecEnter]");
+    // AiCritSecEnter(&args.lock);    
     if ( !polymesh.valid() )
         return;
 
@@ -1165,8 +1165,8 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
         AiMsgWarning("NULL MESH %s", originalName.c_str());
     }
 
-    AiCritSecLeave(&args.lock);
-    AiMsgInfo("[AiCritSecLeave]");
+    // AiCritSecLeave(&args.lock);
+    // AiMsgInfo("[AiCritSecLeave]");
 }
 
 //-*************************************************************************

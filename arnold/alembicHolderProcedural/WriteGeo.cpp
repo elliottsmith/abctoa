@@ -352,12 +352,12 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
                         AiArraySetVec(narr, normalTarget + j, v);
                     }
                 }
-                AiMsgInfo("  [setting nlist size : %i - using narr AtArray]", AiArrayGetDataSize(narr));
+                // AiMsgInfo("  [setting nlist size : %i - using narr AtArray]", AiArrayGetDataSize(narr));
                 AiNodeSetArray(meshNode, "nlist", narr);
             }
             else
             {
-                AiMsgInfo("  [setting nlist size : %i - using nlist]", nlist.size());
+                // AiMsgInfo("  [setting nlist size : %i - using nlist]", nlist.size());
                 AiNodeSetArray(meshNode, "nlist",
                                AiArrayConvert(numNormals,
                                               numVertexSamples, AI_TYPE_VECTOR, &nlist[0]));
@@ -416,17 +416,17 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
                       }
                       base += curNum;
                    }
-                    AiMsgInfo("  [nidxs is not empty AND nsides has more than 0 keys]");
+                    // AiMsgInfo("  [nidxs is not empty AND nsides has more than 0 keys]");
                     AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(nvidxReversed.size(), 1, AI_TYPE_UINT, &nvidxReversed[0]));
                 }
                 else {
-                    AiMsgInfo("  [nidxs is not empty BUT nsides has 0 keys - set to vidxs instead]");
+                    // AiMsgInfo("  [nidxs is not empty BUT nsides has 0 keys - set to vidxs instead]");
                     AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(vidxs.size(), 1, AI_TYPE_UINT, &vidxs[0]));                    
                 }
             }
             else
             {
-                AiMsgInfo("  [nidxs is empty - set to vidxs instead]");
+                // AiMsgInfo("  [nidxs is empty - set to vidxs instead]");
                 AiNodeSetArray(meshNode, "nidxs",
                         AiArrayConvert(vidxs.size(), 1, AI_TYPE_UINT,
                                 &vidxs[0]));

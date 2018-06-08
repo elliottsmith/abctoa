@@ -142,165 +142,6 @@ void getSampleTimes( primT & prim, ProcArgs & args, SampleTimeSet & sampleTimes 
 
 }
 
-// //-*************************************************************************
-// // getHash
-// // This function returns the hash of the mesh, with attributes & displacement applied to it.
-// template <typename primT>
-// std::string getHash( const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, const SampleTimeSet& sampleTimes )
-// {
-//     typename primT::schema_type  &ps = prim.getSchema();
-
-//     TimeSamplingPtr ts = ps.getTimeSampling();
-
-//     std::string cacheId;
-
-//     SampleTimeSet singleSampleTimes;
-//     singleSampleTimes.insert( ts->getFloorIndex(args.frame / args.fps, ps.getNumSamples()).second );
-
-//     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
-//     ISampleSelector frameSelector( *singleSampleTimes.begin() );
-
-//     //get tags
-//     std::vector<std::string> tags;
-//     getAllTags(ps.getObject(), tags, &args);
-
-//     // displacement stuff. If the node has displacement, the resulting geom is probably different than the one in the cache.
-//     AtNode* appliedDisplacement = NULL;
-
-//     if(args.linkDisplacement)
-//     {
-//         bool foundInPath = false;
-//         for(std::map<std::string, AtNode*>::iterator it = args.displacements.begin(); it != args.displacements.end(); ++it)
-//         {
-//             //check both path & tag
-//             if(it->first.find("/") != string::npos)
-//             {
-//                 if(pathContainsOtherPath(originalName, it->first))
-//                 {
-//                     appliedDisplacement = it->second;
-//                     foundInPath = true;
-//                 }
-
-//             }
-//             else if(matchPattern(originalName,it->first)) // based on wildcard expression
-//             {
-//                 appliedDisplacement = it->second;
-//                 foundInPath = true;
-//             }
-//             else if(foundInPath == false)
-//             {
-//                 if (std::find(tags.begin(), tags.end(), it->first) != tags.end())
-//                 {
-//                     appliedDisplacement = it->second;
-//                 }
-
-//             }
-//         }
-//     }
-
-//     // overrides that can't be applied on instances
-//     // we create a hash from that.
-//     std::string hashAttributes("@");
-//     Json::FastWriter writer;
-//     Json::Value rootEncode;
-
-//     if(args.linkAttributes)
-//     {
-//         bool foundInPath = false;
-//         for(std::vector<std::string>::iterator it=args.attributes.begin(); it!=args.attributes.end(); ++it)
-//         {
-//             Json::Value overrides;
-//             if(it->find("/") != string::npos)
-//             {
-//                 if(pathContainsOtherPath(originalName, *it))
-//                 {
-//                     overrides = args.attributesRoot[*it];
-//                     foundInPath = true;
-//                 }
-
-//             }
-//             else if(matchPattern(originalName,*it)) // based on wildcard expression
-//             {
-//                 overrides = args.attributesRoot[*it];
-//                 foundInPath = true;
-//             }
-//             else if(foundInPath == false)
-//             {
-//                 if (std::find(tags.begin(), tags.end(), *it) != tags.end())
-//                 {
-//                     overrides = args.attributesRoot[*it];
-//                 }
-//             }
-//             if(overrides.size() > 0)
-//             {
-//                 for( Json::ValueIterator itr = overrides.begin() ; itr != overrides.end() ; itr++ )
-//                 {
-//                     std::string attribute = itr.key().asString();
-
-//                     if (attribute=="smoothing"
-//                         || attribute=="subdiv_iterations"
-//                         || attribute=="subdiv_type"
-//                         || attribute=="subdiv_adaptive_metric"
-//                         || attribute=="subdiv_uv_smoothing"
-//                         || attribute=="subdiv_pixel_error"
-//                         || attribute=="disp_height"
-//                         || attribute=="disp_padding"
-//                         || attribute=="disp_zero_value"
-//                         || attribute=="disp_autobump"
-//                         || attribute=="sss_setname"
-//                         || attribute=="invert_normals"
-//                         || attribute=="step_size"
-//                         || attribute=="volume_padding")
-//                     {
-//                         Json::Value val = args.attributesRoot[*it][itr.key().asString()];
-
-//                         rootEncode[attribute]=val;
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     if(appliedDisplacement != NULL)
-//     {
-//         rootEncode["disp_shader"] = std::string(AiNodeGetName(appliedDisplacement));
-
-//     }
-
-//     hashAttributes += writer.write(rootEncode);
-
-//     std::ostringstream buffer;
-//     AbcA::ArraySampleKey sampleKey;
-
-//     for ( SampleTimeSet::iterator I = sampleTimes.begin();
-//             I != sampleTimes.end(); ++I )
-//     {
-//         ISampleSelector sampleSelector( *I );
-//         ps.getPositionsProperty().getKey(sampleKey, sampleSelector);
-
-//         buffer << GetRelativeSampleTime( args, (*I) ) << ":";
-//         sampleKey.digest.print(buffer);
-//         buffer << ":";
-//     }
-
-
-//     if ( ps.getUVsParam ().valid() ) 
-//     { 
-//         AbcA::ArraySampleKey uvSampleKey;
-//         ps.getUVsParam ().getValueProperty ().getKey(uvSampleKey, frameSelector);
-//         uvSampleKey.digest.print(buffer);
-//         buffer << ":";
-    
-//     }
-
-//     buffer << "@" << computeHash(hashAttributes);
-
-//     cacheId = buffer.str();
-
-//     return cacheId;
-
-// }
-
 //-*************************************************************************
 // doNormals
 // This function does nothing for subdv, but write normals for non-subdvided meshes. Called in writeMesh.
@@ -325,7 +166,7 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
         const size_t numSampleTimes = sampleTimes.size();
 
         const size_t numNormals = nlist.size() / (numSampleTimes * 3);
-        AiMsgInfo("  [nlist size : %i, nidxs size : %i, numSampleTimes : %i, numNormals :%i]", nlist.size(), nidxs.size(), sampleTimes.size(), numNormals);
+        AiMsgDebug(" nlist size : %i, nidxs size : %i, numSampleTimes : %i, numNormals :%i", nlist.size(), nidxs.size(), sampleTimes.size(), numNormals);
 
         if (numNormals > 0)
         {            
@@ -362,40 +203,6 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
                                AiArrayConvert(numNormals,
                                               numVertexSamples, AI_TYPE_VECTOR, &nlist[0]));
             }
-               
-
-            // if (!nidxs.empty())
-            // {
-            //    // we must invert the idxs
-            //    //unsigned int facePointIndex = 0;
-            //    unsigned int base = 0;
-            //    AtArray* nsides = AiNodeGetArray(meshNode, "nsides");
-            //    std::vector<unsigned int> nvidxReversed;
-            //    if ( AiArrayGetNumKeys(nsides) != 0 )
-            //    {
-            //        for (unsigned int i = 0; i < AiArrayGetNumElements(nsides) / AiArrayGetNumKeys(nsides); ++i)
-            //        {
-            //           uint8_t curNum = AiArrayGetUInt(nsides ,i);
-
-            //           for (int j = 0; j < curNum; ++j)
-            //           {
-            //               nvidxReversed.push_back(nidxs[base+curNum-j-1]);
-            //           }
-            //           base += curNum;
-            //        }
-            //        AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(nvidxReversed.size(), 1, AI_TYPE_UINT, &nvidxReversed[0]));
-            //     }
-            //     else 
-            //     {
-            //         AiNodeSetArray(meshNode, "nidxs", AiArrayConvert(vidxs.size(), 1, AI_TYPE_UINT, &vidxs[0]));                    
-            //     }
-            // }
-            // else
-            // {
-            //     AiNodeSetArray(meshNode, "nidxs",
-            //             AiArrayConvert(vidxs.size(), 1, AI_TYPE_UINT,
-            //                     &vidxs[0]));
-            // }
 
             if (!nidxs.empty())
             {
@@ -431,8 +238,6 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
                         AiArrayConvert(vidxs.size(), 1, AI_TYPE_UINT,
                                 &vidxs[0]));
             }
-
-
         }
     }
 }
@@ -723,7 +528,6 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, pri
         if ( !uvidxs.empty() )
         {
            // we must invert the idxs
-
            unsigned int facePointIndex = 0;
            unsigned int base = 0;
 
@@ -797,10 +601,6 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, pri
     }
 
     args.createdNodes->addNode(meshNode);
-    //args.nodeCache->addNode(cacheId, meshNode);
-    if(meshNode == NULL){
-        AiMsgWarning("  [polymesh NULL]");
-    }
     return meshNode;
 }
 
@@ -892,12 +692,8 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
         AiMsgDebug(" Node type doesn't have a shader parameter");
     }
 
-    if(instanceNode == NULL){
-        AiMsgWarning("  [ginstance NULL]");
-    }
     AiNodeSetPtr( instanceNode, "node", mesh );
     args.createdNodes->addNode(instanceNode);
-    
     return instanceNode;
 }
 
@@ -1044,7 +840,6 @@ void createMeshLight(const std::string& name, const std::string& originalName, p
     // adding attributes on procedural
     AddArbitraryProceduralParams(args.proceduralNode, meshLightNode);
 
-    // AiMsgDebug("  [WriteGeo][createMeshLight] Create meshlight - FINISH");    
     args.createdNodes->addNode(meshLightNode);
     createMeshLightShader(name, originalName, prim, args, xformSamples, mesh, meshLightNode);
 }
@@ -1056,7 +851,7 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 {
     AiMsgInfo("%s:meshlightshader", name.c_str());
     typename primT::schema_type  &ps = prim.getSchema();
-    //get tags
+
     std::vector<std::string> tags;
     getAllTags(ps.getObject(), tags, &args);
 
@@ -1132,9 +927,7 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 // ProcessPolyMesh
 void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xformSamples)
 {
-    AiMsgInfo("");
-    // AiMsgInfo("[AiCritSecEnter]");
-    // AiCritSecEnter(&args.lock);    
+    AiMsgInfo("");   
     if ( !polymesh.valid() )
         return;
 
@@ -1163,9 +956,6 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
         AiNodeDestroy(meshNode);
         AiMsgWarning("NULL MESH %s", originalName.c_str());
     }
-
-    // AiCritSecLeave(&args.lock);
-    // AiMsgInfo("[AiCritSecLeave]");
 }
 
 //-*************************************************************************

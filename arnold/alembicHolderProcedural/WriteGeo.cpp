@@ -1015,7 +1015,7 @@ void NormalizeRGB(AtNode* mesh, AtRGB &colorMultiplier){
 template <typename primT>
 void createMeshLight(const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, MatrixSampleMap * xformSamples, AtNode* mesh)
 {
-    AiMsgDebug(" Create meshlight");
+    AiMsgInfo("%s:meshlight", name.c_str());
     std::string meshlightname = name + ":meshlight";
 
     typename primT::schema_type  &ps = prim.getSchema();
@@ -1055,7 +1055,7 @@ void createMeshLight(const std::string& name, const std::string& originalName, p
 template <typename primT>
 void createMeshLightShader(const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, MatrixSampleMap * xformSamples, AtNode* mesh, AtNode* meshLightNode)
 {
-    AiMsgDebug(" Create meshlight shader");
+    AiMsgInfo("%s:meshlightshader", name.c_str());
     typename primT::schema_type  &ps = prim.getSchema();
     //get tags
     std::vector<std::string> tags;

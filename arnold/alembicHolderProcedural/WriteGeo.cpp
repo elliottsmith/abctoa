@@ -142,164 +142,164 @@ void getSampleTimes( primT & prim, ProcArgs & args, SampleTimeSet & sampleTimes 
 
 }
 
-//-*************************************************************************
-// getHash
-// This function returns the hash of the mesh, with attributes & displacement applied to it.
-template <typename primT>
-std::string getHash( const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, const SampleTimeSet& sampleTimes )
-{
-    typename primT::schema_type  &ps = prim.getSchema();
+// //-*************************************************************************
+// // getHash
+// // This function returns the hash of the mesh, with attributes & displacement applied to it.
+// template <typename primT>
+// std::string getHash( const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, const SampleTimeSet& sampleTimes )
+// {
+//     typename primT::schema_type  &ps = prim.getSchema();
 
-    TimeSamplingPtr ts = ps.getTimeSampling();
+//     TimeSamplingPtr ts = ps.getTimeSampling();
 
-    std::string cacheId;
+//     std::string cacheId;
 
-    SampleTimeSet singleSampleTimes;
-    singleSampleTimes.insert( ts->getFloorIndex(args.frame / args.fps, ps.getNumSamples()).second );
+//     SampleTimeSet singleSampleTimes;
+//     singleSampleTimes.insert( ts->getFloorIndex(args.frame / args.fps, ps.getNumSamples()).second );
 
-    ICompoundProperty arbGeomParams = ps.getArbGeomParams();
-    ISampleSelector frameSelector( *singleSampleTimes.begin() );
+//     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
+//     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
-    //get tags
-    std::vector<std::string> tags;
-    getAllTags(ps.getObject(), tags, &args);
+//     //get tags
+//     std::vector<std::string> tags;
+//     getAllTags(ps.getObject(), tags, &args);
 
-    // displacement stuff. If the node has displacement, the resulting geom is probably different than the one in the cache.
-    AtNode* appliedDisplacement = NULL;
+//     // displacement stuff. If the node has displacement, the resulting geom is probably different than the one in the cache.
+//     AtNode* appliedDisplacement = NULL;
 
-    if(args.linkDisplacement)
-    {
-        bool foundInPath = false;
-        for(std::map<std::string, AtNode*>::iterator it = args.displacements.begin(); it != args.displacements.end(); ++it)
-        {
-            //check both path & tag
-            if(it->first.find("/") != string::npos)
-            {
-                if(pathContainsOtherPath(originalName, it->first))
-                {
-                    appliedDisplacement = it->second;
-                    foundInPath = true;
-                }
+//     if(args.linkDisplacement)
+//     {
+//         bool foundInPath = false;
+//         for(std::map<std::string, AtNode*>::iterator it = args.displacements.begin(); it != args.displacements.end(); ++it)
+//         {
+//             //check both path & tag
+//             if(it->first.find("/") != string::npos)
+//             {
+//                 if(pathContainsOtherPath(originalName, it->first))
+//                 {
+//                     appliedDisplacement = it->second;
+//                     foundInPath = true;
+//                 }
 
-            }
-            else if(matchPattern(originalName,it->first)) // based on wildcard expression
-            {
-                appliedDisplacement = it->second;
-                foundInPath = true;
-            }
-            else if(foundInPath == false)
-            {
-                if (std::find(tags.begin(), tags.end(), it->first) != tags.end())
-                {
-                    appliedDisplacement = it->second;
-                }
+//             }
+//             else if(matchPattern(originalName,it->first)) // based on wildcard expression
+//             {
+//                 appliedDisplacement = it->second;
+//                 foundInPath = true;
+//             }
+//             else if(foundInPath == false)
+//             {
+//                 if (std::find(tags.begin(), tags.end(), it->first) != tags.end())
+//                 {
+//                     appliedDisplacement = it->second;
+//                 }
 
-            }
-        }
-    }
+//             }
+//         }
+//     }
 
-    // overrides that can't be applied on instances
-    // we create a hash from that.
-    std::string hashAttributes("@");
-    Json::FastWriter writer;
-    Json::Value rootEncode;
+//     // overrides that can't be applied on instances
+//     // we create a hash from that.
+//     std::string hashAttributes("@");
+//     Json::FastWriter writer;
+//     Json::Value rootEncode;
 
-    if(args.linkAttributes)
-    {
-        bool foundInPath = false;
-        for(std::vector<std::string>::iterator it=args.attributes.begin(); it!=args.attributes.end(); ++it)
-        {
-            Json::Value overrides;
-            if(it->find("/") != string::npos)
-            {
-                if(pathContainsOtherPath(originalName, *it))
-                {
-                    overrides = args.attributesRoot[*it];
-                    foundInPath = true;
-                }
+//     if(args.linkAttributes)
+//     {
+//         bool foundInPath = false;
+//         for(std::vector<std::string>::iterator it=args.attributes.begin(); it!=args.attributes.end(); ++it)
+//         {
+//             Json::Value overrides;
+//             if(it->find("/") != string::npos)
+//             {
+//                 if(pathContainsOtherPath(originalName, *it))
+//                 {
+//                     overrides = args.attributesRoot[*it];
+//                     foundInPath = true;
+//                 }
 
-            }
-            else if(matchPattern(originalName,*it)) // based on wildcard expression
-            {
-                overrides = args.attributesRoot[*it];
-                foundInPath = true;
-            }
-            else if(foundInPath == false)
-            {
-                if (std::find(tags.begin(), tags.end(), *it) != tags.end())
-                {
-                    overrides = args.attributesRoot[*it];
-                }
-            }
-            if(overrides.size() > 0)
-            {
-                for( Json::ValueIterator itr = overrides.begin() ; itr != overrides.end() ; itr++ )
-                {
-                    std::string attribute = itr.key().asString();
+//             }
+//             else if(matchPattern(originalName,*it)) // based on wildcard expression
+//             {
+//                 overrides = args.attributesRoot[*it];
+//                 foundInPath = true;
+//             }
+//             else if(foundInPath == false)
+//             {
+//                 if (std::find(tags.begin(), tags.end(), *it) != tags.end())
+//                 {
+//                     overrides = args.attributesRoot[*it];
+//                 }
+//             }
+//             if(overrides.size() > 0)
+//             {
+//                 for( Json::ValueIterator itr = overrides.begin() ; itr != overrides.end() ; itr++ )
+//                 {
+//                     std::string attribute = itr.key().asString();
 
-                    if (attribute=="smoothing"
-                        || attribute=="subdiv_iterations"
-                        || attribute=="subdiv_type"
-                        || attribute=="subdiv_adaptive_metric"
-                        || attribute=="subdiv_uv_smoothing"
-                        || attribute=="subdiv_pixel_error"
-                        || attribute=="disp_height"
-                        || attribute=="disp_padding"
-                        || attribute=="disp_zero_value"
-                        || attribute=="disp_autobump"
-                        || attribute=="sss_setname"
-                        || attribute=="invert_normals"
-                        || attribute=="step_size"
-                        || attribute=="volume_padding")
-                    {
-                        Json::Value val = args.attributesRoot[*it][itr.key().asString()];
+//                     if (attribute=="smoothing"
+//                         || attribute=="subdiv_iterations"
+//                         || attribute=="subdiv_type"
+//                         || attribute=="subdiv_adaptive_metric"
+//                         || attribute=="subdiv_uv_smoothing"
+//                         || attribute=="subdiv_pixel_error"
+//                         || attribute=="disp_height"
+//                         || attribute=="disp_padding"
+//                         || attribute=="disp_zero_value"
+//                         || attribute=="disp_autobump"
+//                         || attribute=="sss_setname"
+//                         || attribute=="invert_normals"
+//                         || attribute=="step_size"
+//                         || attribute=="volume_padding")
+//                     {
+//                         Json::Value val = args.attributesRoot[*it][itr.key().asString()];
 
-                        rootEncode[attribute]=val;
-                    }
-                }
-            }
-        }
-    }
+//                         rootEncode[attribute]=val;
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-    if(appliedDisplacement != NULL)
-    {
-        rootEncode["disp_shader"] = std::string(AiNodeGetName(appliedDisplacement));
+//     if(appliedDisplacement != NULL)
+//     {
+//         rootEncode["disp_shader"] = std::string(AiNodeGetName(appliedDisplacement));
 
-    }
+//     }
 
-    hashAttributes += writer.write(rootEncode);
+//     hashAttributes += writer.write(rootEncode);
 
-    std::ostringstream buffer;
-    AbcA::ArraySampleKey sampleKey;
+//     std::ostringstream buffer;
+//     AbcA::ArraySampleKey sampleKey;
 
-    for ( SampleTimeSet::iterator I = sampleTimes.begin();
-            I != sampleTimes.end(); ++I )
-    {
-        ISampleSelector sampleSelector( *I );
-        ps.getPositionsProperty().getKey(sampleKey, sampleSelector);
+//     for ( SampleTimeSet::iterator I = sampleTimes.begin();
+//             I != sampleTimes.end(); ++I )
+//     {
+//         ISampleSelector sampleSelector( *I );
+//         ps.getPositionsProperty().getKey(sampleKey, sampleSelector);
 
-        buffer << GetRelativeSampleTime( args, (*I) ) << ":";
-        sampleKey.digest.print(buffer);
-        buffer << ":";
-    }
+//         buffer << GetRelativeSampleTime( args, (*I) ) << ":";
+//         sampleKey.digest.print(buffer);
+//         buffer << ":";
+//     }
 
 
-    if ( ps.getUVsParam ().valid() ) 
-    { 
-        AbcA::ArraySampleKey uvSampleKey;
-        ps.getUVsParam ().getValueProperty ().getKey(uvSampleKey, frameSelector);
-        uvSampleKey.digest.print(buffer);
-        buffer << ":";
+//     if ( ps.getUVsParam ().valid() ) 
+//     { 
+//         AbcA::ArraySampleKey uvSampleKey;
+//         ps.getUVsParam ().getValueProperty ().getKey(uvSampleKey, frameSelector);
+//         uvSampleKey.digest.print(buffer);
+//         buffer << ":";
     
-    }
+//     }
 
-    buffer << "@" << computeHash(hashAttributes);
+//     buffer << "@" << computeHash(hashAttributes);
 
-    cacheId = buffer.str();
+//     cacheId = buffer.str();
 
-    return cacheId;
+//     return cacheId;
 
-}
+// }
 
 //-*************************************************************************
 // doNormals
@@ -441,7 +441,7 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
 // writeMesh
 // This function creates & returns a mesh node with displace & attributes related to it.
 template <typename primT>
-AtNode* writeMesh( const std::string& name, const std::string& originalName, const std::string& cacheId, primT & prim, ProcArgs & args, const SampleTimeSet& sampleTimes )
+AtNode* writeMesh( const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, const SampleTimeSet& sampleTimes )
 {
     AiMsgInfo("%s", name.c_str());
     typename primT::schema_type  &ps = prim.getSchema();
@@ -1142,9 +1142,8 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     std::string name = args.nameprefix + originalName;
     SampleTimeSet sampleTimes;
     getSampleTimes(polymesh, args, sampleTimes);
-    std::string cacheId = getHash(name, originalName, polymesh, args, sampleTimes);
 
-    AtNode* meshNode = writeMesh(name, originalName, cacheId, polymesh, args, sampleTimes);
+    AtNode* meshNode = writeMesh(name, originalName, polymesh, args, sampleTimes);
     if(meshNode != NULL)
     {
         AtNode *instanceNode = createInstance(name, originalName, polymesh, args, xformSamples, meshNode);
@@ -1178,11 +1177,7 @@ void ProcessSubD( ISubD &subd, ProcArgs &args, MatrixSampleMap * xformSamples )
     std::string originalName = subd.getFullName();
     std::string name = args.nameprefix + originalName;
     SampleTimeSet sampleTimes;
-
     getSampleTimes( subd, args, sampleTimes);
-    std::string cacheId = getHash(name, originalName, subd, args, sampleTimes);
-
-    AtNode* meshNode = args.nodeCache->getCachedNode(cacheId);
 
     if(meshNode == NULL)
     {

@@ -457,7 +457,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
 
     // Getting all the data relative to the mesh.
     std::vector<unsigned int> vidxs;
-    std::vector<uint8_t> nsides;
+    std::vector<uint32_t> nsides;
     std::vector<float> vlist;
     std::vector<float> uvlist;
     std::vector<unsigned int> uvidxs;
@@ -475,11 +475,12 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
         {
 
             size_t numPolys = sample.getFaceCounts()->size();
+            AiMsgInfo(  "[numPolys : %i]", numPolys);
             nsides.reserve( sample.getFaceCounts()->size() );
             for ( size_t i = 0; i < numPolys; ++i )
             {
                 Alembic::Util::int32_t n = sample.getFaceCounts()->get()[i];
-
+                AiMsgInfo("  [poly sample face counts : %i]", n );
                 if ( n > 255 )
                 {
                     // TODO, warning about unsupported face
@@ -487,7 +488,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                     return NULL;
                 }
 
-                nsides.push_back( (uint8_t) n );
+                nsides.push_back( (uint32_t) n );
             }
 
             size_t vidxSize = sample.getFaceIndices()->size();
@@ -1134,7 +1135,7 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xformSamples)
 {
     AiMsgInfo("");
-    AiMsgInfo("  [AiCritSecEnter]");
+    AiMsgInfo("[AiCritSecEnter]");
     AiCritSecEnter(&args.lock);    
     if ( !polymesh.valid() )
         return;
@@ -1165,7 +1166,7 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
     }
 
     AiCritSecLeave(&args.lock);
-    AiMsgInfo("  [AiCritSecLeave]");
+    AiMsgInfo("[AiCritSecLeave]");
 }
 
 //-*************************************************************************

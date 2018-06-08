@@ -892,12 +892,12 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
         AiMsgDebug(" Node type doesn't have a shader parameter");
     }
 
-    AiNodeSetPtr( instanceNode, "node", mesh );
-    args.createdNodes->addNode(instanceNode);
-    
     if(instanceNode == NULL){
         AiMsgWarning("  [ginstance NULL]");
     }
+    AiNodeSetPtr( instanceNode, "node", mesh );
+    args.createdNodes->addNode(instanceNode);
+    
     return instanceNode;
 }
 

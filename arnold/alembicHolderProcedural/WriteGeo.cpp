@@ -1155,10 +1155,12 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
             }  
         }
         else{
+            AiNodeDestroy(instanceNode);
             AiMsgWarning("NULL GINSTANCE %s", originalName.c_str());
         }
     }
     else{
+        AiNodeDestroy(meshNode);
         AiMsgWarning("NULL MESH %s", originalName.c_str());
     }
 
@@ -1179,21 +1181,18 @@ void ProcessSubD( ISubD &subd, ProcArgs &args, MatrixSampleMap * xformSamples )
     SampleTimeSet sampleTimes;
     getSampleTimes( subd, args, sampleTimes);
 
-    if(meshNode == NULL)
-    {
-      // We don't have a cache, so we much create this mesh.
-      meshNode = writeMesh(name, originalName, cacheId, subd, args, sampleTimes);
-      
-      //force suddiv
-      if(meshNode)
-        AiNodeSetStr( meshNode, "subdiv_type", "catclark" );
-    } else {
-        AiMsgInfo(" Found Cached : %s", originalName.c_str());   
-    }
-
-    // we can create the instance, with correct transform, attributes & shaders.
+    AtNode* meshNode = writeMesh(name, originalName, subd, args, sampleTimes);
     if(meshNode != NULL)
     {
-      createInstance(name, originalName, subd, args, xformSamples, meshNode);
+        AtNode *instanceNode = createInstance(name, originalName, subd, args, xformSamples, meshNode);
+        if(instanceNode == NULL)
+        {
+            AiNodeDestroy(instanceNode);
+            AiMsgWarning("NULL GINSTANCE %s", originalName.c_str());  
+        }
+    }
+    else{
+        AiNodeDestroy(meshNode);
+        AiMsgWarning("NULL MESH %s", originalName.c_str());
     }
 }

@@ -479,14 +479,14 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
             nsides.reserve( sample.getFaceCounts()->size() );
             for ( size_t i = 0; i < numPolys; ++i )
             {
-                Alembic::Util::int32_t n = sample.getFaceCounts()->get()[i];
-                AiMsgInfo("  [poly sample face counts : %i]", n );
-                if ( n > 255 )
-                {
-                    // TODO, warning about unsupported face
-                    AiMsgWarning("  [poly sample face counts greater than 255 : %i]", n );
-                    return NULL;
-                }
+                Alembic::Util::uint32_t n = sample.getFaceCounts()->get()[i];
+                // AiMsgInfo("  [poly sample face counts : %i]", n );
+                // if ( n > 255 )
+                // {
+                //     // TODO, warning about unsupported face
+                //     AiMsgWarning("  [poly sample face counts greater than 255 : %i]", n );
+                //     return NULL;
+                // }
 
                 nsides.push_back( (uint32_t) n );
             }
@@ -709,7 +709,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
                     (void*)&vidxs[0]));
 
     AiNodeSetArray(meshNode, "nsides",
-            AiArrayConvert(nsides.size(), 1, AI_TYPE_BYTE,
+            AiArrayConvert(nsides.size(), 1, AI_TYPE_UINT,
                     &(nsides[0])));
 
     AiNodeSetArray(meshNode, "vlist",

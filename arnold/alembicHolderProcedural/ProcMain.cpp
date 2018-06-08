@@ -579,127 +579,127 @@ procedural_init
         std::sort(args->attributes.begin(), args->attributes.end());
     }
 
-    // CHECK FOR CACHED ALEMBIC FILE NODE - RE-USE ARNOLD NODES IF FOUND
-    //-*****************************************************************************
-    std::string fileCacheId = g_cache->g_fileCache->getHash(args->filenames, args->shaders, args->displacements, args->attributesRoot, args->frame);
-    const std::vector<CachedNodeFile>& createdNodes = g_cache->g_fileCache->getCachedFile(fileCacheId);
+    // // CHECK FOR CACHED ALEMBIC FILE NODE - RE-USE ARNOLD NODES IF FOUND
+    // //-*****************************************************************************
+    // std::string fileCacheId = g_cache->g_fileCache->getHash(args->filenames, args->shaders, args->displacements, args->attributesRoot, args->frame);
+    // const std::vector<CachedNodeFile>& createdNodes = g_cache->g_fileCache->getCachedFile(fileCacheId);
     
-    if (!createdNodes.empty())
-    {
+    // if (!createdNodes.empty())
+    // {
 
-        std::string s;
-        for (const auto &piece : args->filenames) s += piece;
-        AiMsgDebug(" Found cached instance of filenames : %s in the FileCache", s.c_str());
-        for(int i = 0; i <  createdNodes.size(); i++)
-        {
-            AiMsgDebug(" Instancing obj %i", i);
-            CachedNodeFile cachedNode = createdNodes[i];
-            AtNode *obj = cachedNode.node;
+    //     std::string s;
+    //     for (const auto &piece : args->filenames) s += piece;
+    //     AiMsgDebug(" Found cached instance of filenames : %s in the FileCache", s.c_str());
+    //     for(int i = 0; i <  createdNodes.size(); i++)
+    //     {
+    //         AiMsgDebug(" Instancing obj %i", i);
+    //         CachedNodeFile cachedNode = createdNodes[i];
+    //         AtNode *obj = cachedNode.node;
             
-            AiMsgDebug(" Getting obj %i %s and type %s", i, AiNodeGetName(obj), AiNodeEntryGetName(AiNodeGetNodeEntry (obj)));
-            if(AiNodeEntryGetType(AiNodeGetNodeEntry(obj)) == AI_NODE_SHAPE)
-            {
-                AtNode *instance = AiNode("ginstance");
-                AiNodeSetBool(instance, "inherit_xform", false);
-                AiNodeSetPtr(instance, "node", obj);
-                AiNodeSetArray(instance, "matrix", AiArrayCopy(cachedNode.matrix));
-                std::string newName = args->nameprefix + "/" + std::string(AiNodeGetName(obj));
-                AiNodeSetStr(instance, "name", newName.c_str());
+    //         AiMsgDebug(" Getting obj %i %s and type %s", i, AiNodeGetName(obj), AiNodeEntryGetName(AiNodeGetNodeEntry (obj)));
+    //         if(AiNodeEntryGetType(AiNodeGetNodeEntry(obj)) == AI_NODE_SHAPE)
+    //         {
+    //             AtNode *instance = AiNode("ginstance");
+    //             AiNodeSetBool(instance, "inherit_xform", false);
+    //             AiNodeSetPtr(instance, "node", obj);
+    //             AiNodeSetArray(instance, "matrix", AiArrayCopy(cachedNode.matrix));
+    //             std::string newName = args->nameprefix + "/" + std::string(AiNodeGetName(obj));
+    //             AiNodeSetStr(instance, "name", newName.c_str());
                 
-                // Now copy original properties
-                AiNodeSetByte(instance, "visibility", AiNodeGetByte(obj, "visibility"));
-                AiNodeSetFlt(instance, "motion_start", AiNodeGetFlt(obj, "motion_start"));
-                AiNodeSetFlt(instance, "motion_end", AiNodeGetFlt(obj, "motion_end"));
-                AiNodeSetByte(instance, "sidedness", AiNodeGetByte(obj, "sidedness"));
-                AiNodeSetBool(instance, "receive_shadows", AiNodeGetBool(obj, "receive_shadows"));
-                AiNodeSetBool(instance, "self_shadows", AiNodeGetBool(obj, "self_shadows"));
-                AiNodeSetBool(instance, "invert_normals", AiNodeGetBool(obj, "invert_normals"));
-                AiNodeSetBool(instance, "opaque", AiNodeGetBool(obj, "opaque"));
-                AiNodeSetBool(instance, "matte", AiNodeGetBool(obj, "matte"));
-                AiNodeSetBool(instance, "use_light_group", AiNodeGetBool(obj, "use_light_group"));
-                AiNodeSetArray(instance, "light_group", AiArrayCopy(AiNodeGetArray(obj, "light_group")));
-                AiNodeSetArray(instance, "shadow_group", AiArrayCopy(AiNodeGetArray(obj, "shadow_group")));
-                AiNodeSetArray(instance, "light_group", AiArrayCopy(AiNodeGetArray(obj, "light_group")));
-                args->createdNodes->addNode(instance);
-            }
-            else if (AiNodeEntryGetType(AiNodeGetNodeEntry(obj)) == AI_NODE_LIGHT)
-            {
-                // AiNodeClone seems to crash arnold when releasing ressources. So we clone the node ourself.
+    //             // Now copy original properties
+    //             AiNodeSetByte(instance, "visibility", AiNodeGetByte(obj, "visibility"));
+    //             AiNodeSetFlt(instance, "motion_start", AiNodeGetFlt(obj, "motion_start"));
+    //             AiNodeSetFlt(instance, "motion_end", AiNodeGetFlt(obj, "motion_end"));
+    //             AiNodeSetByte(instance, "sidedness", AiNodeGetByte(obj, "sidedness"));
+    //             AiNodeSetBool(instance, "receive_shadows", AiNodeGetBool(obj, "receive_shadows"));
+    //             AiNodeSetBool(instance, "self_shadows", AiNodeGetBool(obj, "self_shadows"));
+    //             AiNodeSetBool(instance, "invert_normals", AiNodeGetBool(obj, "invert_normals"));
+    //             AiNodeSetBool(instance, "opaque", AiNodeGetBool(obj, "opaque"));
+    //             AiNodeSetBool(instance, "matte", AiNodeGetBool(obj, "matte"));
+    //             AiNodeSetBool(instance, "use_light_group", AiNodeGetBool(obj, "use_light_group"));
+    //             AiNodeSetArray(instance, "light_group", AiArrayCopy(AiNodeGetArray(obj, "light_group")));
+    //             AiNodeSetArray(instance, "shadow_group", AiArrayCopy(AiNodeGetArray(obj, "shadow_group")));
+    //             AiNodeSetArray(instance, "light_group", AiArrayCopy(AiNodeGetArray(obj, "light_group")));
+    //             args->createdNodes->addNode(instance);
+    //         }
+    //         else if (AiNodeEntryGetType(AiNodeGetNodeEntry(obj)) == AI_NODE_LIGHT)
+    //         {
+    //             // AiNodeClone seems to crash arnold when releasing ressources. So we clone the node ourself.
 
-                const AtNodeEntry* nentry = AiNodeGetNodeEntry(obj);
-                AtNode* light = AiNode(AiNodeEntryGetName(nentry));
+    //             const AtNodeEntry* nentry = AiNodeGetNodeEntry(obj);
+    //             AtNode* light = AiNode(AiNodeEntryGetName(nentry));
 
-                for (int i = 0; i < AiNodeEntryGetNumParams (nentry); i++)
-                {
-                    const AtParamEntry* pentry = AiNodeEntryGetParameter (nentry, i);
+    //             for (int i = 0; i < AiNodeEntryGetNumParams (nentry); i++)
+    //             {
+    //                 const AtParamEntry* pentry = AiNodeEntryGetParameter (nentry, i);
 
-                    switch(AiParamGetType (pentry))
-                    {
+    //                 switch(AiParamGetType (pentry))
+    //                 {
                         
-                        case AI_TYPE_BYTE:
-                            AiNodeSetByte(light, AiParamGetName(pentry), AiNodeGetByte(obj, AiParamGetName(pentry)));
-                            break;
-                        case AI_TYPE_INT:
-                        case AI_TYPE_ENUM:
-                            AiNodeSetInt(light, AiParamGetName(pentry), AiNodeGetInt(obj, AiParamGetName(pentry)));
-                            break;
-                        case AI_TYPE_BOOLEAN:
-                            AiNodeSetBool(light, AiParamGetName(pentry), AiNodeGetBool(obj, AiParamGetName(pentry)));
-                            break;
-                        case AI_TYPE_FLOAT:
-                            AiNodeSetFlt(light, AiParamGetName(pentry), AiNodeGetFlt(obj, AiParamGetName(pentry)));
-                            break;
-                        case AI_TYPE_RGB:
-                            {
-                                AtRGB col = AiNodeGetRGB(obj, AiParamGetName(pentry));
-                                AiNodeSetRGB(light, AiParamGetName(pentry), col.r, col.g, col.b);
-                                break;
-                            }
-                        case AI_TYPE_RGBA:
-                            {
-                                AtRGBA colRGBA = AiNodeGetRGBA(obj, AiParamGetName(pentry));
-                                AiNodeSetRGBA(light, AiParamGetName(pentry), colRGBA.r, colRGBA.g, colRGBA.b, colRGBA.a);
-                                break;
-                            }
-                        case AI_TYPE_VECTOR:
-                            {
-                                AtVector vec = AiNodeGetVec(obj, AiParamGetName(pentry));
-                                AiNodeSetVec(light, AiParamGetName(pentry), vec.x, vec.y, vec.z);
-                                break;
-                            }
-                        case AI_TYPE_VECTOR2:
-                            {
-                                AtVector2 pnt2 = AiNodeGetVec2(obj, AiParamGetName(pentry));
-                                AiNodeSetVec2(light, AiParamGetName(pentry), pnt2.x, pnt2.y);
-                                break;
-                            }
-                        case AI_TYPE_STRING:
-                            if(strcmp(AiParamGetName(pentry), "name") != 0)
-                                AiNodeSetStr(light, AiParamGetName(pentry), AiNodeGetStr(obj, AiParamGetName(pentry)));
-                            break;
-                        case AI_TYPE_POINTER:
-                        case AI_TYPE_NODE:
-                            AiNodeSetPtr(light, AiParamGetName(pentry), AiNodeGetPtr(obj, AiParamGetName(pentry)));
-                            break;
-                        case AI_TYPE_ARRAY:
-                            {
-                                if(strcmp(AiParamGetName(pentry), "matrix") != 0)
-                                    AiNodeSetArray(light, AiParamGetName(pentry), AiArrayCopy(AiNodeGetArray(obj, AiParamGetName(pentry))));
-                                break;
-                            }
-                        default:
-                            break;
-                    }
-                }
+    //                     case AI_TYPE_BYTE:
+    //                         AiNodeSetByte(light, AiParamGetName(pentry), AiNodeGetByte(obj, AiParamGetName(pentry)));
+    //                         break;
+    //                     case AI_TYPE_INT:
+    //                     case AI_TYPE_ENUM:
+    //                         AiNodeSetInt(light, AiParamGetName(pentry), AiNodeGetInt(obj, AiParamGetName(pentry)));
+    //                         break;
+    //                     case AI_TYPE_BOOLEAN:
+    //                         AiNodeSetBool(light, AiParamGetName(pentry), AiNodeGetBool(obj, AiParamGetName(pentry)));
+    //                         break;
+    //                     case AI_TYPE_FLOAT:
+    //                         AiNodeSetFlt(light, AiParamGetName(pentry), AiNodeGetFlt(obj, AiParamGetName(pentry)));
+    //                         break;
+    //                     case AI_TYPE_RGB:
+    //                         {
+    //                             AtRGB col = AiNodeGetRGB(obj, AiParamGetName(pentry));
+    //                             AiNodeSetRGB(light, AiParamGetName(pentry), col.r, col.g, col.b);
+    //                             break;
+    //                         }
+    //                     case AI_TYPE_RGBA:
+    //                         {
+    //                             AtRGBA colRGBA = AiNodeGetRGBA(obj, AiParamGetName(pentry));
+    //                             AiNodeSetRGBA(light, AiParamGetName(pentry), colRGBA.r, colRGBA.g, colRGBA.b, colRGBA.a);
+    //                             break;
+    //                         }
+    //                     case AI_TYPE_VECTOR:
+    //                         {
+    //                             AtVector vec = AiNodeGetVec(obj, AiParamGetName(pentry));
+    //                             AiNodeSetVec(light, AiParamGetName(pentry), vec.x, vec.y, vec.z);
+    //                             break;
+    //                         }
+    //                     case AI_TYPE_VECTOR2:
+    //                         {
+    //                             AtVector2 pnt2 = AiNodeGetVec2(obj, AiParamGetName(pentry));
+    //                             AiNodeSetVec2(light, AiParamGetName(pentry), pnt2.x, pnt2.y);
+    //                             break;
+    //                         }
+    //                     case AI_TYPE_STRING:
+    //                         if(strcmp(AiParamGetName(pentry), "name") != 0)
+    //                             AiNodeSetStr(light, AiParamGetName(pentry), AiNodeGetStr(obj, AiParamGetName(pentry)));
+    //                         break;
+    //                     case AI_TYPE_POINTER:
+    //                     case AI_TYPE_NODE:
+    //                         AiNodeSetPtr(light, AiParamGetName(pentry), AiNodeGetPtr(obj, AiParamGetName(pentry)));
+    //                         break;
+    //                     case AI_TYPE_ARRAY:
+    //                         {
+    //                             if(strcmp(AiParamGetName(pentry), "matrix") != 0)
+    //                                 AiNodeSetArray(light, AiParamGetName(pentry), AiArrayCopy(AiNodeGetArray(obj, AiParamGetName(pentry))));
+    //                             break;
+    //                         }
+    //                     default:
+    //                         break;
+    //                 }
+    //             }
                 
-                AiNodeSetArray(light, "matrix", AiArrayCopy(cachedNode.matrix));
-                std::string newName = args->nameprefix + "/" + std::string(AiNodeGetName(obj));
-                AiNodeSetStr(light, "name", newName.c_str());
-                args->createdNodes->addNode(light);
-            }
-        }
-        return 1;
-    }
+    //             AiNodeSetArray(light, "matrix", AiArrayCopy(cachedNode.matrix));
+    //             std::string newName = args->nameprefix + "/" + std::string(AiNodeGetName(obj));
+    //             AiNodeSetStr(light, "name", newName.c_str());
+    //             args->createdNodes->addNode(light);
+    //         }
+    //     }
+    //     return 1;
+    // }
 
     // NO CACHED FILE WAS FOUND - WE NEED TO WALK THE ALEMBIC AND CREATE THE ARNOLD NODES
     //-*****************************************************************************

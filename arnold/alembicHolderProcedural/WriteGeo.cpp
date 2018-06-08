@@ -475,19 +475,10 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, con
         {
 
             size_t numPolys = sample.getFaceCounts()->size();
-            AiMsgInfo(  "[numPolys : %i]", numPolys);
             nsides.reserve( sample.getFaceCounts()->size() );
             for ( size_t i = 0; i < numPolys; ++i )
             {
                 Alembic::Util::uint32_t n = sample.getFaceCounts()->get()[i];
-                // AiMsgInfo("  [poly sample face counts : %i]", n );
-                // if ( n > 255 )
-                // {
-                //     // TODO, warning about unsupported face
-                //     AiMsgWarning("  [poly sample face counts greater than 255 : %i]", n );
-                //     return NULL;
-                // }
-
                 nsides.push_back( (uint32_t) n );
             }
 

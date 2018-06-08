@@ -821,6 +821,13 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
     AtNode* instanceNode = AiNode( "ginstance" );
+    if (!instanceNode)
+    {
+        AiMsgError(" Failed to make ginstance node for %s",
+                prim.getFullName().c_str());
+        return NULL;
+    }
+
     AtNode* camera = AiUniverseGetCamera();    
 
     AiNodeSetStr( instanceNode, "name", (name + ":ginstance").c_str());

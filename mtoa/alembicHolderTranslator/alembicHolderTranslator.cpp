@@ -289,6 +289,6 @@ void CABCViewerTranslator::ExportMotion(AtNode* anode)
 void CABCViewerTranslator::NodeInitializer(CAbTranslator context){
 
     CExtensionAttrHelper helper(context.maya, "procedural");
-    CShapeTranslator::MakeCommonAttributes(helper);
+    // CShapeTranslator::MakeCommonAttributes(helper);
 
 }

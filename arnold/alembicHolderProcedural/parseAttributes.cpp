@@ -523,7 +523,7 @@ void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& n
         }
         else
         {
-            AiMsgWarning(" Can't find shader %s", shaderName.c_str());
+            AiMsgError(" Can't find shader %s", shaderName.c_str());
         }
     }
 }

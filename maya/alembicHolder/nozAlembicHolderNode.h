@@ -165,6 +165,14 @@ public:
     static    MObject    aBoundMin;
     static    MObject    aBoundMax;
 
+    static    MObject    aUserOptions;
+    static    MObject    aOpaque;
+    static    MObject    aSelfShadows;
+    static    MObject    aMatte; 
+    static    MObject    aReceiveShadows;
+    static    MObject    aTraceSets;
+    static    MObject    aSssSetname;        
+
 public:
     static  MTypeId     id;
 };

@@ -261,7 +261,7 @@ class AEalembicHolderTemplate(BaseTemplate):
                 self.callCustom(self._localiseLookdevWidget, self._localiseLookdevConnect, "")
                 self.endLayout()
 
-        render_attrs = ["primaryVisibility", "aiSelfShadows", "castsShadows", "receiveShadows", "motionBlur", "aiVisibleInDiffuse", "aiVisibleInGlossy", "visibleInRefractions", "visibleInReflections", "aiOpaque", "aiMatte", "overrideGlobalShader", "aiTraceSets", "aiSssSetname"]
+        render_attrs = ["primaryVisibility", "aiSelfShadows", "castsShadows", "aiReceiveShadows", "motionBlur", "aiVisibleInDiffuse", "aiVisibleInGlossy", "visibleInRefractions", "visibleInReflections", "aiOpaque", "aiMatte", "overrideGlobalShader", "aiTraceSets", "aiSssSetname", "aiUserOptions"]
         self.beginLayout(name="Render Stats", collapse=True)
         self.beginNoOptimize()
         for attr in render_attrs:

@@ -50,13 +50,13 @@ void CABCViewerTranslator::ProcessRenderFlagsCustom(AtNode* node)
     if(m_DagNode.findPlug("aiOpaque").asBool() == false)
           ProcessParameter(node, "opaque", AI_TYPE_BOOLEAN, "aiOpaque");
 
-        if(m_DagNode.findPlug("aiMatte").asBool() == true)
-          ProcessParameter(node, "matte", AI_TYPE_BOOLEAN, "aiMatte");
+    if(m_DagNode.findPlug("aiMatte").asBool() == true)
+      ProcessParameter(node, "matte", AI_TYPE_BOOLEAN, "aiMatte");
 
-    if(m_DagNode.findPlug("receiveShadows").asBool() == false)
-          ProcessParameter(node, "receive_shadows", AI_TYPE_BOOLEAN, "receiveShadows");
+    if(m_DagNode.findPlug("aiReceiveShadows").asBool() == false)
+          ProcessParameter(node, "receive_shadows", AI_TYPE_BOOLEAN, "aiReceiveShadows");
+
     MStatus status;
-
     plug = FindMayaPlug("aiSssSetname", &status);
     if (status && !plug.isNull())
     {

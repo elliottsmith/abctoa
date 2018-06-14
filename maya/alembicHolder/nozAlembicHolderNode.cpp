@@ -111,6 +111,15 @@ MObject nozAlembicHolder::aUpdateTransforms;
 MObject nozAlembicHolder::aBoundMin;
 MObject nozAlembicHolder::aBoundMax;
 
+// CShapeTranslator::MakeCommonAttributes doesnt work in arnold 5.0, we need to add them ourselves
+MObject nozAlembicHolder::aUserOptions;
+MObject nozAlembicHolder::aOpaque;
+MObject nozAlembicHolder::aSelfShadows;
+MObject nozAlembicHolder::aMatte;
+MObject nozAlembicHolder::aReceiveShadows;
+MObject nozAlembicHolder::aTraceSets;
+MObject nozAlembicHolder::aSssSetname;
+
 nozAlembicHolder::nozAlembicHolder()
 {
     if (gGLFT == NULL)
@@ -347,8 +356,57 @@ MStatus nozAlembicHolder::initialize() {
     nAttr.setWritable( false );
     nAttr.setStorable( false );
 
+    // CShapeTranslator::MakeCommonAttributes doesnt work in arnold 5.0, we need to add them ourselves
+    aUserOptions = tAttr.create("aiUserOptions", "aiuo", MFnStringData::kString, MObject::kNullObj);
+    tAttr.setWritable(true);
+    tAttr.setReadable(true);
+    tAttr.setHidden(false);
+    tAttr.setStorable(true);
+    tAttr.setKeyable(true);
+
+    aOpaque = nAttr.create("aiOpaque", "aiop", MFnNumericData::kBoolean, false);
+    nAttr.setWritable(true);
+    nAttr.setReadable(true);
+    nAttr.setHidden(false);
+    nAttr.setStorable(true);
+    nAttr.setKeyable(true);
+
+    aSelfShadows = nAttr.create("aiSelfShadows", "aiss", MFnNumericData::kBoolean, false);
+    nAttr.setWritable(true);
+    nAttr.setReadable(true);
+    nAttr.setHidden(false);
+    nAttr.setStorable(true);
+    nAttr.setKeyable(true);    
+
+    aMatte = nAttr.create("aiMatte", "aimt", MFnNumericData::kBoolean, false);
+    nAttr.setWritable(true);
+    nAttr.setReadable(true);
+    nAttr.setHidden(false);
+    nAttr.setStorable(true);
+    nAttr.setKeyable(true);
+
+    aReceiveShadows = nAttr.create("aiReceiveShadows", "airs", MFnNumericData::kBoolean, false);
+    nAttr.setWritable(true);
+    nAttr.setReadable(true);
+    nAttr.setHidden(false);
+    nAttr.setStorable(true);
+    nAttr.setKeyable(true);
+
+    aTraceSets = tAttr.create("aiTraceSets", "aits", MFnStringData::kString, MObject::kNullObj);
+    tAttr.setWritable(true);
+    tAttr.setReadable(true);
+    tAttr.setHidden(false);
+    tAttr.setStorable(true);
+    tAttr.setKeyable(true);
+
+    aSssSetname = tAttr.create("aiSssSetname", "aisss", MFnStringData::kString, MObject::kNullObj);
+    tAttr.setWritable(true);
+    tAttr.setReadable(true);
+    tAttr.setHidden(false);
+    tAttr.setStorable(true);
+    tAttr.setKeyable(true);
+
     // Add the attributes we have created to the node
-    //
     addAttribute(aAbcFiles);
     addAttribute(aObjectPath);
     addAttribute(aSelectionPath);
@@ -379,6 +437,14 @@ MStatus nozAlembicHolder::initialize() {
     addAttribute(aUpdateTransforms);    
     addAttribute(aBoundMin);
     addAttribute(aBoundMax);
+
+    addAttribute(aUserOptions);
+    addAttribute(aOpaque);
+    addAttribute(aSelfShadows);
+    addAttribute(aMatte);
+    addAttribute(aReceiveShadows);
+    addAttribute(aTraceSets);
+    addAttribute(aSssSetname);
 
     // Update cache
     attributeAffects(aAbcFiles, aUpdateCache);

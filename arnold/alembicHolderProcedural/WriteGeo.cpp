@@ -374,7 +374,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, pri
     ProcessIndexedBuiltinParam(ps.getUVsParam(), singleSampleTimes, uvlist, uvidxs, 2);
 
     // Set the meshNode.
-    AtNode* meshNode = AiNode( "polymesh" );
+    AtNode* meshNode = AiNode( "polymesh", (name + ":src").c_str(), args.proceduralNode );
 
     if (!meshNode)
     {
@@ -383,7 +383,6 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, pri
         return NULL;
     }
 
-    AiNodeSetStr( meshNode, "name", (name + ":src").c_str() );
     AiNodeSetByte( meshNode, "visibility", 0 );
     AiNodeSetBool(meshNode, "smoothing", true);
 
@@ -620,7 +619,7 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
 
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
-    AtNode* instanceNode = AiNode( "ginstance" );
+    AtNode* instanceNode = AiNode("ginstance", (name + ":ginstance").c_str(), args.proceduralNode);
     if (!instanceNode)
     {
         AiMsgError(" Failed to make ginstance node for %s",
@@ -630,7 +629,6 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
 
     AtNode* camera = AiUniverseGetCamera();    
 
-    AiNodeSetStr( instanceNode, "name", (name + ":ginstance").c_str());
     AiNodeSetBool( instanceNode, "inherit_xform", false );
     AiNodeSetFlt(instanceNode, "motion_start", AiNodeGetFlt(camera, "motion_start"));
     AiNodeSetFlt(instanceNode, "motion_end", AiNodeGetFlt(camera, "motion_end"));  

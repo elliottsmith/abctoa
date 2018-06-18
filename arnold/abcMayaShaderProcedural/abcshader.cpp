@@ -14,9 +14,7 @@ License along with this library.*/
 #include "abcshaderutils.h"
 #include <Alembic/AbcCoreFactory/IFactory.h>
 
-
 AI_SHADER_NODE_EXPORT_METHODS(ABCShaderMethods);
-
 
 namespace Abc =  Alembic::Abc;
 namespace Mat = Alembic::AbcMaterial;
@@ -99,7 +97,7 @@ node_initialize
                 AiMsgDebug(" Creating %s node named %s", nodeType.c_str(), abcnode.getName().c_str());
                 std::string name = std::string(AiNodeGetStr(node, "name")) + "_" + abcnode.getName();
 
-                AtNode* aShader = AiNode (nodeType.c_str(), name.c_str(), args.proceduralNode);
+                AtNode* aShader = AiNode (nodeType.c_str(), name.c_str(), node);
                 data->aShaders[abcnode.getName()] = aShader;
 
                 // We set the default attributes

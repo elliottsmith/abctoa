@@ -97,11 +97,9 @@ node_initialize
                 std::string nodeType = "<undefined>";
                 abcnode.getNodeType(nodeType);
                 AiMsgDebug(" Creating %s node named %s", nodeType.c_str(), abcnode.getName().c_str());
-                AtNode* aShader = AiNode (nodeType.c_str());
-
                 std::string name = std::string(AiNodeGetStr(node, "name")) + "_" + abcnode.getName();
 
-                AiNodeSetStr (aShader, "name", name.c_str());
+                AtNode* aShader = AiNode (nodeType.c_str(), name.c_str(), args.proceduralNode);
                 data->aShaders[abcnode.getName()] = aShader;
 
                 // We set the default attributes

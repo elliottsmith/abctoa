@@ -206,8 +206,7 @@ AtNode* writePoints(
     std::vector<std::string> tags;
     getAllTags(prim, tags, &args);
 
-    AtNode* pointsNode = AiNode( "points" );
-    AiNodeSetStr( pointsNode, "name", (name + ":src").c_str() );
+    AtNode* pointsNode = AiNode( "points", (name + ":src").c_str(), args.proceduralNode);
     AiNodeSetByte( pointsNode, "visibility", 0 );
 
     if (!pointsNode)
@@ -453,9 +452,7 @@ void createInstance(
 
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
-    AtNode* instanceNode = AiNode( "ginstance" );
-
-    AiNodeSetStr( instanceNode, "name", name.c_str() );
+    AtNode* instanceNode = AiNode("ginstance", (name + ":ginstance").c_str(), args.proceduralNode);
     AiNodeSetPtr(instanceNode, "node", points );
     AiNodeSetBool( instanceNode, "inherit_xform", false );
     

@@ -225,8 +225,7 @@ AtNode* writeCurves(
     getAllTags(prim, tags, &args);
 
     // create the arnold node, set name and visibilty and check if valid
-    AtNode* curvesNode = AiNode( "curves" );
-    AiNodeSetStr( curvesNode, "name", (name + ":src").c_str() );
+    AtNode* curvesNode = AiNode( "curves", (name + ":src").c_str(), args.proceduralNode );
     AiNodeSetByte( curvesNode, "visibility", 0 );
     if (!curvesNode)
     {
@@ -549,10 +548,8 @@ void createInstance(
 
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
-    AtNode* instanceNode = AiNode( "ginstance" );
-
-    AiNodeSetStr( instanceNode, "name", name.c_str() );
-    AiNodeSetPtr(instanceNode, "node", points );
+    AtNode* instanceNode = AiNode("ginstance", (name + ":ginstance").c_str(), args.proceduralNode);
+    AiNodeSetPtr( instanceNode, "node", points );
     AiNodeSetBool( instanceNode, "inherit_xform", false );
     
     if ( args.proceduralNode )

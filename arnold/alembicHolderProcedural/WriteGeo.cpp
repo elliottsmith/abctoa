@@ -675,9 +675,8 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
                     if(shaderForFaceSet == NULL)
                     {
                         // We can't have a NULL.
-                        shaderForFaceSet = AiNode("utility");
+                        shaderForFaceSet = AiNode("utility", faceSetNameForShading.c_str(), args.proceduralNode);
                         args.createdNodes->addNode(shaderForFaceSet);
-                        AiNodeSetStr(shaderForFaceSet, "name", faceSetNameForShading.c_str());
                     }
                         AiArraySetPtr(shadersArray, i, shaderForFaceSet);
                 }
@@ -820,8 +819,7 @@ void createMeshLight(const std::string& name, const std::string& originalName, p
 
     ISampleSelector frameSelector( *singleSampleTimes.begin() );
 
-    AtNode* meshLightNode = AiNode( "mesh_light" );
-    AiNodeSetStr(meshLightNode, "name", meshlightname.c_str() );
+    AtNode* meshLightNode = AiNode( "mesh_light", meshlightname.c_str(), args.proceduralNode );
     AiNodeSetPtr(meshLightNode, "mesh", mesh );
 
     //get tags
@@ -855,7 +853,7 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 
     // this stuff was missing
     std::string meshlightshadername = name + ":meshlightshader";
-    AtNode* meshLightShader = AiNode( "MtoaMeshLightMaterial", meshlightshadername.c_str());
+    AtNode* meshLightShader = AiNode( "MtoaMeshLightMaterial", meshlightshadername.c_str(), args.proceduralNode);
 
     // see if light is visible
     bool light_visible = false;

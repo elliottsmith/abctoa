@@ -14,9 +14,9 @@ export MAYAVER=2018.2
 export MAYASHORT=2018
 
 # ARNOLD 5.1
-export ARNOLDVER=5.1.0.1
+export ARNOLDVER=5.1.1.0
 export ARNOLD_SHORT=5.1
-export MTOAVER=3.0.0.2
+export MTOAVER=3.0.1
 
 # sys argv
 export PREFIX=$1

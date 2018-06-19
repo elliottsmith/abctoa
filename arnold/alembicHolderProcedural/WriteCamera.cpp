@@ -26,10 +26,7 @@ void ProcessCamera( ICamera &camera, const ProcArgs &args,
 
     Alembic::AbcGeom::CameraSample sample = ps.getValue( sampleSelector );
 
-    AtNode * cameraNode = AiNode("persp_camera");
-    AiNodeSetStr(cameraNode, "name", name.c_str());
-
+    AtNode * cameraNode = AiNode("persp_camera", name.c_str(), args.proceduralNode);
     AiNodeSetFlt(cameraNode, "fov", sample.getFocalLength());
-
 
 }

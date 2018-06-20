@@ -141,6 +141,7 @@ void CABCViewerTranslator::ExportProcedural(AtNode* procedural, bool update)
         MPlug jsonFile = m_DagNode.findPlug("jsonFile");
         MPlug secondaryJsonFile = m_DagNode.findPlug("secondaryJsonFile");
         MPlug shadersNamespace = m_DagNode.findPlug("shadersNamespace");
+        MPlug geometryNamespace = m_DagNode.findPlug("geometryNamespace");
         MPlug shadersAttribute = m_DagNode.findPlug("shadersAttribute");
         MPlug abcShaders = m_DagNode.findPlug("abcShaders");
         MPlug uvsArchive = m_DagNode.findPlug("uvsArchive");
@@ -201,6 +202,11 @@ void CABCViewerTranslator::ExportProcedural(AtNode* procedural, bool update)
         {
             AiNodeSetStr(procedural, "shadersNamespace", shadersNamespace.asString().asChar());
         }
+
+        if(geometryNamespace.asString() != "")
+        {
+            AiNodeSetStr(procedural, "geometryNamespace", geometryNamespace.asString().asChar());
+        }        
 
         if(shadersAttribute.asString() != "")
         {

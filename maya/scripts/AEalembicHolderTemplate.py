@@ -245,6 +245,7 @@ class AEalembicHolderTemplate(BaseTemplate):
         self.addControl(control="attributes", label="Attributes")
         self.addControl(control="layersOverride", label="Layers Override")
         self.addControl(control="shadersNamespace", label="Shaders Namespace")
+        self.addControl(control="geometryNamespace", label="Geometry Namespace")        
         self.endLayout()        
 
         if get_context().task != None:

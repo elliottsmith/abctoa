@@ -89,6 +89,7 @@ MObject nozAlembicHolder::aForceReload;
 MObject nozAlembicHolder::aJsonFile;
 MObject nozAlembicHolder::aJsonFileSecondary;
 MObject nozAlembicHolder::aShadersNamespace;
+MObject nozAlembicHolder::aGeometryNamespace;
 MObject nozAlembicHolder::aShadersAttribute;
 MObject nozAlembicHolder::aAbcShaders;
 MObject nozAlembicHolder::aUvsArchive;
@@ -288,6 +289,13 @@ MStatus nozAlembicHolder::initialize() {
     tAttr.setStorable(true);
     tAttr.setKeyable(true);
 
+    aGeometryNamespace = tAttr.create("geometryNamespace", "gn", MFnStringData::kString, MObject::kNullObj);
+    tAttr.setWritable(true);
+    tAttr.setReadable(true);
+    tAttr.setHidden(false);
+    tAttr.setStorable(true);
+    tAttr.setKeyable(true);    
+
     aShadersAttribute = tAttr.create("shadersAttribute", "sattr", MFnStringData::kString, MObject::kNullObj);
     tAttr.setWritable(true);
     tAttr.setReadable(true);
@@ -463,6 +471,7 @@ MStatus nozAlembicHolder::initialize() {
 	addAttribute(aJsonFile);
 	addAttribute(aJsonFileSecondary);
 	addAttribute(aShadersNamespace);
+    addAttribute(aGeometryNamespace);    
 	addAttribute(aShadersAttribute);
 	addAttribute(aAbcShaders);
 	addAttribute(aUvsArchive);

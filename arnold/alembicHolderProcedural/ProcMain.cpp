@@ -70,6 +70,7 @@ node_parameters
     AiParameterStr("jsonFile", "");
     AiParameterStr("secondaryJsonFile", "");
     AiParameterStr("shadersNamespace", "");
+    AiParameterStr("geometryNamespace", "");    
     AiParameterStr("shadersAttribute", "");
     AiParameterStr("abcShaders", "");
     AiParameterStr("shadersAssignation", "");
@@ -374,6 +375,7 @@ procedural_init
     AtString jsonFile = AiNodeGetStr(node, "jsonFile");
     AtString secondaryJsonFile = AiNodeGetStr(node, "secondaryJsonFile");
     AtString shadersNamespace = AiNodeGetStr(node, "shadersNamespace");
+    AtString geometryNamespace = AiNodeGetStr(node, "geometryNamespace");    
     AtString shadersAttribute = AiNodeGetStr(node, "shadersAttribute");
     AtString shadersAssignation = AiNodeGetStr(node, "shadersAssignation");
     AtString attributes = AiNodeGetStr(node, "attributes");
@@ -545,6 +547,11 @@ procedural_init
     {
         args->ns = std::string(shadersNamespace.c_str()) + ":";
     }
+
+    if (geometryNamespace.empty() == false)
+    {
+        args->gns = std::string(geometryNamespace.c_str()) + ":";
+    }    
 
     // If shaderAttributes attribute is set it has priority
     if (shadersAttribute.empty() == false)

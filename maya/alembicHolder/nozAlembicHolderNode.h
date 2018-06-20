@@ -145,6 +145,7 @@ public:
 	static    MObject    aJsonFile;
 	static    MObject    aJsonFileSecondary;
 	static    MObject    aShadersNamespace;
+    static    MObject    aGeometryNamespace;    
 	static    MObject    aShadersAttribute;
 	static    MObject    aAbcShaders;
 	static    MObject	 aUvsArchive;

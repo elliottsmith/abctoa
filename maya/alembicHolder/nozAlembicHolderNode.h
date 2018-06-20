@@ -171,7 +171,9 @@ public:
     static    MObject    aMatte; 
     static    MObject    aReceiveShadows;
     static    MObject    aTraceSets;
-    static    MObject    aSssSetname;        
+    static    MObject    aSssSetname;
+
+    static    MCallbackId attrChangeCBID;            
 
 public:
     static  MTypeId     id;

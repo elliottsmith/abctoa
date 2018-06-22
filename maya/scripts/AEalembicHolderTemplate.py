@@ -95,11 +95,6 @@ class AEalembicHolderTemplate(BaseTemplate):
             selected = abcToApi.getCurrentSelection()
             cmds.setAttr("%s.cacheFileNames[0]" % selected, ret[0], type="string")
 
-            # now check if we need to update transforms
-            node = cmds.listRelatives(selected, parent=True)[0]
-            if cmds.getAttr('%s.updateTransforms' % selected):
-                abcToApi.update_xforms(ret[0], node)
-
     def _abcImport(self, args):
         """
         Import the alembic file via abcToApi
@@ -250,6 +245,7 @@ class AEalembicHolderTemplate(BaseTemplate):
         self.addControl(control="attributes", label="Attributes")
         self.addControl(control="layersOverride", label="Layers Override")
         self.addControl(control="shadersNamespace", label="Shaders Namespace")
+        self.addControl(control="geometryNamespace", label="Geometry Namespace")        
         self.endLayout()        
 
         if get_context().task != None:

@@ -93,6 +93,7 @@ struct ProcArgs
 	bool useShaderAssignationAttribute;
     
 	std::string ns;
+    std::string gns;
 	std::string shaderAssignationAttribute;
 
     std::vector<std::pair<std::string, AtNode*> > shaders;

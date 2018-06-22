@@ -89,6 +89,7 @@ MObject nozAlembicHolder::aForceReload;
 MObject nozAlembicHolder::aJsonFile;
 MObject nozAlembicHolder::aJsonFileSecondary;
 MObject nozAlembicHolder::aShadersNamespace;
+MObject nozAlembicHolder::aGeometryNamespace;
 MObject nozAlembicHolder::aShadersAttribute;
 MObject nozAlembicHolder::aAbcShaders;
 MObject nozAlembicHolder::aUvsArchive;
@@ -120,6 +121,8 @@ MObject nozAlembicHolder::aReceiveShadows;
 MObject nozAlembicHolder::aTraceSets;
 MObject nozAlembicHolder::aSssSetname;
 
+MCallbackId nozAlembicHolder::attrChangeCBID;
+
 nozAlembicHolder::nozAlembicHolder()
 {
     if (gGLFT == NULL)
@@ -128,6 +131,7 @@ nozAlembicHolder::nozAlembicHolder()
 
 nozAlembicHolder::~nozAlembicHolder()
 {
+    MMessage::removeCallback(nozAlembicHolder::attrChangeCBID);
 }
 
 bool nozAlembicHolder::isBounded() const
@@ -155,10 +159,51 @@ void* nozAlembicHolder::creator()
     return new nozAlembicHolder();
 }
 
+void AttrChangedCB(MNodeMessage::AttributeMessage msg, MPlug & plug, MPlug & otherPlug, void* vpClientData)
+{
+    if ( msg & MNodeMessage::kAttributeSet )
+    {
+        if(plug.attribute()==nozAlembicHolder::aAbcFiles)
+        {
+            // query updateTransforms attribute
+            bool updateXform = false;
+            MObject node = plug.node();
+            MFnDependencyNode fnNode(node);
+            MFnDagNode fnDag(node);
+            MPlug aUpdateTransformsPlug = fnNode.findPlug("updateTransforms");
+            updateXform = aUpdateTransformsPlug.asBool();
+
+            if (updateXform  == true){
+
+                MStatus status;
+                MObject parentObj = fnDag.parent(0);
+                MFnDagNode parentDag(parentObj);                
+
+                MString pythoncommand = "from alembicHolder.cmds import abcToApi; reload(abcToApi); abcToApi.update_xforms('";
+                pythoncommand += plug.asString();
+                pythoncommand += "', '";
+                pythoncommand += parentDag.fullPathName();                
+                pythoncommand += "')";
+                MGlobal::displayInfo(pythoncommand);
+
+                status = MGlobal::executePythonCommandOnIdle(MString(pythoncommand), false);
+                if (!status) 
+                {
+                    status.perror("Error updating transforms");
+                };
+            }
+        }
+    }
+}
+
 void nozAlembicHolder::postConstructor()
 {
     // This call allows the shape to have shading groups assigned
     setRenderable(true);
+
+    MStatus stat;
+    MObject myNode = this->thisMObject();
+    nozAlembicHolder::attrChangeCBID = MNodeMessage::addAttributeChangedCallback(myNode, AttrChangedCB, NULL, &stat);
 }
 
 void nozAlembicHolder::copyInternalData(MPxNode* srcNode) {
@@ -243,6 +288,13 @@ MStatus nozAlembicHolder::initialize() {
     tAttr.setHidden(false);
     tAttr.setStorable(true);
     tAttr.setKeyable(true);
+
+    aGeometryNamespace = tAttr.create("geometryNamespace", "gn", MFnStringData::kString, MObject::kNullObj);
+    tAttr.setWritable(true);
+    tAttr.setReadable(true);
+    tAttr.setHidden(false);
+    tAttr.setStorable(true);
+    tAttr.setKeyable(true);    
 
     aShadersAttribute = tAttr.create("shadersAttribute", "sattr", MFnStringData::kString, MObject::kNullObj);
     tAttr.setWritable(true);
@@ -419,6 +471,7 @@ MStatus nozAlembicHolder::initialize() {
 	addAttribute(aJsonFile);
 	addAttribute(aJsonFileSecondary);
 	addAttribute(aShadersNamespace);
+    addAttribute(aGeometryNamespace);    
 	addAttribute(aShadersAttribute);
 	addAttribute(aAbcShaders);
 	addAttribute(aUvsArchive);

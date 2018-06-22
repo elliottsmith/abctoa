@@ -41,9 +41,13 @@
 
 #include "json/json.h"
 #include "json/value.h"
+#include <pystring.h>
 
 void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std::string>& tags, ProcArgs & args)
 {
+    std::string noNamespace;
+    noNamespace = pystring::replace(name, args.gns, "");
+
     bool foundInPath = false;
     int pathSize = 0;
     for(std::vector<std::string>::iterator it=args.attributes.begin(); it!=args.attributes.end(); ++it)
@@ -51,7 +55,7 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
         Json::Value overrides;
         if(it->find("/") != std::string::npos)
         {
-            bool curFoundInPath = pathContainsOtherPath(name, *it);
+            bool curFoundInPath = pathContainsOtherPath(noNamespace, *it);
             if(curFoundInPath)
             {
                 foundInPath = true;
@@ -63,7 +67,7 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
                 }
             }
         }
-        else if(matchPattern(name,*it)) // based on wildcard expression
+        else if(matchPattern(noNamespace,*it)) // based on wildcard expression
         {
             foundInPath = true;
             std::string overridePath = *it;
@@ -223,6 +227,10 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
 
 AtNode* getShader(const std::string& name, const std::vector<std::string>& tags, ProcArgs & args)
 {
+
+    std::string noNamespace;
+    noNamespace = pystring::replace(name, args.gns, "");
+
     bool foundInPath = false;
     int pathSize = 0;
     AtNode* appliedShader = NULL;
@@ -231,7 +239,7 @@ AtNode* getShader(const std::string& name, const std::vector<std::string>& tags,
         //check both path & tag
         if(it->first.find("/") != std::string::npos)
         {
-            if(pathContainsOtherPath(name, it->first))
+            if(pathContainsOtherPath(noNamespace, it->first))
             {
                 foundInPath = true;
                 std::string shaderPath = it->first;
@@ -242,7 +250,7 @@ AtNode* getShader(const std::string& name, const std::vector<std::string>& tags,
                 }
             }
         }
-        else if(matchPattern(name,it->first)) // based on wildcard expression
+        else if(matchPattern(noNamespace,it->first)) // based on wildcard expression
         {
             appliedShader = it->second;
             foundInPath = true;

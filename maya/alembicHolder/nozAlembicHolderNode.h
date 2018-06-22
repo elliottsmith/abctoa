@@ -145,6 +145,7 @@ public:
 	static    MObject    aJsonFile;
 	static    MObject    aJsonFileSecondary;
 	static    MObject    aShadersNamespace;
+    static    MObject    aGeometryNamespace;    
 	static    MObject    aShadersAttribute;
 	static    MObject    aAbcShaders;
 	static    MObject	 aUvsArchive;
@@ -171,7 +172,9 @@ public:
     static    MObject    aMatte; 
     static    MObject    aReceiveShadows;
     static    MObject    aTraceSets;
-    static    MObject    aSssSetname;        
+    static    MObject    aSssSetname;
+
+    static    MCallbackId attrChangeCBID;            
 
 public:
     static  MTypeId     id;

@@ -460,8 +460,7 @@ AtNode* createNetwork(IObject object, std::string prefix, ProcArgs & args)
 
 void ParseShaders(Json::Value jroot, const std::string& ns, const std::string& nameprefix, ProcArgs* args, uint8_t type)
 {
-    // We have to lock here as we need to be sure that another thread is not checking the root while we are creating it here.
-    AtScopedLock sc(args->lock);
+
     for( Json::ValueIterator itr = jroot.begin() ; itr != jroot.end() ; itr++ )
     {
         

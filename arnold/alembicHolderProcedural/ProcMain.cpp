@@ -343,7 +343,6 @@ procedural_init
     args->nodeCache = g_cache->g_nodeCache;
     args->lock = g_cache->mycs;
     args->createdNodes = new NodeCollector(args->lock, node);
-    AiCritSecEnter(&args->lock);
 
     AtString abcfile = AiNodeGetStr(node, "abcShaders");
     if(abcfile.empty() == false)
@@ -638,7 +637,6 @@ procedural_init
             }
         }
     }
-    AiCritSecLeave(&args->lock);
     return 1;
 }
 

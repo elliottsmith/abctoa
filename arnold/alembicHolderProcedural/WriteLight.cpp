@@ -320,17 +320,17 @@ void ProcessLight( ILight &light, ProcArgs &args,
                 switch(lightType)
                 {
                     case 0:
-                        lightNode = AiNode("distant_light");
+                        lightNode = AiNode("distant_light", (name + ":light").c_str(), args.proceduralNode);
                         break;
                     case 1:
-                        lightNode = AiNode("point_light");
+                        lightNode = AiNode("point_light", (name + ":light").c_str(), args.proceduralNode);
                         break;
                     case 2:
-                        lightNode = AiNode("spot_light");
+                        lightNode = AiNode("spot_light", (name + ":light").c_str(), args.proceduralNode);
                         break;
                     case 3:
 					{
-						lightNode = AiNode("quad_light");
+						lightNode = AiNode("quad_light", (name + ":light").c_str(), args.proceduralNode);
 						AtVector vertices[4];
 						vertices[3] = AtVector(1, 1, 0);
 						vertices[0] = AtVector(1, -1, 0);
@@ -340,13 +340,13 @@ void ProcessLight( ILight &light, ProcArgs &args,
 						break;
 					}
                     case 4:
-                        lightNode = AiNode("photometric_light");
+                        lightNode = AiNode("photometric_light", (name + ":light").c_str(), args.proceduralNode);
                         break;
                     case 5:
-                        lightNode = AiNode("disk_light");
+                        lightNode = AiNode("disk_light", (name + ":light").c_str(), args.proceduralNode);
                         break;
                     case 6:
-                        lightNode = AiNode("cylinder_light");
+                        lightNode = AiNode("cylinder_light", (name + ":light").c_str(), args.proceduralNode);
                         break;
                     default:
                         return;
@@ -358,10 +358,6 @@ void ProcessLight( ILight &light, ProcArgs &args,
     }
     if(!gotType)
         return;
-
-    
-    AiNodeSetStr(lightNode, "name", name.c_str());
-
 
     // adding arbitary parameters
     AddArbitraryGeomParams(
@@ -389,7 +385,6 @@ void ProcessLight( ILight &light, ProcArgs &args,
             }
         }
     }
-
 
     const PropertyHeader * TempHeader = arbGeomParams.getPropertyHeader("color_temperature");
                     

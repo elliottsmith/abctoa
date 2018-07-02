@@ -29,4 +29,5 @@ void ProcessCamera( ICamera &camera, const ProcArgs &args,
     AtNode * cameraNode = AiNode("persp_camera", name.c_str(), args.proceduralNode);
     AiNodeSetFlt(cameraNode, "fov", sample.getFocalLength());
 
+    args.createdNodes->addNode(cameraNode);
 }

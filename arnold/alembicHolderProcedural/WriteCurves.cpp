@@ -39,7 +39,6 @@
 #include "WriteOverrides.h"
 #include "ArbGeomParams.h"
 #include "parseAttributes.h"
-#include "NodeCache.h"
 
 #include "../../common/PathUtil.h"
 
@@ -72,117 +71,9 @@ void getSampleTimes(
     sampleTimes.insert( ts->getFloorIndex(args.frame / args.fps, ps.getNumSamples()).second );
 }
 
-//-*************************************************************************
-
-//-*************************************************************************
-// getHash
-// This function return the hash of the points, with attributes applied to it.
-std::string getHash(
-    const std::string& name,
-    const std::string& originalName,
-    ICurves & prim,
-    ProcArgs & args,
-    const SampleTimeSet& sampleTimes
-    )
-{
-    Alembic::AbcGeom::ICurvesSchema  &ps = prim.getSchema();
-
-    TimeSamplingPtr ts = ps.getTimeSampling();
-
-    std::string cacheId;
-
-    SampleTimeSet singleSampleTimes;
-    singleSampleTimes.insert( ts->getFloorIndex(args.frame / args.fps, ps.getNumSamples()).second );
-
-    ICompoundProperty arbGeomParams = ps.getArbGeomParams();
-    ISampleSelector frameSelector( *singleSampleTimes.begin() );
-
-    //get tags
-    std::vector<std::string> tags;
-    getAllTags(prim, tags, &args);
-
-
-    // overrides that can't be applied on instances
-    // we create a hash from that.
-    std::string hashAttributes("@");
-    Json::FastWriter writer;
-    Json::Value rootEncode;
-
-    if(args.linkAttributes)
-    {
-        bool foundInPath = false;
-        for(std::vector<std::string>::iterator it=args.attributes.begin(); it!=args.attributes.end(); ++it)
-        {
-            Json::Value overrides;
-            if(it->find("/") != string::npos)
-            {
-                if(pathContainsOtherPath(originalName, *it))
-                {
-                    overrides = args.attributesRoot[*it];
-                    foundInPath = true;
-                }
-
-            }
-            else if(matchPattern(originalName,*it)) // based on wildcard expression
-            {
-                overrides = args.attributesRoot[*it];
-                foundInPath = true;
-            }
-            else if(foundInPath == false)
-            {
-                if (std::find(tags.begin(), tags.end(), *it) != tags.end())
-                {
-                    overrides = args.attributesRoot[*it];
-                }
-            }
-            if(overrides.size() > 0)
-            {
-                for( Json::ValueIterator itr = overrides.begin() ; itr != overrides.end() ; itr++ )
-                {
-                    std::string attribute = itr.key().asString();
-
-                    if (attribute=="mode"
-                        || attribute=="min_pixel_width"
-                        || attribute=="step_size"
-                        || attribute=="invert_normals"
-                        )
-                    {
-                        Json::Value val = args.attributesRoot[*it][itr.key().asString()];
-                        rootEncode[attribute]=val;
-                    }
-                }
-            }
-        }
-    }
-
-    hashAttributes += writer.write(rootEncode);
-
-    std::ostringstream buffer;
-    AbcA::ArraySampleKey sampleKey;
-
-    for ( SampleTimeSet::iterator I = sampleTimes.begin();
-            I != sampleTimes.end(); ++I )
-    {
-        ISampleSelector sampleSelector( *I );
-        ps.getPositionsProperty().getKey(sampleKey, sampleSelector);
-
-        buffer << GetRelativeSampleTime( args, (*I) ) << ":";
-        sampleKey.digest.print(buffer);
-        buffer << ":";
-    }
-
-    buffer << "@" << computeHash(hashAttributes);
-
-    cacheId = buffer.str();
-
-    return cacheId;
-
-}
-
 AtNode* writeCurves(  
     const std::string& name,
     const std::string& originalName,
-    const std::string& cacheId,
     ICurves & prim,
     ProcArgs & args,
     const SampleTimeSet& sampleTimes
@@ -233,9 +124,6 @@ AtNode* writeCurves(
         return NULL;
     }
 
-    // add to created nodes - if we need this again (instanced?)
-    args.createdNodes->addNode(curvesNode);
-    
     // check for radiusCurves arg param - exposed in shader manager
     if (AiNodeLookUpUserParameter(args.proceduralNode, "radiusCurves") !=NULL )
         radiusCurves = AiNodeGetFlt(args.proceduralNode, "radiusCurves");
@@ -521,10 +409,8 @@ AtNode* writeCurves(
     ICompoundProperty arbPointsParams = ps.getArbGeomParams();
     AddArbitraryGeomParams( arbGeomParams, frameSelector, curvesNode );
 
-    // add the node to the nodeCache
-    args.nodeCache->addNode(cacheId, curvesNode);
+    args.createdNodes->addNode(curvesNode);
     return curvesNode;
-
 }
 
 //-*************************************************************************
@@ -602,17 +488,7 @@ void ProcessCurves( ICurves &curves, ProcArgs &args,
     SampleTimeSet sampleTimes;
     getSampleTimes(curves, args, sampleTimes);
 
-    // create a hash id of curves and attributes
-    std::string cacheId = getHash(name, originalName, curves, args, sampleTimes);
-
-    // now we try and retrieve the arnold mesh node from the node cache as it might already exist
-    AtNode* curvesNode = args.nodeCache->getCachedNode(cacheId);
-
-    if(curvesNode == NULL)
-    { 
-        // We don't have a cache, so we much create this points object.        
-        curvesNode = writeCurves(name, originalName, cacheId, curves, args, sampleTimes);
-    }
+    AtNode* curvesNode = writeCurves(name, originalName, curves, args, sampleTimes);
 
     if(curvesNode != NULL)
     {

@@ -39,6 +39,36 @@
 #include <algorithm>
 #include <iostream>
 
+NodeCollector::NodeCollector(AtNode *procedural)
+{
+    proc = procedural;
+}
+
+NodeCollector::~NodeCollector()
+{
+    ArnoldNodeCollector.clear();
+}
+
+void NodeCollector::addNode(AtNode* node)
+{
+    ArnoldNodeCollector.push_back(node);
+}
+
+size_t NodeCollector::getNumNodes()
+{
+    return ArnoldNodeCollector.size();
+}
+
+AtNode* NodeCollector::getNode(int num)
+{
+    if (num < ArnoldNodeCollector.size())
+        return ArnoldNodeCollector[num];
+    else
+    {
+        return 0;
+    }
+}
+
 //-*****************************************************************************
 //INSERT YOUR OWN TOKENIZATION CODE AND STYLE HERE
 

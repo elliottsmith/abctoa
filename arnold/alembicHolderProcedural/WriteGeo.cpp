@@ -41,7 +41,6 @@
 #include "ArbGeomParams.h"
 #include "../../common/PathUtil.h"
 #include "parseAttributes.h"
-#include "NodeCache.h"
 
 #include <ai.h>
 #include <sstream>
@@ -690,6 +689,7 @@ AtNode* createInstance(const std::string& name, const std::string& originalName,
     }
 
     AiNodeSetPtr( instanceNode, "node", mesh );
+
     args.createdNodes->addNode(instanceNode);
     return instanceNode;
 }
@@ -915,7 +915,7 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
     }
 
     // set the ptr
-    AiNodeSetPtr(mesh, "shader", meshLightShader);    
+    AiNodeSetPtr(mesh, "shader", meshLightShader);
     args.createdNodes->addNode(meshLightShader);
 }
 

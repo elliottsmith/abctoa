@@ -38,7 +38,6 @@
 #include "WriteTransform.h"
 #include "WriteOverrides.h"
 #include "parseAttributes.h"
-#include "NodeCache.h"
 
 #include "ArbGeomParams.h"
 #include "../../common/PathUtil.h"
@@ -76,113 +75,9 @@ void getSampleTimes(
     sampleTimes.insert( ts->getFloorIndex(args.frame / args.fps, ps.getNumSamples()).second );
 }
 
-//-*************************************************************************
-// getHash
-// This function return the hash of the points, with attributes applied to it.
-std::string getHash(
-    const std::string& name,
-    const std::string& originalName,
-    IPoints & prim,
-    ProcArgs & args,
-    const SampleTimeSet& sampleTimes
-    )
-{
-    Alembic::AbcGeom::IPointsSchema  &ps = prim.getSchema();
-
-    TimeSamplingPtr ts = ps.getTimeSampling();
-
-    std::string cacheId;
-
-    SampleTimeSet singleSampleTimes;
-    singleSampleTimes.insert( ts->getFloorIndex(args.frame / args.fps, ps.getNumSamples()).second );
-
-    ICompoundProperty arbGeomParams = ps.getArbGeomParams();
-    ISampleSelector frameSelector( *singleSampleTimes.begin() );
-
-    //get tags
-    std::vector<std::string> tags;
-    getAllTags(prim, tags, &args);
-
-    // overrides that can't be applied on instances
-    // we create a hash from that.
-    std::string hashAttributes("@");
-    Json::FastWriter writer;
-    Json::Value rootEncode;
-
-
-    if(args.linkAttributes)
-    {
-        bool foundInPath = false;
-        for(std::vector<std::string>::iterator it=args.attributes.begin(); it!=args.attributes.end(); ++it)
-        {
-            Json::Value overrides;
-            if(it->find("/") != string::npos)
-            {
-                if(pathContainsOtherPath(originalName, *it))
-                {
-                    overrides = args.attributesRoot[*it];
-                    foundInPath = true;
-                }
-
-            }
-            else if(matchPattern(originalName,*it)) // based on wildcard expression
-            {
-                overrides = args.attributesRoot[*it];
-                foundInPath = true;
-            }
-            else if(foundInPath == false)
-            {
-                if (std::find(tags.begin(), tags.end(), *it) != tags.end())
-                {
-                    overrides = args.attributesRoot[*it];
-                }
-            }
-            if(overrides.size() > 0)
-            {
-                for( Json::ValueIterator itr = overrides.begin() ; itr != overrides.end() ; itr++ )
-                {
-                    std::string attribute = itr.key().asString();
-
-                    if (attribute=="mode"
-                        || attribute=="min_pixel_width"
-                        || attribute=="step_size"
-                        || attribute=="invert_normals"
-                        )
-                    {
-                        Json::Value val = args.attributesRoot[*it][itr.key().asString()];
-                        rootEncode[attribute]=val;
-                    }
-                }
-            }
-        }
-    }
-
-    hashAttributes += writer.write(rootEncode);
-
-    std::ostringstream buffer;
-    AbcA::ArraySampleKey sampleKey;
-
-    for ( SampleTimeSet::iterator I = sampleTimes.begin();
-            I != sampleTimes.end(); ++I )
-    {
-        ISampleSelector sampleSelector( *I );
-        ps.getPositionsProperty().getKey(sampleKey, sampleSelector);
-
-        buffer << GetRelativeSampleTime( args, (*I) ) << ":";
-        sampleKey.digest.print(buffer);
-        buffer << ":";
-    }
-
-    buffer << "@" << computeHash(hashAttributes);
-    cacheId = buffer.str();
-    return cacheId;
-
-}
-
 AtNode* writePoints(  
     const std::string& name,
     const std::string& originalName,
-    const std::string& cacheId,
     IPoints & prim,
     ProcArgs & args,
     const SampleTimeSet& sampleTimes
@@ -224,8 +119,6 @@ AtNode* writePoints(
 
     if (AiNodeLookUpUserParameter(args.proceduralNode, "radiusPoint") !=NULL )
         radiusPoint = AiNodeGetFlt(args.proceduralNode, "radiusPoint");
-    
-    
 
     // Attribute overrides..
     if(args.linkAttributes)
@@ -426,9 +319,8 @@ AtNode* writePoints(
     ICompoundProperty arbPointsParams = ps.getArbGeomParams();
     AddArbitraryGeomParams( arbGeomParams, frameSelector, pointsNode );
 
-	args.nodeCache->addNode(cacheId, pointsNode);
+    args.createdNodes->addNode(pointsNode);    
     return pointsNode;
-
 }
 
 //-*************************************************************************
@@ -502,13 +394,7 @@ void ProcessPoint( IPoints &points, ProcArgs &args,
     SampleTimeSet sampleTimes;
     getSampleTimes(points, args, sampleTimes);
 
-    std::string cacheId = getHash(name, originalName, points, args, sampleTimes);
-    AtNode* pointsNode = args.nodeCache->getCachedNode(cacheId);
-
-    if(pointsNode == NULL)
-    { // We don't have a cache, so we much create this points object.
-        pointsNode = writePoints(name, originalName, cacheId, points, args, sampleTimes);
-    }
+    AtNode* pointsNode = writePoints(name, originalName, points, args, sampleTimes);
 
     // we can create the instance, with correct transform, attributes & shaders.
     if(pointsNode != NULL)

@@ -47,7 +47,6 @@
 #include "WriteCurves.h"
 #include "json/json.h"
 #include "parseAttributes.h"
-#include "NodeCache.h"
 
 #include <Alembic/AbcGeom/All.h>
 
@@ -60,6 +59,7 @@
 
 AI_PROCEDURAL_NODE_EXPORT_METHODS(alembicProceduralMethods);
 
+//-*************************************************************************
 node_parameters
 {
     AiParameterArray("fileNames", AiArrayAllocate(0, 1, AI_TYPE_STRING));
@@ -269,46 +269,7 @@ void WalkObject( IObject & parent, const ObjectHeader &i_ohead, ProcArgs &args,
         }
     }
 }
-
-struct caches
-{
-    FileCache* g_fileCache;
-    NodeCache* g_nodeCache;
-    AtCritSec mycs;
-
-};
-
-node_plugin_initialize
-{
-    #ifdef WIN32
-        // DIRTY FIX
-        // magic static* used in the Alembic Schemas are not threadSafe in Visual Studio, so we need to initialized them first.
-        IPolyMesh::getSchemaTitle();
-        IPoints::getSchemaTitle();
-        ICurves::getSchemaTitle();
-        INuPatch::getSchemaTitle();
-        IXform::getSchemaTitle();
-        ISubD::getSchemaTitle();
-    #endif
-
-
-    caches *g_caches = new caches();
-    AiCritSecInitRecursive(&g_caches->mycs);
-    g_caches->g_fileCache = new FileCache(g_caches->mycs);
-    g_caches->g_nodeCache = new NodeCache(g_caches->mycs);
-    *plugin_data = g_caches;
-    return true;
-}
-
-node_plugin_cleanup
-{
-    caches *g_caches = reinterpret_cast<caches*>(plugin_data);
-    AiCritSecClose(&g_caches->mycs);
-    delete g_caches->g_fileCache;
-    delete g_caches->g_nodeCache;
-    delete g_caches;
-}
-
+//-*************************************************************************
 procedural_init
 {
     bool skipJson = false;
@@ -337,12 +298,9 @@ procedural_init
     ProcArgs * args = new ProcArgs(node);
     *user_ptr = args;
 
-    caches *g_cache = reinterpret_cast<caches*>(AiNodeGetPluginData(node));
-    
+    // add the node to args and create a new NodeCollector class to store / retrieve / count created nodes
     args->proceduralNode = node;
-    args->nodeCache = g_cache->g_nodeCache;
-    args->lock = g_cache->mycs;
-    args->createdNodes = new NodeCollector(args->lock, node);
+    args->createdNodes = new NodeCollector(node);    
 
     AtString abcfile = AiNodeGetStr(node, "abcShaders");
     if(abcfile.empty() == false)
@@ -354,8 +312,7 @@ procedural_init
             AiMsgWarning(" Invalid alembic shaders file : %s", abcfile);
         }
         else
-    {
-  
+    {  
             AiMsgDebug(" Loading alembic shaders file : %s", abcfile);
             Abc::IObject materialsObject(archive.getTop(), "materials");
             args->useAbcShaders = true;
@@ -637,31 +594,14 @@ procedural_init
 }
 
 //-*************************************************************************
-
 procedural_cleanup
 {
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
-    if(args != NULL)
-    {
-
-        if(args->createdNodes->getNumNodes() > 0)
-        {
-            caches *g_cache = reinterpret_cast<caches*>(AiNodeGetPluginData(args->proceduralNode));
-            std::string fileCacheId = g_cache->g_fileCache->getHash(args->filenames, args->shaders, args->displacements, args->attributesRoot, args->frame);
-            g_cache->g_fileCache->addCache(fileCacheId, args->createdNodes);
-        }
-
-        args->shaders.clear();
-        args->displacements.clear();
-        args->attributes.clear();
-        delete args->createdNodes;
-        delete args;
-    }
+    delete args;
     return 1;
 }
 
 //-*************************************************************************
-
 procedural_num_nodes
 {
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
@@ -669,33 +609,21 @@ procedural_num_nodes
 }
 
 //-*************************************************************************
-
 procedural_get_node
 {
     ProcArgs * args = reinterpret_cast<ProcArgs*>( user_ptr );
     return args->createdNodes->getNode(i);
 }
 
-  // DSO hook
-#ifdef __cplusplus
-extern "C"
+//-*************************************************************************
+node_loader
 {
-#endif
-
-    node_loader
-    {
-        if (i>0) return 0;
-            node->methods = alembicProceduralMethods;
-            node->output_type = AI_TYPE_NONE;
-            node->name = "alembicHolderProcedural";
-            node->node_type = AI_NODE_SHAPE_PROCEDURAL;
-            strcpy(node->version, AI_VERSION);
-            return true;
-    }
-
-#ifdef __cplusplus
+    if (i>0)
+        return 0;
+    node->methods = alembicProceduralMethods;
+    node->output_type = AI_TYPE_NONE;
+    node->name = "alembicHolderProcedural";
+    node->node_type = AI_NODE_SHAPE_PROCEDURAL;
+    strcpy(node->version, AI_VERSION);
+    return true;
 }
-#endif
-
-
-

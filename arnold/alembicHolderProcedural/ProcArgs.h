@@ -47,8 +47,21 @@
 #include "pystring.h"
 #include "json/json.h"
 
-#include "NodeCache.h"
+class NodeCollector
+{
+public:
+    NodeCollector(AtNode *proc);    
+    ~NodeCollector();
 
+    void addNode(AtNode* node);
+    size_t getNumNodes();
+    AtNode* getNode(int num);
+    AtNode* getProcedural() { return proc ;};
+
+private:
+    std::vector<AtNode*> ArnoldNodeCollector;
+    AtNode *proc;
+};
 
 //-*****************************************************************************
 
@@ -80,11 +93,7 @@ struct ProcArgs
     double shutterClose;
 
     AtNode * proceduralNode;
-
     NodeCollector * createdNodes;
-	NodeCache * nodeCache;
-
-    AtCritSec lock;
 
     bool linkShader;
     bool linkDisplacement;

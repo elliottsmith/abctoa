@@ -189,7 +189,7 @@ AtNode* writePoints(
     )
 
 {
-    AiMsgInfo("%s", name.c_str());
+    AiMsgDebug("%s", name.c_str());
     std::vector<AtVector> vidxs;
     std::vector<float> radius;
 
@@ -442,7 +442,7 @@ void createInstance(
     MatrixSampleMap * xformSamples,
     AtNode* points)
 {
-    AiMsgInfo("%s:ginstance", name.c_str());
+    AiMsgDebug("%s:ginstance", name.c_str());
     Alembic::AbcGeom::IPointsSchema  &ps = prim.getSchema();
     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
 

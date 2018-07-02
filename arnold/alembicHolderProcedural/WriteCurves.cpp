@@ -188,7 +188,7 @@ AtNode* writeCurves(
     const SampleTimeSet& sampleTimes
     )
 {
-    AiMsgInfo("%s", name.c_str());
+    AiMsgDebug("%s", name.c_str());
     // initialise some vars
     std::vector<AtVector> vlist;
     std::vector<float> radius;
@@ -538,7 +538,7 @@ void createInstance(
     MatrixSampleMap * xformSamples,
     AtNode* points)
 {
-    AiMsgInfo("%s:ginstance", name.c_str());
+    AiMsgDebug("%s:ginstance", name.c_str());
     Alembic::AbcGeom::ICurvesSchema  &ps = prim.getSchema();
     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
 
@@ -588,7 +588,6 @@ void createInstance(
 void ProcessCurves( ICurves &curves, ProcArgs &args,
         MatrixSampleMap * xformSamples)
 {
-    AiMsgDebug("");
     // check the curves are valid
     if ( !curves.valid() )
         return;
@@ -620,6 +619,5 @@ void ProcessCurves( ICurves &curves, ProcArgs &args,
         // we can create the instance, with correct transform, attributes & shaders.
         createInstance(name, originalName, curves, args, xformSamples, curvesNode);
     }
-    AiMsgDebug("");
   
 }

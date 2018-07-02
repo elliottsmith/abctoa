@@ -166,7 +166,7 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
         const size_t numSampleTimes = sampleTimes.size();
 
         const size_t numNormals = nlist.size() / (numSampleTimes * 3);
-        AiMsgDebug(" nlist size : %i, nidxs size : %i, numSampleTimes : %i, numNormals :%i", nlist.size(), nidxs.size(), sampleTimes.size(), numNormals);
+        // AiMsgDebug(" nlist size : %i, nidxs size : %i, numSampleTimes : %i, numNormals :%i", nlist.size(), nidxs.size(), sampleTimes.size(), numNormals);
 
         if (numNormals > 0)
         {            
@@ -248,7 +248,7 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
 template <typename primT>
 AtNode* writeMesh( const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, const SampleTimeSet& sampleTimes )
 {
-    AiMsgInfo("%s", name.c_str());
+    AiMsgDebug("%s", name.c_str());
     typename primT::schema_type  &ps = prim.getSchema();
     TimeSamplingPtr ts = ps.getTimeSampling();
 
@@ -609,7 +609,7 @@ AtNode* writeMesh( const std::string& name, const std::string& originalName, pri
 template <typename primT>
 AtNode* createInstance(const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, MatrixSampleMap * xformSamples, AtNode* mesh)
 {
-    AiMsgInfo("%s:ginstance", name.c_str());
+    AiMsgDebug("%s:ginstance", name.c_str());
     typename primT::schema_type  &ps = prim.getSchema();
     ICompoundProperty arbGeomParams = ps.getArbGeomParams();
 
@@ -807,7 +807,7 @@ void NormalizeRGB(AtNode* mesh, AtRGB &colorMultiplier){
 template <typename primT>
 void createMeshLight(const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, MatrixSampleMap * xformSamples, AtNode* mesh)
 {
-    AiMsgInfo("%s:meshlight", name.c_str());
+    AiMsgDebug("%s:meshlight", name.c_str());
     std::string meshlightname = name + ":meshlight";
 
     typename primT::schema_type  &ps = prim.getSchema();
@@ -845,7 +845,7 @@ void createMeshLight(const std::string& name, const std::string& originalName, p
 template <typename primT>
 void createMeshLightShader(const std::string& name, const std::string& originalName, primT & prim, ProcArgs & args, MatrixSampleMap * xformSamples, AtNode* mesh, AtNode* meshLightNode)
 {
-    AiMsgInfo("%s:meshlightshader", name.c_str());
+    AiMsgDebug("%s:meshlightshader", name.c_str());
     typename primT::schema_type  &ps = prim.getSchema();
 
     std::vector<std::string> tags;
@@ -922,8 +922,7 @@ void createMeshLightShader(const std::string& name, const std::string& originalN
 //-*************************************************************************
 // ProcessPolyMesh
 void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xformSamples)
-{
-    AiMsgInfo("");   
+{  
     if ( !polymesh.valid() )
         return;
 
@@ -943,14 +942,6 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
                 createMeshLight(name, originalName, polymesh, args, xformSamples, instanceNode);    
             }  
         }
-        else{
-            AiNodeDestroy(instanceNode);
-            AiMsgWarning("NULL GINSTANCE %s", originalName.c_str());
-        }
-    }
-    else{
-        AiNodeDestroy(meshNode);
-        AiMsgWarning("NULL MESH %s", originalName.c_str());
     }
 }
 
@@ -958,7 +949,6 @@ void ProcessPolyMesh( IPolyMesh &polymesh, ProcArgs &args, MatrixSampleMap * xfo
 // ProcessSubD
 void ProcessSubD( ISubD &subd, ProcArgs &args, MatrixSampleMap * xformSamples )
 {
-    AiMsgInfo("");
     if ( !subd.valid() )
         return;
 
@@ -971,14 +961,6 @@ void ProcessSubD( ISubD &subd, ProcArgs &args, MatrixSampleMap * xformSamples )
     if(meshNode != NULL)
     {
         AtNode *instanceNode = createInstance(name, originalName, subd, args, xformSamples, meshNode);
-        if(instanceNode == NULL)
-        {
-            AiNodeDestroy(instanceNode);
-            AiMsgWarning("NULL GINSTANCE %s", originalName.c_str());  
-        }
-    }
-    else{
-        AiNodeDestroy(meshNode);
-        AiMsgWarning("NULL MESH %s", originalName.c_str());
+
     }
 }

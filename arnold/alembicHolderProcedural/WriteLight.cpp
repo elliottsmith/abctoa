@@ -242,6 +242,7 @@ void ProcessLight( ILight &light, ProcArgs &args,
 
     std::string originalName = light.getFullName();
     std::string name = args.nameprefix + originalName;
+    AiMsgDebug("%s", name.c_str());
 
     SampleTimeSet sampleTimes;
 

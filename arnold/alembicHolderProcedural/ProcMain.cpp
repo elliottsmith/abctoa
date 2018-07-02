@@ -602,11 +602,7 @@ procedural_init
     else
     {
         for (size_t i = 0; i < args->filenames.size(); i++){
-            AiMsgInfo("");
-            AiMsgInfo("**********************************************************************************************************************************");
-            AiMsgInfo("Arnold Node : %s", AiNodeGetName(node));
-            AiMsgInfo("Alembic File : %s", args->filenames[i].c_str());            
-            AiMsgInfo("**********************************************************************************************************************************");
+            AiMsgInfo("Alembic Node : %s >> %s", AiNodeGetName(node), args->filenames[i].c_str());
         }
     }
 

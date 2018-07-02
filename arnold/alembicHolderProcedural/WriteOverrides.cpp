@@ -101,7 +101,7 @@ void ApplyOverrides(const std::string& name, AtNode* node, const std::vector<std
                     Json::FastWriter fastWriter;
                     std::string output = fastWriter.write(val);
                     output.erase(std::remove(output.begin(), output.end(), '\n'), output.end());
-                    AiMsgInfo("override : %s = %s", attribute.c_str(), output.c_str());
+                    AiMsgDebug("override : %s = %s", attribute.c_str(), output.c_str());
 
                     if( val.isString() ) 
                     {
@@ -293,7 +293,7 @@ bool ApplyShaders(const std::string& name, AtNode* node, const std::vector<std::
 
     if(ApplyShader(name, node, appliedShader))
     {
-        AiMsgInfo("shader = %s", AiNodeGetName(appliedShader));
+        AiMsgDebug("shader = %s", AiNodeGetName(appliedShader));
         return true;
     }
     else

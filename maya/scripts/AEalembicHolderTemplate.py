@@ -1,418 +1,549 @@
-from pymel.core import *
+
+import os
 import maya.cmds as cmds
+from milk.utils.v1_0.pyside.loader import QtGui, QtCore, shiboken
+import maya.OpenMayaUI as mui
 
-from maya.OpenMaya import MNodeMessage, MEventMessage, MSelectionList, MItSelectionList, MObject, MGlobal, MDagPath
-import json
+################################################################################
+#Base Attribute Widget
+################################################################################
+class BaseAttrWidget(QtGui.QWidget):
+    '''
+    This is the base attribute widget from which all other attribute widgets
+    will inherit. Sets up all the relevant methods + common widgets and initial
+    layout.
+    '''
+    def __init__(self, node, attr, label='', parent=None):
+        '''
+        Initialize
+        
+        @type node: str
+        @param node: The name of the node that this widget should start with.
+        @type attr: str
+        @param attr: The name of the attribute this widget is responsible for.
+        @type label: str
+        @param label: The text that should be displayed in the descriptive label.
+        '''
+        super(BaseAttrWidget, self).__init__(parent)
+        
+        self.node = node    #: Store the node name
+        self.attr = attr    #: Store the attribute name
+        
+        #: This will store information about the scriptJob that we will create
+        #: so that we can update this widget whenever its attribute is updated
+        #: separately.
+        self.sj = None
+        
+        #: Use this variable to track whether the gui is currently being updated
+        #: or not.
+        self.updatingGUI = False
 
-from milk.shotgun.v1_1.tank import get_context
-from alembicHolder.cmds import abcToApi
+    def callUpdateGUI(self):
+        '''
+        Calls the updateGUI method but makes sure to set the updatingGUI variable
+        while doing so.
+        
+        This is necessary so that we don't get caught in a loop where updating
+        the UI will trigger a signal that updates the attr on the node, which
+        in turn triggers the scriptJob to run updateGUI again.
+        '''
+        self.updatingGUI = True
+        
+        self.updateGUI()
+        
+        self.updatingGUI = False
+        
+    def updateGUI(self):
+        '''
+        VIRTUAL method. Called whenever the widget needs to update its displayed
+        value to match the value of the attribute on the node.
+        '''
+        raise NotImplementedError
+        
+    def callUpdateAttr(self):
+        '''
+        Calls the updateAttr method but only if not currently updatingGUI
+        '''
+        if not self.updatingGUI:
+            self.updateAttr()
+            
+    def updateAttr(self):
+        '''
+        VIRTUAL method. Should be called whenever the user makes a change to this
+        widget via the UI. This method is then responsible for applying the same
+        change to the actual attribute on the node.
+        '''
+        raise NotImplementedError
+        
+    def setNode(self, node):
+        '''
+        This widget should now represent the same attr on a different node.
+        '''
+        oldNode = self.node
+        self.node = node
+        self.callUpdateGUI()
+        
+        if not self.sj or not cmds.scriptJob(exists=self.sj) or not oldNode == self.node:
+            #script job
+            ct = 0
+            while self.sj:
+                #Kill the old script job.
+                try:
+                    if cmds.scriptJob(exists=self.sj):
+                        cmds.scriptJob(kill=self.sj, force=True)
+                    self.sj = None
+                except RuntimeError:
+                    #Could not kill the old script job for some reason.
+                    #This happens, albeit very rarely, when that scriptJob is
+                    #being executed at the same time we try to kill it. Pause
+                    #for a second and then retry.
+                    ct += 1
+                    if ct < 10:
+                        cmds.warning("Got RuntimeError trying to kill scriptjob...trying again")
+                        time.sleep(1)
+                    else:
+                        #We've failed to kill the scriptJob 10 consecutive times.
+                        #Time to give up and move on.
+                        cmds.warning("Killing scriptjob is taking too long...skipping")
+                        break
+                        
+            #Set the new scriptJob to call the callUpdateGUI method everytime the
+            #node.attr is changed.
+            self.sj = cmds.scriptJob(ac=['%s.%s' % (self.node, self.attr), self.callUpdateGUI], killWithScene=1)
+        
 
-RED = (1.0, 0.2, 0.2)
-GREEN = (0.4, 1.0, 0.4)
+################################################################################
+#Attribute widgets
+################################################################################
+class IntWidget(BaseAttrWidget):
+    '''
+    This widget can be used with numerical attributes.
+    '''
+    def __init__(self, node, attr, label='', parent=None):
+        '''
+        Initialize
+        '''
+        super(IntWidget, self).__init__(node, attr, label, parent)
 
-class LocalizedTemplate(ui.AETemplate):
-    """
-    Automatically apply language localizations to template arguments
-    """
-    def _applyLocalization(self, name):
-        if name is not None and len(name)>2 and name[0] == 'k' and name[1].isupper():
-            return mel.uiRes('m_' + self.__class__.__name__ + '.' + name)
-        return name
+        self.valLE = QtGui.QLineEdit(parent=self)
+        self.valLE.setValidator(QtGui.QIntValidator(self.valLE))
+        self.connect(self.valLE, QtCore.SIGNAL("editingFinished()"), self.callUpdateAttr)
+        self.setNode(node)
+        
+    def updateGUI(self):
+        '''
+        Implement this virtual method to update the value in valLE based on the
+        current node.attr
+        '''
+        self.valLE.setText('%.03f' % round(cmds.getAttr("%s.%s" % (self.node, self.attr)), 3))
+        
+    def updateAttr(self):
+        '''
+        Implement this virtual method to update the actual node.attr value to
+        reflect what's currently in the UI.
+        '''
+        cmds.setAttr("%s.%s" % (self.node, self.attr), float(self.valLE.text()))
 
-    def addControl(self, control, label=None, **kwargs):
-        """
-        Add localised control to template
-        """
-        label = self._applyLocalization(label)
-        ui.AETemplate.addControl(self, control, label=label, **kwargs)
+class FloatWidget(BaseAttrWidget):
+    '''
+    This widget can be used with numerical attributes.
+    '''
+    def __init__(self, node, attr, label='', parent=None):
+        '''
+        Initialize
+        '''
+        super(FloatWidget, self).__init__(node, attr, label, parent)
 
-    def beginLayout(self, name, collapse=True):
-        """
-        Start layout
-        """
-        name =  self._applyLocalization(name)
-        ui.AETemplate.beginLayout(self, name, collapse=collapse)
+        self.valLE = QtGui.QLineEdit(parent=self)
+        self.valLE.setValidator(QtGui.QDoubleValidator(self.valLE))
+        self.connect(self.valLE, QtCore.SIGNAL("editingFinished()"), self.callUpdateAttr)
+        self.setNode(node)
+        
+    def updateGUI(self):
+        '''
+        Implement this virtual method to update the value in valLE based on the
+        current node.attr
+        '''
+        self.valLE.setText('%.03f' % round(cmds.getAttr("%s.%s" % (self.node, self.attr)), 3))
+        
+    def updateAttr(self):
+        '''
+        Implement this virtual method to update the actual node.attr value to
+        reflect what's currently in the UI.
+        '''
+        cmds.setAttr("%s.%s" % (self.node, self.attr), float(self.valLE.text()))
 
-class BaseTemplate(LocalizedTemplate):
-    def __init__(self, nodeName):
-        """
-        Base template
-        """
-        LocalizedTemplate.__init__(self,nodeName)
-        self.beginScrollLayout()
-        self.buildBody(nodeName)
-        self.endScrollLayout()
+class StrWidget(BaseAttrWidget):
+    '''
+    This widget can be used with string attributes.
+    '''
+    def __init__(self, node, attr, label='', parent=None):
+        '''
+        Initialize
+        '''
+        super(StrWidget, self).__init__(node, attr, label, parent)
 
-class AEalembicHolderTemplate(BaseTemplate):
-    """
-    Alembic Holder Template
-    """
+        self.valLE = QtGui.QLineEdit(parent=self)
+        policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        policy.setHorizontalStretch(1)
+        # self.valLE.setSizePolicy(policy)
+        # self.setSizePolicy(policy)
+        self.connect(self.valLE, QtCore.SIGNAL("editingFinished()"), self.callUpdateAttr)
+        self.setNode(node)
+        
+    def updateGUI(self):
+        '''
+        Implement this virtual method to update the value in valLE based on the
+        current node.attr
+        '''
+        if cmds.getAttr("%s.%s" % (self.node, self.attr)):
+            self.valLE.setText(str(cmds.getAttr("%s.%s" % (self.node, self.attr))))
+        
+    def updateAttr(self):
+        '''
+        Implement this virtual method to update the actual node.attr value to
+        reflect what's currently in the UI.
+        '''
 
-    def _refresh(self, *args):
-        """
-        """
-        if os.path.isfile(args[0]):
-            bg_color = GREEN
-            enable = True
-        else:
-            bg_color = RED
-            enable = False
+        cmds.setAttr("%s.%s" % (self.node, self.attr), str(self.valLE.text()), type='string')
 
-        cmds.button("%s" % (self.btn), backgroundColor=bg_color, edit=True, enable=enable)       
+class EnumWidget(BaseAttrWidget):
+    '''
+    This widget can be used with enumerated attributes.
+    '''
+    def __init__(self, node, attr, label='', enums=None, parent=None):
+        '''
+        Initialize
+        
+        @type enum: list
+        @param enum: An ordered list of the values to be show in the enumeration list
+        '''
+        super(EnumWidget, self).__init__(node, attr, label, parent)
+        
+        #Make sure the provided enums are not None
+        enums = enums if enums else []
 
-    def _abcWidget(self, cacheName):
-        """
-        ABC Path widgets
-        """
-        # fix attr name firstly
-        self.cache = cacheName + "[0]"
+        self.valCB = QtGui.QComboBox(parent=self)
+        self.valCB.addItems(enums)
+        self.connect(self.valCB, QtCore.SIGNAL("currentIndexChanged(int)"), self.callUpdateAttr)
+        self.setNode(node)
+        
+    def updateGUI(self):
+        '''
+        Implement this virtual method to update the value in valCB based on the
+        current node.attr
+        '''
+        self.valCB.setCurrentIndex(cmds.getAttr('%s.%s' % (self.node, self.attr)))
+        
+    def updateAttr(self):
+        '''
+        Implement this virtual method to update the actual node.attr value to
+        reflect what's currently in the UI.
+        '''
+        cmds.setAttr("%s.%s" % (self.node, self.attr), self.valCB.currentIndex())
 
-        cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
-        cmds.columnLayout(adjustableColumn=True)
-        cmds.rowLayout(numberOfColumns=4, adjustableColumn4=2)
-        cmds.text(label="ABC Path")
-        cmds.textField("abcpathNameField")
-        cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._abcBrowser)
-        cmds.setParent('..')
-        cmds.setUITemplate(popTemplate=True)
-        cmds.setParent('..')
-        self._abcConnect(cacheName)
-        cmds.select()
+class BoolWidget(BaseAttrWidget):
+    '''
+    This widget can be used with numerical attributes.
+    '''
+    def __init__(self, node, attr, label='', parent=None):
+        '''
+        Initialize
+        '''
+        super(BoolWidget, self).__init__(node, attr, label, parent)
 
-    def _abcConnect(self, cacheName):
-        """
-        Connect the new control to existing control
-        """
-        self.cache = cacheName + "[0]"        
-        cmds.connectControl("abcpathNameField", self.cache)
+        self.valLE = QtGui.QCheckBox(parent=self)
+        self.connect(self.valLE, QtCore.SIGNAL("stateChanged(int)"), self.callUpdateAttr)
+        self.setNode(node)
+        
+    def updateGUI(self):
+        '''
+        Implement this virtual method to update the value in valLE based on the
+        current node.attr
+        '''
+        self.valLE.setChecked(bool(cmds.getAttr("%s.%s" % (self.node, self.attr))))
+        
+    def updateAttr(self):
+        '''
+        Implement this virtual method to update the actual node.attr value to
+        reflect what's currently in the UI.
+        '''
+        cmds.setAttr("%s.%s" % (self.node, self.attr), bool(self.valLE.isChecked()))
 
-    def _abcBrowser(self, args):
-        """
-        Open file dialog and set the cache attribute
-        """
-        ret = cmds.fileDialog2(fileFilter="Alembic (*.abc)", fileMode=1, dialogStyle=2, caption="Select Alembic File")
-        if ret:
-            selected = abcToApi.getCurrentSelection()
-            cmds.setAttr("%s.cacheFileNames[0]" % selected, ret[0], type="string")
+################################################################################
+#Main AETemplate Widget
+################################################################################
+class AEalembicHolderTemplate(QtGui.QWidget):
+    '''
+    The main class that holds all the controls for the alembicHolder node
+    '''
+    def __init__(self, node, parent=None):
+        '''
+        Initialize
+        '''
+        super(AEalembicHolderTemplate, self).__init__(parent)
+        self.node = node
 
-    def _abcImport(self, args):
-        """
-        Import the alembic file via abcToApi
-        """
-        for i in abcToApi.getSelectedAlembicHolder(cls=True):
-            i.importAbc()
+        self.row_height = 20
+        stylesheet = "QGroupBox { margin-top: 6px; border-radius: 6px; font: bold 14px; border: 1px solid rgb(230, 230, 230); } QGroupBox:title { color: rgb(230, 230, 230); subcontrol-origin: margin; padding: 0px 5px 0px 5px; left: 10px; }"
+        self.icon = QtGui.QIcon(QtGui.QPixmap(':/{}'.format('SP_DirIcon.png')))
 
-    def _jsonWidget(self, json):
-        """
-        Json Path widgets
-        """
-        self.json = json
+        # main layout
+        self.layout = QtGui.QVBoxLayout(self)
 
-        cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
-        cmds.columnLayout(adjustableColumn=True)
-        cmds.rowLayout(numberOfColumns=4, adjustableColumn4=2)
-        cmds.text(label="Json Path")
-        cmds.textField("jsonpathNameField", editable=False, enable=False, textChangedCommand=self._refresh)        
-        cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._jsonBrowser)
-        cmds.setParent('..')
-        cmds.setUITemplate(popTemplate=True)
-        cmds.setParent('..')
-        self._jsonConnect(json)
-        cmds.select()
+        #########################################################################################################
+        # ALEMBIC
+        self.alembic_group = QtGui.QGroupBox('Alembic')
+        self.alembic_layout = QtGui.QVBoxLayout()
+        self.alembic_layout.setContentsMargins(20, 20, 20, 20)
+        self.alembic_group.setStyleSheet(stylesheet)
+        
+        self.alembic_grid = QtGui.QGridLayout()
+        self.alembic_group.setContentsMargins(20, 20, 20, 20)
 
-    def _jsonConnect(self, json):
-        """
-        Connect the new control to existing control
-        """
-        cmds.connectControl("jsonpathNameField", self.json)
 
-    def _jsonBrowser(self, args):
-        """
-        Open file dialog and set the jsonFile attribute
-        """
-        ret = cmds.fileDialog2(fileFilter="Json (*.json)", fileMode=1, dialogStyle=2, caption="Select Json File")
-        if ret:
-            selected = abcToApi.getCurrentSelection()
-            cmds.setAttr("%s.jsonFile" % selected, ret[0], type="string")
-            cmds.refreshEditorTemplates()
+        # cacheFileNames
+        self.alembic_btn = QtGui.QPushButton("Add Additional Alembic")
+        self.alembic_btn.clicked.connect(self.addAlembicClicked)
+        self.alembic_layout.addWidget(self.alembic_btn)
+        self.alembic_layout.addLayout(self.alembic_grid)
+        self.alembic_grid.setRowMinimumHeight(0, self.row_height)
 
-    def _jsonImport(self, args):
-        """
-        Import the json file via abcToApi
-        """
-        for i in abcToApi.getSelectedAlembicHolder(cls=True):
-            i.importJson()
+        self.caches = {}
+        ports = cmds.getAttr("%s.cacheFileNames" % (self.node), size=True)
+        for i in range(ports):
+            self.addCache(i)
 
-    def _shadersWidget(self, shaders):
-        """
-        Shaders Path widgets
-        """
-        self.shaders = shaders
+        self.alembic_group.setLayout(self.alembic_layout)
 
-        cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
-        cmds.columnLayout(adjustableColumn=True)
-        cmds.rowLayout(numberOfColumns=4, adjustableColumn4=2)
-        cmds.text(label="Shaders Path")
-        cmds.textField("shaderspathNameField", editable=False, enable=False, textChangedCommand=self._refresh)
-        cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._shadersBrowser)
-        cmds.setParent('..')
-        cmds.setUITemplate(popTemplate=True)
-        cmds.setParent('..')
-        self._shadersConnect(shaders)
-        cmds.select()
+        #########################################################################################################
+        # GEOMETRY
+        self.geometry_group = QtGui.QGroupBox('Geometry')
+        self.geometry_group.setStyleSheet(stylesheet)
+        self.geometry_grid = QtGui.QGridLayout(self.geometry_group)
+        self.geometry_grid.setContentsMargins(20, 20, 20, 20)
 
-    def _shadersConnect(self, json):
-        """
-        Connect the new control to existing control
-        """
-        cmds.connectControl("shaderspathNameField", self.shaders)
+        # updateTransforms
+        self.updateTransforms = BoolWidget(node, 'updateTransforms', label='Selection Path', parent=self)
+        self.geometry_grid.addWidget(QtGui.QLabel('Update Transforms'), 0, 0, 1, 1)
+        self.geometry_grid.addWidget(self.updateTransforms, 0, 1, 1, 1)
+        self.geometry_grid.setRowMinimumHeight(0, self.row_height)
 
-    def _shadersBrowser(self, args):
-        """
-        Open file dialog and set the shaders attribute
-        """
-        ret = cmds.fileDialog2(fileFilter="Alembic (*.abc)", fileMode=1, dialogStyle=2, caption="Select Alembic File")
-        if ret:
-            selected = abcToApi.getCurrentSelection()
-            cmds.setAttr("%s.abcShaders" % selected, ret[0], type="string")
-            cmds.refreshEditorTemplates()
+        # cacheGeomPath
+        self.cacheGeomPath = StrWidget(node, 'cacheGeomPath', label='Geometry Path', parent=self)
+        self.geometry_grid.addWidget(QtGui.QLabel('Geometry Path'), 1, 0, 1, 1)
+        self.geometry_grid.addWidget(self.cacheGeomPath, 1, 1, 1, 1)
+        self.geometry_grid.setRowMinimumHeight(1, self.row_height)
 
-    def _shadersImport(self, args):
-        """
-        Import the shaders file via abcToApi
-        """
-        for i in abcToApi.getSelectedAlembicHolder(cls=True):
-            i.importShaders()
+        # cacheSelectionPath
+        self.cacheSelectionPath = StrWidget(node, 'cacheSelectionPath', label='Selection Path', parent=self)
+        self.geometry_grid.addWidget(QtGui.QLabel('Selection Path'), 2, 0, 1, 1)
+        self.geometry_grid.addWidget(self.cacheSelectionPath, 2, 1, 1, 1)
+        self.geometry_grid.setRowMinimumHeight(2, self.row_height)
 
-    def _localiseLookdevWidget(self, loader):
-        """
-        """
+        # boundingBoxExtendedMode
+        self.boundingBoxExtendedMode = BoolWidget(node, 'boundingBoxExtendedMode', label='Selection Path', parent=self)
+        self.geometry_grid.addWidget(QtGui.QLabel('Bounding Box'), 3, 0, 1, 1)
+        self.geometry_grid.addWidget(self.boundingBoxExtendedMode, 3, 1, 1, 1)
+        self.geometry_grid.setRowMinimumHeight(3, self.row_height)
 
-        self.loader = loader
-        cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
-        cmds.columnLayout(adjustableColumn=True)
-        cmds.rowLayout(numberOfColumns=2, adjustableColumn2=1)
+        # timeOffset
+        self.timeOffset = FloatWidget(node, 'timeOffset', label='Selection Path', parent=self)
+        self.geometry_grid.addWidget(QtGui.QLabel('Time Offset'), 4, 0, 1, 1)
+        self.geometry_grid.addWidget(self.timeOffset, 4, 1, 1, 1)
+        self.geometry_grid.setRowMinimumHeight(4, self.row_height)
 
-        if not cmds.getAttr("%sjsonFile" % self.loader) or not cmds.getAttr("%sabcShaders" % self.loader):
-            bg_color = RED
-            enable = False
-        else:
-            bg_color = GREEN
-            enable = True
+        self.geometry_group.setLayout(self.geometry_grid)
 
-        self.btn = cmds.button(label='Localise Lookdev', command=self._localiseLookdevImport, enableBackground=True, backgroundColor=bg_color, enable=enable)
-        cmds.setParent('..')
-        cmds.setUITemplate(popTemplate=True)
-        cmds.setParent('..')
-        self._localiseLookdevConnect(loader)
-        cmds.select()
+        #########################################################################################################
+        # ASSIGNMENTS
+        self.assignments_group = QtGui.QGroupBox('Assignments')
+        self.assignments_group.setStyleSheet(stylesheet)
+        self.assignments_grid = QtGui.QGridLayout(self.assignments_group)
+        self.assignments_grid.setContentsMargins(20, 20, 20, 20)
+        self.assignments_grid.setRowMinimumHeight(0, self.row_height)
 
-    def _localiseLookdevConnect(self, json):
-        """
-        Connect the new control to existing control
-        """
-        pass
+        # shadersAssignation
+        self.shadersAssignation = StrWidget(node, 'shadersAssignation', label='', parent=self)
+        self.assignments_grid.addWidget(QtGui.QLabel('Shaders Assignation'), 0, 0, 1, 1)
+        self.assignments_grid.addWidget(self.shadersAssignation, 0, 1, 1, 1)
+        self.assignments_grid.setRowMinimumHeight(0, self.row_height)
 
-    def _localiseLookdevImport(self, args):
-        """
-        """
-        ret = cmds.promptDialog(title='Namespace', message='Enter Name:', button=['Ok', 'Cancel'], defaultButton='Ok', cancelButton='Cancel', dismissString='Cancel', text='root')
-        if ret == 'Ok':
-            namespace = cmds.promptDialog(query=True, text=True)
-            if namespace == 'root':
-                namespace = ':'
+        # displacementsAssignation
+        self.displacementsAssignation = StrWidget(node, 'displacementsAssignation', label='', parent=self)
+        self.assignments_grid.addWidget(QtGui.QLabel('Displacements Assignation'), 1, 0, 1, 1)
+        self.assignments_grid.addWidget(self.displacementsAssignation, 1, 1, 1, 1)
+        self.assignments_grid.setRowMinimumHeight(1, self.row_height)
 
-            for i in abcToApi.getSelectedAlembicHolder(cls=True):
-                i.importLookdev(namespace)
+        # attributes
+        self.attributes = StrWidget(node, 'attributes', label='', parent=self)
+        self.assignments_grid.addWidget(QtGui.QLabel('Attributes'), 2, 0, 1, 1)
+        self.assignments_grid.addWidget(self.attributes, 2, 1, 1, 1)
+        self.assignments_grid.setRowMinimumHeight(2, self.row_height)
 
-    def buildBody(self, nodeName):
-        """
-        Build the body of the attribute editor template according to shotgun context
-        """
-        self.beginLayout(name="Cache File", collapse=False)
-        self.callCustom(self._abcWidget, self._abcConnect, "cacheFileNames")
-        self.addControl(control="updateTransforms", label="Auto update transforms")
-        self.addControl(control="cacheGeomPath", label="Geometry Path")
-        self.addControl(control="cacheSelectionPath", label="Selection Path")
-        self.addControl(control="boundingBoxExtendedMode", label="Bounding Box Extended Mode")
-        self.addControl(control="timeOffset", label="Time Offset")
-        self.addControl(control="loadAtInit", label="Load At Init")              
-        self.endLayout()
+        # layersOverride
+        self.layersOverride = StrWidget(node, 'layersOverride', label='', parent=self)
+        self.assignments_grid.addWidget(QtGui.QLabel('Layers Override'), 3, 0, 1, 1)
+        self.assignments_grid.addWidget(self.layersOverride, 3, 1, 1, 1)
+        self.assignments_grid.setRowMinimumHeight(3, self.row_height)
 
-        self.beginLayout(name="Shaders and Assignments", collapse=False)
-        self.addControl(control="shadersAssignation", label="Shaders Assignation")
-        self.addControl(control="displacementsAssignation", label="Displacements Assignation")
-        self.addControl(control="attributes", label="Attributes")
-        self.addControl(control="layersOverride", label="Layers Override")
-        self.addControl(control="shadersNamespace", label="Shaders Namespace")
-        self.addControl(control="geometryNamespace", label="Geometry Namespace")        
-        self.endLayout()        
+        # shadersNamespace
+        self.shadersNamespace = StrWidget(node, 'shadersNamespace', label='', parent=self)
+        self.assignments_grid.addWidget(QtGui.QLabel('Shaders Namespace'), 4, 0, 1, 1)
+        self.assignments_grid.addWidget(self.shadersNamespace, 4, 1, 1, 1)        
+        self.assignments_grid.setRowMinimumHeight(4, self.row_height)
 
-        if get_context().task != None:
-            # if we are in a lighting context, create a section for the attrs to live
-            if get_context().task['name'].lower() == 'lighting':
-                self.beginLayout(name="Published Lookdev", collapse=False)
-                self.callCustom(self._jsonWidget, self._jsonConnect, "jsonFile")
-                self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")
-                self.callCustom(self._localiseLookdevWidget, self._localiseLookdevConnect, "")
-                self.endLayout()
+        # geometryNamespace
+        self.geometryNamespace = StrWidget(node, 'geometryNamespace', label='', parent=self)
+        self.assignments_grid.addWidget(QtGui.QLabel('Geometry Namespace'), 5, 0, 1, 1)
+        self.assignments_grid.addWidget(self.geometryNamespace, 5, 1, 1, 1)      
+        self.assignments_grid.setRowMinimumHeight(5, self.row_height)
 
-        render_attrs = ["primaryVisibility", "aiSelfShadows", "castsShadows", "aiReceiveShadows", "motionBlur", "aiVisibleInDiffuse", "aiVisibleInGlossy", "visibleInRefractions", "visibleInReflections", "aiOpaque", "aiMatte", "overrideGlobalShader", "aiTraceSets", "aiSssSetname", "aiUserOptions"]
-        self.beginLayout(name="Render Stats", collapse=True)
-        self.beginNoOptimize()
-        for attr in render_attrs:
-            self.addControl(attr)
-        self.endNoOptimize()
-        self.endLayout()
+        self.assignments_group.setLayout(self.assignments_grid)
 
-        self.suppress("blackBox")
-        self.suppress("borderConnections")
-        self.suppress("isHierarchicalConnection")
-        self.suppress("publishedNodeInfo")
-        self.suppress("publishedNodeInfo.publishedNode")
-        self.suppress("publishedNodeInfo.isHierarchicalNode")
-        self.suppress("publishedNodeInfo.publishedNodeType")
-        self.suppress("rmbCommand")
-        self.suppress("templateName")
-        self.suppress("templatePath")
-        self.suppress("viewName")
-        self.suppress("iconName")
-        self.suppress("viewMode")
-        self.suppress("templateVersion")
-        self.suppress("uiTreatment")
-        self.suppress("customTreatment")
-        self.suppress("creator")
-        self.suppress("creationDate")
-        self.suppress("containerType")
-        self.suppress("center")
-        self.suppress("boundingBoxCenterX")
-        self.suppress("boundingBoxCenterY")
-        self.suppress("boundingBoxCenterZ")
-        self.suppress("matrix")
-        self.suppress("inverseMatrix")
-        self.suppress("worldMatrix")
-        self.suppress("worldInverseMatrix")
-        self.suppress("parentMatrix")
-        self.suppress("parentInverseMatrix")
-        self.suppress("visibility")
-        self.suppress("intermediateObject")
-        self.suppress("template")
-        self.suppress("ghosting")
-        self.suppress("instObjGroups")
-        self.suppress("instObjGroups.objectGroups")
-        self.suppress("instObjGroups.objectGroups.objectGrpCompList")
-        self.suppress("instObjGroups.objectGroups.objectGroupId")
-        self.suppress("instObjGroups.objectGroups.objectGrpColor")
-        self.suppress("renderInfo")
-        self.suppress("identification")
-        self.suppress("layerRenderable")
-        self.suppress("layerOverrideColor")
-        self.suppress("renderLayerInfo")
-        self.suppress("renderLayerInfo.renderLayerId")
-        self.suppress("renderLayerInfo.renderLayerRenderable")
-        self.suppress("renderLayerInfo.renderLayerColor")
-        self.suppress("ghostingControl")
-        self.suppress("ghostCustomSteps")
-        self.suppress("ghostPreSteps")
-        self.suppress("ghostPostSteps")
-        self.suppress("ghostStepSize")
-        self.suppress("ghostFrames")
-        self.suppress("ghostColorPreA")
-        self.suppress("ghostColorPre")
-        self.suppress("ghostColorPreR")
-        self.suppress("ghostColorPreG")
-        self.suppress("ghostColorPreB")
-        self.suppress("ghostColorPostA")
-        self.suppress("ghostColorPost")
-        self.suppress("ghostColorPostR")
-        self.suppress("ghostColorPostG")
-        self.suppress("ghostColorPostB")
-        self.suppress("ghostRangeStart")
-        self.suppress("ghostRangeEnd")
-        self.suppress("ghostDriver")
-        self.suppress("renderType")
-        self.suppress("renderVolume")
-        self.suppress("visibleFraction")
-        self.suppress("motionBlur")
-        self.suppress("maxVisibilitySamplesOverride")
-        self.suppress("maxVisibilitySamples")
-        self.suppress("geometryAntialiasingOverride")
-        self.suppress("antialiasingLevel")
-        self.suppress("shadingSamplesOverride")
-        self.suppress("shadingSamples")
-        self.suppress("maxShadingSamples")
-        self.suppress("volumeSamplesOverride")
-        self.suppress("volumeSamples")
-        self.suppress("depthJitter")
-        self.suppress("ignoreSelfShadowing")
-        self.suppress("referenceObject")
-        self.suppress("compInstObjGroups")
-        self.suppress("compInstObjGroups.compObjectGroups")
-        self.suppress("compInstObjGroups.compObjectGroups.compObjectGrpCompList")
-        self.suppress("compInstObjGroups.compObjectGroups.compObjectGroupId")
-        self.suppress("tweak")
-        self.suppress("relativeTweak")
-        self.suppress("controlPoints")
-        self.suppress("controlPoints.xValue")
-        self.suppress("controlPoints.yValue")
-        self.suppress("controlPoints.zValue")
-        self.suppress("weights")
-        self.suppress("tweakLocation")
-        self.suppress("blindDataNodes")
-        self.suppress("uvPivot")
-        self.suppress("uvPivotX")
-        self.suppress("uvPivotY")
-        self.suppress("uvSet")
-        self.suppress("uvSet.uvSetName")
-        self.suppress("uvSet.uvSetPoints")
-        self.suppress("uvSet.uvSetPoints.uvSetPointsU")
-        self.suppress("uvSet.uvSetPoints.uvSetPointsV")
-        self.suppress("uvSet.uvSetTweakLocation")
-        self.suppress("currentUVSet")
-        self.suppress("displayImmediate")
-        self.suppress("displayColors")
-        self.suppress("displayColorChannel")
-        self.suppress("currentColorSet")
-        self.suppress("colorSet")
-        self.suppress("colorSet.colorName")
-        self.suppress("colorSet.clamped")
-        self.suppress("colorSet.representation")
-        self.suppress("colorSet.colorSetPoints")
-        self.suppress("colorSet.colorSetPoints.colorSetPointsR")
-        self.suppress("colorSet.colorSetPoints.colorSetPointsG")
-        self.suppress("colorSet.colorSetPoints.colorSetPointsB")
-        self.suppress("colorSet.colorSetPoints.colorSetPointsA")
-        self.suppress("ignoreHwShader")
-        self.suppress("doubleSided")
-        self.suppress("opposite")
-        self.suppress("smoothShading")
-        self.suppress("boundingBoxScale")
-        self.suppress("boundingBoxScaleX")
-        self.suppress("boundingBoxScaleY")
-        self.suppress("boundingBoxScaleZ")
-        self.suppress("featureDisplacement")
-        self.suppress("initialSampleRate")
-        self.suppress("extraSampleRate")
-        self.suppress("textureThreshold")
-        self.suppress("normalThreshold")
-        self.suppress("displayHWEnvironment")
-        self.suppress("collisionOffsetVelocityIncrement")
-        self.suppress("collisionOffsetVelocityIncrement.collisionOffsetVelocityIncrement_Position")
-        self.suppress("collisionOffsetVelocityIncrement.collisionOffsetVelocityIncrement_FloatValue")
-        self.suppress("collisionOffsetVelocityIncrement.collisionOffsetVelocityIncrement_Interp")
-        self.suppress("collisionDepthVelocityIncrement")
-        self.suppress("collisionDepthVelocityIncrement.collisionDepthVelocityIncrement_Position")
-        self.suppress("collisionDepthVelocityIncrement.collisionDepthVelocityIncrement_FloatValue")
-        self.suppress("collisionDepthVelocityIncrement.collisionDepthVelocityIncrement_Interp")
-        self.suppress("collisionOffsetVelocityMultiplier")
-        self.suppress("collisionOffsetVelocityMultiplier.collisionOffsetVelocityMultiplier_Position")
-        self.suppress("collisionOffsetVelocityMultiplier.collisionOffsetVelocityMultiplier_FloatValue")
-        self.suppress("collisionOffsetVelocityMultiplier.collisionOffsetVelocityMultiplier_Interp")
-        self.suppress("collisionDepthVelocityMultiplier")
-        self.suppress("collisionDepthVelocityMultiplier.collisionDepthVelocityMultiplier_Position")
-        self.suppress("collisionDepthVelocityMultiplier.collisionDepthVelocityMultiplier_FloatValue")
-        self.suppress("collisionDepthVelocityMultiplier.collisionDepthVelocityMultiplier_Interp")
-        self.suppress("time")
-        self.suppress("shaders")
+        #########################################################################################################
+        # PUBLISH
+        self.publish_group = QtGui.QGroupBox('Published Lookdev')
+        self.publish_group.setStyleSheet(stylesheet)
+        self.publish_grid = QtGui.QGridLayout(self.publish_group)
+        self.publish_grid.setContentsMargins(20, 20, 20, 20)
 
-        self.addExtraControls()
+        # jsonFile
+        self.jsonFile = StrWidget(node, 'jsonFile', label='', parent=self)
+        self.publish_grid.addWidget(QtGui.QLabel('Json File'), 0, 0, 1, 1)
+        self.publish_grid.addWidget(self.jsonFile, 0, 1, 1, 1)
+        self.json_btn = QtGui.QPushButton()
+        self.json_btn.setMaximumWidth(24)
+        self.json_btn.setIcon(self.icon)
+        self.json_btn.clicked.connect(lambda: self.button_click(self.jsonFile, '*.json'))
+
+        self.publish_grid.addWidget(self.json_btn, 0, 2, 1, 1)
+        self.publish_grid.setRowMinimumHeight(0, self.row_height)
+
+        # abcShaders
+        self.abcShaders = StrWidget(node, 'abcShaders', label='', parent=self)
+        self.publish_grid.addWidget(QtGui.QLabel('Shaders File'), 1, 0, 1, 1)
+        self.publish_grid.addWidget(self.abcShaders, 1, 1, 1, 1)
+        self.abc_btn = QtGui.QPushButton()
+        self.abc_btn.setMaximumWidth(24)
+        self.abc_btn.setIcon(self.icon)
+        self.abc_btn.clicked.connect(lambda: self.button_click(self.abcShaders, '*.abc'))
+
+        self.publish_grid.addWidget(self.abc_btn, 1, 2)
+        self.publish_grid.setRowMinimumHeight(1, self.row_height)
+
+        self.publish_group.setLayout(self.publish_grid)
+
+        
+        #########################################################################################################
+        self.layout.addWidget(self.alembic_group)
+        self.layout.addWidget(self.geometry_group)
+        self.layout.addWidget(self.assignments_group)
+        self.layout.addWidget(self.publish_group)                
+        self.setLayout(self.layout)
+
+    def setNode(self, node):
+        '''
+        Set the current node
+        '''
+        self.node = node
+
+        for i in self.caches.keys():
+            self.caches[i].setNode(node)
+        self.cacheGeomPath.setNode(node)
+        self.cacheSelectionPath.setNode(node)
+        self.boundingBoxExtendedMode.setNode(node)
+        self.timeOffset.setNode(node)
+        self.shadersAssignation.setNode(node)
+        self.displacementsAssignation.setNode(node)
+        self.attributes.setNode(node)
+        self.layersOverride.setNode(node)
+        self.shadersNamespace.setNode(node)
+        self.geometryNamespace.setNode(node)
+        self.jsonFile.setNode(node)
+        self.abcShaders.setNode(node)
+
+    def button_click(self, widget, filter_type):
+        '''
+        '''
+        filename = QtGui.QFileDialog.getOpenFileName(filter=filter_type)[0]
+
+        if os.path.isfile(filename):
+            widget.valLE.setText(filename)
+            widget.updateAttr()
+
+    def addAlembicClicked(self):
+        '''
+        '''
+        ports = cmds.getAttr("%s.cacheFileNames" % (self.node), size=True)
+        self.addCache(ports)
+
+    def addCache(self, i):
+        '''
+        '''
+        cache = StrWidget(self.node, 'cacheFileNames[%i]' % i, label='', parent=self)
+        self.alembic_grid.addWidget(QtGui.QLabel('Alembic [%i]' % i), i, 0, 1, 1)
+        self.alembic_grid.addWidget(cache, i, 1, 1, 1)
+        cache_btn = QtGui.QPushButton()
+        cache_btn.setMaximumWidth(24)
+        cache_btn.setIcon(self.icon)
+        cache_btn.clicked.connect(lambda: self.button_click(cache, '*.abc'))
+        self.alembic_grid.addWidget(cache_btn, i, 2, 1, 1)
+        self.alembic_grid.setRowMinimumHeight(i, self.row_height)
+
+        self.caches[i] = cache             
+
+################################################################################
+#Initialize/Update methods:
+#   These are the methods that get called to Initialize & install the QT GUI
+#   and to update/repoint it to a different node
+################################################################################
+def getLayout(lay):
+    '''
+    Get the layout object
+    
+    @type lay: str
+    @param lay: The (full) name of the layout that we need to get
+    
+    @rtype: QtGui.QLayout (or child)
+    @returns: The QLayout object
+    '''
+    ptr = mui.MQtUtil.findLayout(lay)
+    layObj = shiboken.wrapInstance(long(ptr),QtGui.QWidget)
+    return layObj
+    
+def buildQT(lay, node):
+    '''
+    Build/Initialize/Install the QT GUI into the layout.
+    
+    @type lay: str
+    @param lay: Name of the Maya layout to add the QT GUI to
+    @type node: str
+    @param node: Name of the node to (initially) connect to the QT GUI
+    '''
+    mLayout = getLayout(lay)
+
+    #create the GUI/widget
+    widg = AEalembicHolderTemplate(node)
+      
+    #add the widget to the layout
+    mLayout.layout().addWidget(widg)
+    
+def updateQT(lay, node):
+    '''
+    Update the QT GUI to point to a different node
+    
+    @type lay: str
+    @param lay: Name of the Maya layout to where the QT GUI lives
+    @type node: str
+    @param node: Name of the new node to connect to the QT GUI
+    '''
+    mLayout = getLayout(lay)
+      
+    #find the widget
+    for c in range(mLayout.layout().count()):
+        widg = mLayout.layout().itemAt(c).widget()
+        if isinstance(widg, AEalembicHolderTemplate):
+            #found the widget, update the node it's pointing to
+            widg.setNode(node)
+            break

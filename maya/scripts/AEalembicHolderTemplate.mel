@@ -1,0 +1,47 @@
+global proc AEalembicHolder_buildQT( string $nodeName )
+{
+    //make sure the Python QT module is loaded
+    python("import AEalembicHolderTemplate; reload(AEalembicHolderTemplate)");
+    
+    // When the $nodeName is passed in, there will be a trailing dot (.)...rm it
+    $nodeName = python("'" + $nodeName + "'.rstrip('.')");
+    
+    // Get the current layout
+    string $par = `setParent -q`;
+    
+    // Pass the layout and node name to the QT build/create cmd
+    python("AEalembicHolderTemplate.buildQT('" + $par + "', '" + $nodeName + "')");
+}
+
+global proc AEalembicHolder_updateQT( string $nodeName )
+{
+    
+    // When the $nodeName is passed in, there will be a trailing dot (.)...rm it
+    $nodeName = python("'" + $nodeName + "'.rstrip('.')");
+    
+    // Get the current layout
+    string $par = `setParent -q`;
+    
+    // Pass the layout and node name to the QT update cmd
+    python("AEalembicHolderTemplate.updateQT('" + $par + "', '" + $nodeName + "')");
+    
+}
+
+global proc AEalembicHolderTemplate( string $nodeName )
+{
+    editorTemplate -beginScrollLayout;
+    
+        
+        //Call custom scripts to manage the PyQt UI elements
+        editorTemplate -callCustom "AEalembicHolder_buildQT" "AEalembicHolder_updateQT" "";
+        
+        //Since this is derived from a transform node, we should add the template
+        //from a transform node
+		//AEtransformMain $nodeName;
+		//AEtransformNoScroll $nodeName;
+		
+        //This is boilerplate stuff that should generally be included at the end.
+		editorTemplate -addExtraControls;
+
+	editorTemplate -endScrollLayout;
+}

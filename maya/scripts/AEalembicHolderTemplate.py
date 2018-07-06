@@ -111,6 +111,110 @@ class BaseAttrWidget(QtGui.QWidget):
             #node.attr is changed.
             self.sj = cmds.scriptJob(ac=['%s.%s' % (self.node, self.attr), self.callUpdateGUI], killWithScene=1)
         
+class StrBaseAttrWidget(QtGui.QLineEdit):
+    '''
+    This is the base attribute widget from which all other attribute widgets
+    will inherit. Sets up all the relevant methods + common widgets and initial
+    layout.
+    '''
+    def __init__(self, node, attr, label='', parent=None):
+        '''
+        Initialize
+        
+        @type node: str
+        @param node: The name of the node that this widget should start with.
+        @type attr: str
+        @param attr: The name of the attribute this widget is responsible for.
+        @type label: str
+        @param label: The text that should be displayed in the descriptive label.
+        '''
+        super(StrBaseAttrWidget, self).__init__(parent)
+        
+        self.node = node    #: Store the node name
+        self.attr = attr    #: Store the attribute name
+        
+        #: This will store information about the scriptJob that we will create
+        #: so that we can update this widget whenever its attribute is updated
+        #: separately.
+        self.sj = None
+        
+        #: Use this variable to track whether the gui is currently being updated
+        #: or not.
+        self.updatingGUI = False
+
+    def callUpdateGUI(self):
+        '''
+        Calls the updateGUI method but makes sure to set the updatingGUI variable
+        while doing so.
+        
+        This is necessary so that we don't get caught in a loop where updating
+        the UI will trigger a signal that updates the attr on the node, which
+        in turn triggers the scriptJob to run updateGUI again.
+        '''
+        self.updatingGUI = True
+        
+        self.updateGUI()
+        
+        self.updatingGUI = False
+        
+    def updateGUI(self):
+        '''
+        VIRTUAL method. Called whenever the widget needs to update its displayed
+        value to match the value of the attribute on the node.
+        '''
+        raise NotImplementedError
+        
+    def callUpdateAttr(self):
+        '''
+        Calls the updateAttr method but only if not currently updatingGUI
+        '''
+        if not self.updatingGUI:
+            self.updateAttr()
+            
+    def updateAttr(self):
+        '''
+        VIRTUAL method. Should be called whenever the user makes a change to this
+        widget via the UI. This method is then responsible for applying the same
+        change to the actual attribute on the node.
+        '''
+        raise NotImplementedError
+        
+    def setNode(self, node):
+        '''
+        This widget should now represent the same attr on a different node.
+        '''
+        oldNode = self.node
+        self.node = node
+        self.callUpdateGUI()
+        
+        if not self.sj or not cmds.scriptJob(exists=self.sj) or not oldNode == self.node:
+            #script job
+            ct = 0
+            while self.sj:
+                #Kill the old script job.
+                try:
+                    if cmds.scriptJob(exists=self.sj):
+                        cmds.scriptJob(kill=self.sj, force=True)
+                    self.sj = None
+                except RuntimeError:
+                    #Could not kill the old script job for some reason.
+                    #This happens, albeit very rarely, when that scriptJob is
+                    #being executed at the same time we try to kill it. Pause
+                    #for a second and then retry.
+                    ct += 1
+                    if ct < 10:
+                        cmds.warning("Got RuntimeError trying to kill scriptjob...trying again")
+                        time.sleep(1)
+                    else:
+                        #We've failed to kill the scriptJob 10 consecutive times.
+                        #Time to give up and move on.
+                        cmds.warning("Killing scriptjob is taking too long...skipping")
+                        break
+                        
+            #Set the new scriptJob to call the callUpdateGUI method everytime the
+            #node.attr is changed.
+            self.sj = cmds.scriptJob(ac=['%s.%s' % (self.node, self.attr), self.callUpdateGUI], killWithScene=1)
+
 
 ################################################################################
 #Attribute widgets
@@ -173,7 +277,7 @@ class FloatWidget(BaseAttrWidget):
         '''
         cmds.setAttr("%s.%s" % (self.node, self.attr), float(self.valLE.text()))
 
-class StrWidget(BaseAttrWidget):
+class StrWidget(StrBaseAttrWidget):
     '''
     This widget can be used with string attributes.
     '''
@@ -183,12 +287,8 @@ class StrWidget(BaseAttrWidget):
         '''
         super(StrWidget, self).__init__(node, attr, label, parent)
 
-        self.valLE = QtGui.QLineEdit(parent=self)
-        policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
-        policy.setHorizontalStretch(1)
-        # self.valLE.setSizePolicy(policy)
-        # self.setSizePolicy(policy)
-        self.connect(self.valLE, QtCore.SIGNAL("editingFinished()"), self.callUpdateAttr)
+        # self.valLE = QtGui.QLineEdit(parent=self)
+        self.connect(self, QtCore.SIGNAL("editingFinished()"), self.callUpdateAttr)
         self.setNode(node)
         
     def updateGUI(self):
@@ -197,7 +297,7 @@ class StrWidget(BaseAttrWidget):
         current node.attr
         '''
         if cmds.getAttr("%s.%s" % (self.node, self.attr)):
-            self.valLE.setText(str(cmds.getAttr("%s.%s" % (self.node, self.attr))))
+            self.setText(str(cmds.getAttr("%s.%s" % (self.node, self.attr))))
         
     def updateAttr(self):
         '''
@@ -205,7 +305,7 @@ class StrWidget(BaseAttrWidget):
         reflect what's currently in the UI.
         '''
 
-        cmds.setAttr("%s.%s" % (self.node, self.attr), str(self.valLE.text()), type='string')
+        cmds.setAttr("%s.%s" % (self.node, self.attr), str(self.text()), type='string')
 
 class EnumWidget(BaseAttrWidget):
     '''
@@ -301,7 +401,6 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         self.alembic_grid = QtGui.QGridLayout()
         self.alembic_group.setContentsMargins(20, 20, 20, 20)
 
-
         # cacheFileNames
         self.alembic_btn = QtGui.QPushButton("Add Additional Alembic")
         self.alembic_btn.clicked.connect(self.addAlembicClicked)
@@ -314,6 +413,7 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         for i in range(ports):
             self.addCache(i)
 
+        self.alembic_grid.setColumnStretch(1, 3) 
         self.alembic_group.setLayout(self.alembic_layout)
 
         #########################################################################################################
@@ -353,6 +453,7 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         self.geometry_grid.addWidget(self.timeOffset, 4, 1, 1, 1)
         self.geometry_grid.setRowMinimumHeight(4, self.row_height)
 
+        self.geometry_grid.setColumnStretch(1, 3)
         self.geometry_group.setLayout(self.geometry_grid)
 
         #########################################################################################################
@@ -399,6 +500,7 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         self.assignments_grid.addWidget(self.geometryNamespace, 5, 1, 1, 1)      
         self.assignments_grid.setRowMinimumHeight(5, self.row_height)
 
+        self.assignments_grid.setColumnStretch(1, 3)
         self.assignments_group.setLayout(self.assignments_grid)
 
         #########################################################################################################
@@ -407,13 +509,14 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         self.publish_group.setStyleSheet(stylesheet)
         self.publish_grid = QtGui.QGridLayout(self.publish_group)
         self.publish_grid.setContentsMargins(20, 20, 20, 20)
+        self.publish_grid.setRowMinimumHeight(0, self.row_height)
 
         # jsonFile
         self.jsonFile = StrWidget(node, 'jsonFile', label='', parent=self)
         self.publish_grid.addWidget(QtGui.QLabel('Json File'), 0, 0, 1, 1)
         self.publish_grid.addWidget(self.jsonFile, 0, 1, 1, 1)
         self.json_btn = QtGui.QPushButton()
-        self.json_btn.setMaximumWidth(24)
+        self.json_btn.setMaximumWidth(20)
         self.json_btn.setIcon(self.icon)
         self.json_btn.clicked.connect(lambda: self.button_click(self.jsonFile, '*.json'))
 
@@ -425,13 +528,14 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         self.publish_grid.addWidget(QtGui.QLabel('Shaders File'), 1, 0, 1, 1)
         self.publish_grid.addWidget(self.abcShaders, 1, 1, 1, 1)
         self.abc_btn = QtGui.QPushButton()
-        self.abc_btn.setMaximumWidth(24)
+        self.abc_btn.setMaximumWidth(20)
         self.abc_btn.setIcon(self.icon)
         self.abc_btn.clicked.connect(lambda: self.button_click(self.abcShaders, '*.abc'))
 
         self.publish_grid.addWidget(self.abc_btn, 1, 2)
         self.publish_grid.setRowMinimumHeight(1, self.row_height)
 
+        self.publish_grid.setColumnStretch(1, 3)        
         self.publish_group.setLayout(self.publish_grid)
 
         
@@ -448,8 +552,18 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         '''
         self.node = node
 
+        # delete alembic caches widget, then re-create
         for i in self.caches.keys():
-            self.caches[i].setNode(node)
+            for each in self.caches[i]:
+                if not isinstance(each, int):
+                    self.alembic_grid.removeWidget(each)
+                    each.deleteLater()
+            del self.caches[i]
+
+        ports = cmds.getAttr("%s.cacheFileNames" % (self.node), size=True)
+        for i in range(ports):
+            self.addCache(i)
+
         self.cacheGeomPath.setNode(node)
         self.cacheSelectionPath.setNode(node)
         self.boundingBoxExtendedMode.setNode(node)
@@ -465,33 +579,37 @@ class AEalembicHolderTemplate(QtGui.QWidget):
 
     def button_click(self, widget, filter_type):
         '''
+        File Open Dialog
         '''
         filename = QtGui.QFileDialog.getOpenFileName(filter=filter_type)[0]
 
         if os.path.isfile(filename):
-            widget.valLE.setText(filename)
+            widget.setText(filename)
             widget.updateAttr()
 
     def addAlembicClicked(self):
         '''
+        Add alembic cache slot
         '''
         ports = cmds.getAttr("%s.cacheFileNames" % (self.node), size=True)
         self.addCache(ports)
 
     def addCache(self, i):
         '''
+        Add alembic cache widgets
         '''
         cache = StrWidget(self.node, 'cacheFileNames[%i]' % i, label='', parent=self)
-        self.alembic_grid.addWidget(QtGui.QLabel('Alembic [%i]' % i), i, 0, 1, 1)
+        label = QtGui.QLabel('Alembic [%i]' % i)
+        self.alembic_grid.addWidget(label, i, 0, 1, 1)
         self.alembic_grid.addWidget(cache, i, 1, 1, 1)
         cache_btn = QtGui.QPushButton()
-        cache_btn.setMaximumWidth(24)
+        cache_btn.setMaximumWidth(20)
         cache_btn.setIcon(self.icon)
         cache_btn.clicked.connect(lambda: self.button_click(cache, '*.abc'))
         self.alembic_grid.addWidget(cache_btn, i, 2, 1, 1)
         self.alembic_grid.setRowMinimumHeight(i, self.row_height)
 
-        self.caches[i] = cache             
+        self.caches[i] = [label, cache, cache_btn]             
 
 ################################################################################
 #Initialize/Update methods:

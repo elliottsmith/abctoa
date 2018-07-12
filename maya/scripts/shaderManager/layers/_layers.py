@@ -12,7 +12,7 @@
 # License along with this library.
 
 from shaderManager.layers._layer import layer
-
+import maya.cmds as cmds
 
 class Layers(object):
     def __init__(self, parent=None, gpucache=None, fromFile = False):
@@ -49,6 +49,10 @@ class Layers(object):
             self.addLayer(layer, layers[layer])
 
     def  getShaderFromPath(self, path, layer):
+        geometryNamespace = cmds.getAttr('%s.geometryNamespace' % self.gpucache.shape)
+        if geometryNamespace:
+            path = path.replace(geometryNamespace + ':', '')
+
         if layer in self.layers:
             return self.layers[layer].getAssignation().getShaderFromPath(path)
         return None
@@ -59,6 +63,10 @@ class Layers(object):
         return None
 
     def getOverridesFromPath(self, path, layer, onlyInherited=False):
+        geometryNamespace = cmds.getAttr('%s.geometryNamespace' % self.gpucache.shape)
+        if geometryNamespace:
+            path = path.replace(geometryNamespace + ':', '')
+
         if layer in self.layers:
             return self.layers[layer].getAssignation().getOverridesFromPath(path, onlyInherited=onlyInherited)
         return {}

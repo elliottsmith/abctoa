@@ -1,8 +1,41 @@
 
 import os
 import maya.cmds as cmds
+import maya.utils as utils
+
 from milk.utils.v1_0.pyside.loader import QtGui, QtCore, shiboken
 import maya.OpenMayaUI as mui
+from alembicHolder.cmds import abcToApi
+reload(abcToApi)
+
+class Wrapper(object):
+    """Make thread-safe calls to maya.cmds
+
+    Description
+        Maya can't deal with commands coming in from threads other
+        than main. This wrapper takes whatever we call and wrap it up
+        using maya.utils.executeInMainThreadWithResult()
+
+    How
+        maya.utils.execu... has an argument signature that
+        looks like this: (command, *args, **kwargs)
+
+        Wrapper then intercepts any attribute-queries and wraps
+        them up in a lambda that forwards the call to this method.
+
+    """
+
+    def __init__(self, module):
+        self._module = module
+
+    def __getattr__(self, attr):
+        wrapper = utils.executeInMainThreadWithResult
+        command = getattr(self._module, attr)
+
+        return lambda *args, **kwargs: wrapper(
+            command, *args, **kwargs)
+
+cmds = Wrapper(cmds)
 
 ################################################################################
 #Base Attribute Widget
@@ -13,7 +46,7 @@ class BaseAttrWidget(QtGui.QWidget):
     will inherit. Sets up all the relevant methods + common widgets and initial
     layout.
     '''
-    def __init__(self, node, attr, label='', parent=None):
+    def __init__(self, node, attr, parent=None):
         '''
         Initialize
         
@@ -21,8 +54,6 @@ class BaseAttrWidget(QtGui.QWidget):
         @param node: The name of the node that this widget should start with.
         @type attr: str
         @param attr: The name of the attribute this widget is responsible for.
-        @type label: str
-        @param label: The text that should be displayed in the descriptive label.
         '''
         super(BaseAttrWidget, self).__init__(parent)
         
@@ -117,7 +148,7 @@ class StrBaseAttrWidget(QtGui.QLineEdit):
     will inherit. Sets up all the relevant methods + common widgets and initial
     layout.
     '''
-    def __init__(self, node, attr, label='', parent=None):
+    def __init__(self, node, attr, parent=None):
         '''
         Initialize
         
@@ -125,8 +156,6 @@ class StrBaseAttrWidget(QtGui.QLineEdit):
         @param node: The name of the node that this widget should start with.
         @type attr: str
         @param attr: The name of the attribute this widget is responsible for.
-        @type label: str
-        @param label: The text that should be displayed in the descriptive label.
         '''
         super(StrBaseAttrWidget, self).__init__(parent)
         
@@ -223,15 +252,15 @@ class IntWidget(BaseAttrWidget):
     '''
     This widget can be used with numerical attributes.
     '''
-    def __init__(self, node, attr, label='', parent=None):
+    def __init__(self, node, attr, parent=None):
         '''
         Initialize
         '''
-        super(IntWidget, self).__init__(node, attr, label, parent)
+        super(IntWidget, self).__init__(node, attr, parent)
 
         self.valLE = QtGui.QLineEdit(parent=self)
         self.valLE.setValidator(QtGui.QIntValidator(self.valLE))
-        self.connect(self.valLE, QtCore.SIGNAL("editingFinished()"), self.callUpdateAttr)
+        self.connect(self.valLE, QtCore.SIGNAL("textChanged(unicode)"), self.callUpdateAttr)
         self.setNode(node)
         
     def updateGUI(self):
@@ -252,15 +281,15 @@ class FloatWidget(BaseAttrWidget):
     '''
     This widget can be used with numerical attributes.
     '''
-    def __init__(self, node, attr, label='', parent=None):
+    def __init__(self, node, attr, parent=None):
         '''
         Initialize
         '''
-        super(FloatWidget, self).__init__(node, attr, label, parent)
+        super(FloatWidget, self).__init__(node, attr, parent)
 
         self.valLE = QtGui.QLineEdit(parent=self)
         self.valLE.setValidator(QtGui.QDoubleValidator(self.valLE))
-        self.connect(self.valLE, QtCore.SIGNAL("editingFinished()"), self.callUpdateAttr)
+        self.connect(self.valLE, QtCore.SIGNAL("textChanged(unicode)"), self.callUpdateAttr)
         self.setNode(node)
         
     def updateGUI(self):
@@ -281,23 +310,25 @@ class StrWidget(StrBaseAttrWidget):
     '''
     This widget can be used with string attributes.
     '''
-    def __init__(self, node, attr, label='', parent=None):
+    def __init__(self, node, attr, parent=None):
         '''
         Initialize
         '''
-        super(StrWidget, self).__init__(node, attr, label, parent)
+        super(StrWidget, self).__init__(node, attr, parent)
 
-        # self.valLE = QtGui.QLineEdit(parent=self)
-        self.connect(self, QtCore.SIGNAL("editingFinished()"), self.callUpdateAttr)
+        self.connect(self, QtCore.SIGNAL("textChanged(unicode)"), self.callUpdateAttr)        
         self.setNode(node)
         
     def updateGUI(self):
         '''
         Implement this virtual method to update the value in valLE based on the
         current node.attr
-        '''
-        if cmds.getAttr("%s.%s" % (self.node, self.attr)):
-            self.setText(str(cmds.getAttr("%s.%s" % (self.node, self.attr))))
+        '''#
+        attr = cmds.getAttr("%s.%s" % (self.node, self.attr))
+        if attr:
+            self.setText(attr)
+        else:
+            self.setText('')
         
     def updateAttr(self):
         '''
@@ -311,14 +342,14 @@ class EnumWidget(BaseAttrWidget):
     '''
     This widget can be used with enumerated attributes.
     '''
-    def __init__(self, node, attr, label='', enums=None, parent=None):
+    def __init__(self, node, attr, enums=None, parent=None):
         '''
         Initialize
         
         @type enum: list
         @param enum: An ordered list of the values to be show in the enumeration list
         '''
-        super(EnumWidget, self).__init__(node, attr, label, parent)
+        super(EnumWidget, self).__init__(node, attr, parent)
         
         #Make sure the provided enums are not None
         enums = enums if enums else []
@@ -346,11 +377,11 @@ class BoolWidget(BaseAttrWidget):
     '''
     This widget can be used with numerical attributes.
     '''
-    def __init__(self, node, attr, label='', parent=None):
+    def __init__(self, node, attr, parent=None):
         '''
         Initialize
         '''
-        super(BoolWidget, self).__init__(node, attr, label, parent)
+        super(BoolWidget, self).__init__(node, attr, parent)
 
         self.valLE = QtGui.QCheckBox(parent=self)
         self.connect(self.valLE, QtCore.SIGNAL("stateChanged(int)"), self.callUpdateAttr)
@@ -391,6 +422,20 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         # main layout
         self.layout = QtGui.QVBoxLayout(self)
 
+        # utils menu
+        self.import_lookdev = QtGui.QAction(self)
+        self.import_lookdev.setText("Import lookdev")
+        self.publish_lookdev = QtGui.QAction(self)
+        self.publish_lookdev.setText("Publish lookdev")
+        self.menu = QtGui.QMenu(self)
+        self.menu.addAction(self.import_lookdev)
+        self.menu.addAction(self.publish_lookdev)
+        self.buttonShow = QtGui.QPushButton(self)
+        self.buttonShow.setMaximumHeight(20)
+        self.buttonShow.setText("Utils")
+        self.buttonShow.setMenu(self.menu)
+        self.layout.addWidget(self.buttonShow, 0, QtCore.Qt.AlignRight)
+
         #########################################################################################################
         # ALEMBIC
         self.alembic_group = QtGui.QGroupBox('Alembic')
@@ -424,31 +469,31 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         self.geometry_grid.setContentsMargins(20, 20, 20, 20)
 
         # updateTransforms
-        self.updateTransforms = BoolWidget(node, 'updateTransforms', label='Selection Path', parent=self)
+        self.updateTransforms = BoolWidget(node, 'updateTransforms', parent=self)
         self.geometry_grid.addWidget(QtGui.QLabel('Update Transforms'), 0, 0, 1, 1)
         self.geometry_grid.addWidget(self.updateTransforms, 0, 1, 1, 1)
         self.geometry_grid.setRowMinimumHeight(0, self.row_height)
 
         # cacheGeomPath
-        self.cacheGeomPath = StrWidget(node, 'cacheGeomPath', label='Geometry Path', parent=self)
+        self.cacheGeomPath = StrWidget(node, 'cacheGeomPath', parent=self)
         self.geometry_grid.addWidget(QtGui.QLabel('Geometry Path'), 1, 0, 1, 1)
         self.geometry_grid.addWidget(self.cacheGeomPath, 1, 1, 1, 1)
         self.geometry_grid.setRowMinimumHeight(1, self.row_height)
 
         # cacheSelectionPath
-        self.cacheSelectionPath = StrWidget(node, 'cacheSelectionPath', label='Selection Path', parent=self)
+        self.cacheSelectionPath = StrWidget(node, 'cacheSelectionPath', parent=self)
         self.geometry_grid.addWidget(QtGui.QLabel('Selection Path'), 2, 0, 1, 1)
         self.geometry_grid.addWidget(self.cacheSelectionPath, 2, 1, 1, 1)
         self.geometry_grid.setRowMinimumHeight(2, self.row_height)
 
         # boundingBoxExtendedMode
-        self.boundingBoxExtendedMode = BoolWidget(node, 'boundingBoxExtendedMode', label='Selection Path', parent=self)
+        self.boundingBoxExtendedMode = BoolWidget(node, 'boundingBoxExtendedMode', parent=self)
         self.geometry_grid.addWidget(QtGui.QLabel('Bounding Box'), 3, 0, 1, 1)
         self.geometry_grid.addWidget(self.boundingBoxExtendedMode, 3, 1, 1, 1)
         self.geometry_grid.setRowMinimumHeight(3, self.row_height)
 
         # timeOffset
-        self.timeOffset = FloatWidget(node, 'timeOffset', label='Selection Path', parent=self)
+        self.timeOffset = FloatWidget(node, 'timeOffset', parent=self)
         self.geometry_grid.addWidget(QtGui.QLabel('Time Offset'), 4, 0, 1, 1)
         self.geometry_grid.addWidget(self.timeOffset, 4, 1, 1, 1)
         self.geometry_grid.setRowMinimumHeight(4, self.row_height)
@@ -465,37 +510,37 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         self.assignments_grid.setRowMinimumHeight(0, self.row_height)
 
         # shadersAssignation
-        self.shadersAssignation = StrWidget(node, 'shadersAssignation', label='', parent=self)
+        self.shadersAssignation = StrWidget(node, 'shadersAssignation', parent=self)
         self.assignments_grid.addWidget(QtGui.QLabel('Shaders Assignation'), 0, 0, 1, 1)
         self.assignments_grid.addWidget(self.shadersAssignation, 0, 1, 1, 1)
         self.assignments_grid.setRowMinimumHeight(0, self.row_height)
 
         # displacementsAssignation
-        self.displacementsAssignation = StrWidget(node, 'displacementsAssignation', label='', parent=self)
+        self.displacementsAssignation = StrWidget(node, 'displacementsAssignation', parent=self)
         self.assignments_grid.addWidget(QtGui.QLabel('Displacements Assignation'), 1, 0, 1, 1)
         self.assignments_grid.addWidget(self.displacementsAssignation, 1, 1, 1, 1)
         self.assignments_grid.setRowMinimumHeight(1, self.row_height)
 
         # attributes
-        self.attributes = StrWidget(node, 'attributes', label='', parent=self)
+        self.attributes = StrWidget(node, 'attributes', parent=self)
         self.assignments_grid.addWidget(QtGui.QLabel('Attributes'), 2, 0, 1, 1)
         self.assignments_grid.addWidget(self.attributes, 2, 1, 1, 1)
         self.assignments_grid.setRowMinimumHeight(2, self.row_height)
 
         # layersOverride
-        self.layersOverride = StrWidget(node, 'layersOverride', label='', parent=self)
+        self.layersOverride = StrWidget(node, 'layersOverride', parent=self)
         self.assignments_grid.addWidget(QtGui.QLabel('Layers Override'), 3, 0, 1, 1)
         self.assignments_grid.addWidget(self.layersOverride, 3, 1, 1, 1)
         self.assignments_grid.setRowMinimumHeight(3, self.row_height)
 
         # shadersNamespace
-        self.shadersNamespace = StrWidget(node, 'shadersNamespace', label='', parent=self)
+        self.shadersNamespace = StrWidget(node, 'shadersNamespace', parent=self)
         self.assignments_grid.addWidget(QtGui.QLabel('Shaders Namespace'), 4, 0, 1, 1)
         self.assignments_grid.addWidget(self.shadersNamespace, 4, 1, 1, 1)        
         self.assignments_grid.setRowMinimumHeight(4, self.row_height)
 
         # geometryNamespace
-        self.geometryNamespace = StrWidget(node, 'geometryNamespace', label='', parent=self)
+        self.geometryNamespace = StrWidget(node, 'geometryNamespace', parent=self)
         self.assignments_grid.addWidget(QtGui.QLabel('Geometry Namespace'), 5, 0, 1, 1)
         self.assignments_grid.addWidget(self.geometryNamespace, 5, 1, 1, 1)      
         self.assignments_grid.setRowMinimumHeight(5, self.row_height)
@@ -512,7 +557,7 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         self.publish_grid.setRowMinimumHeight(0, self.row_height)
 
         # jsonFile
-        self.jsonFile = StrWidget(node, 'jsonFile', label='', parent=self)
+        self.jsonFile = StrWidget(node, 'jsonFile', parent=self)
         self.publish_grid.addWidget(QtGui.QLabel('Json File'), 0, 0, 1, 1)
         self.publish_grid.addWidget(self.jsonFile, 0, 1, 1, 1)
         self.json_btn = QtGui.QPushButton()
@@ -524,7 +569,7 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         self.publish_grid.setRowMinimumHeight(0, self.row_height)
 
         # abcShaders
-        self.abcShaders = StrWidget(node, 'abcShaders', label='', parent=self)
+        self.abcShaders = StrWidget(node, 'abcShaders', parent=self)
         self.publish_grid.addWidget(QtGui.QLabel('Shaders File'), 1, 0, 1, 1)
         self.publish_grid.addWidget(self.abcShaders, 1, 1, 1, 1)
         self.abc_btn = QtGui.QPushButton()
@@ -598,7 +643,7 @@ class AEalembicHolderTemplate(QtGui.QWidget):
         '''
         Add alembic cache widgets
         '''
-        cache = StrWidget(self.node, 'cacheFileNames[%i]' % i, label='', parent=self)
+        cache = StrWidget(self.node, 'cacheFileNames[%i]' % i, parent=self)
         label = QtGui.QLabel('Alembic [%i]' % i)
         self.alembic_grid.addWidget(label, i, 0, 1, 1)
         self.alembic_grid.addWidget(cache, i, 1, 1, 1)

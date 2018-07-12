@@ -58,6 +58,9 @@ class Layers(object):
         return None
 
     def  getDisplaceFromPath(self, path, layer):
+        geometryNamespace = cmds.getAttr('%s.geometryNamespace' % self.gpucache.shape)
+        if geometryNamespace:
+            path = path.replace(geometryNamespace + ':', '')        
         if layer in self.layers:
             return self.layers[layer].getAssignation().getDisplaceFromPath(path)
         return None

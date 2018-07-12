@@ -76,7 +76,7 @@ class PropertyWidgetColor(PropertyWidget):
 
    def fillFileNodesCombo(self):
       """Populate the combo box with maya texture nodes"""
-      nodes = ['RGB'] + cmds.ls( textures=True )
+      nodes = ['RGB'] + cmds.ls( textures=True ) + cmds.ls(type='aiFloatToRgba')
       self.fileNodesCombo.addItems(nodes)
 
    def updatePalette(self, color):

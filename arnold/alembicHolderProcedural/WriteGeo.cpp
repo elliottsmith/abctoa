@@ -164,9 +164,8 @@ inline void doNormals<IPolyMesh>(IPolyMesh& prim, AtNode *meshNode, const Sample
 
 
         const size_t numSampleTimes = sampleTimes.size();
-
         const size_t numNormals = nlist.size() / (numSampleTimes * 3);
-        AiMsgDebug(" nlist size : %i, nidxs size : %i, numSampleTimes : %i, numNormals :%i", nlist.size(), nidxs.size(), sampleTimes.size(), numNormals);
+        // AiMsgDebug("nlist size : %i, nidxs size : %i, numSampleTimes : %i, numNormals :%i", nlist.size(), nidxs.size(), sampleTimes.size(), numNormals);
 
         if (numNormals > 0)
         {            

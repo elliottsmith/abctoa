@@ -1,5 +1,6 @@
 from pymel.core import *
 import maya.cmds as cmds
+import cask
 
 from maya.OpenMaya import MNodeMessage, MEventMessage, MSelectionList, MItSelectionList, MObject, MGlobal, MDagPath
 import json
@@ -225,10 +226,67 @@ class AEalembicHolderTemplate(BaseTemplate):
             for i in abcToApi.getSelectedAlembicHolder(cls=True):
                 i.importLookdev(namespace)
 
+    def getNamespace(self):
+
+        cache = cmds.getAttr('%s.cacheFileNames[0]' % abcToApi.getCurrentSelection())
+        archive = cask.Archive(str(cache))
+        top_child = archive.top.children.keys()[0]
+        if ':' in top_child:
+            nm = top_child.split(':')[0]
+        else:
+            nm = 'root'            
+
+        ret = cmds.promptDialog(title='Namespace', message='Enter Name:', button=['Ok', 'Cancel'], defaultButton='Ok', cancelButton='Cancel', dismissString='Cancel', text=nm)
+        if ret == 'Ok':
+            return cmds.promptDialog(query=True, text=True)
+        return False
+
+    def _menuCommand(self, command):
+
+        reload(abcToApi)
+        if command == 'Import Lookdev':
+
+            namespace = self.getNamespace()
+            if namespace:
+                for i in abcToApi.getSelectedAlembicHolder(cls=True):
+                    i.importLookdev(namespace)
+        
+        elif command in ['Add Namespace to Assignments', 'Remove Namespace from Assignments']:
+            
+            namespace = self.getNamespace()
+            
+            if namespace:
+                for i in abcToApi.getSelectedAlembicHolder(cls=True):
+                    if command == 'Add Namespace to Assignments':
+                        i.addNamespace(namespace)
+                    elif command == 'Remove Namespace from Assignments':
+                        i.removeNamespace(namespace)
+
+    def _menuWidget(self, loader):
+
+        self.loader = loader
+        cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
+        cmds.columnLayout(adjustableColumn=False)
+        cmds.optionMenuGrp(label="Scripts", cc=self._menuCommand)
+        cmds.menuItem(label="Add Namespace to Assignments")
+        cmds.menuItem(label="Remove Namespace from Assignments")        
+        cmds.setParent('..')
+        cmds.setUITemplate(popTemplate=True)
+        cmds.setParent('..')
+        self._menuConnect(loader)
+        cmds.select()
+
+    def _menuConnect(self, args):
+        pass
+
     def buildBody(self, nodeName):
         """
         Build the body of the attribute editor template according to shotgun context
         """
+        self.beginLayout(name="Utilities", collapse=False)
+        self.callCustom(self._menuWidget, self._menuConnect, "")
+        self.endLayout()
+
         self.beginLayout(name="Cache File", collapse=False)
         self.callCustom(self._abcWidget, self._abcConnect, "cacheFileNames")
         self.addControl(control="updateTransforms", label="Auto update transforms")
@@ -245,7 +303,7 @@ class AEalembicHolderTemplate(BaseTemplate):
         self.addControl(control="attributes", label="Attributes")
         self.addControl(control="layersOverride", label="Layers Override")
         self.addControl(control="shadersNamespace", label="Shaders Namespace")
-        self.addControl(control="geometryNamespace", label="Geometry Namespace")        
+        self.addControl(control="geometryNamespace", label="Alembic Namespace")        
         self.endLayout()        
 
         if get_context().task != None:

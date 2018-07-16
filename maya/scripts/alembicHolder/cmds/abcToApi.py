@@ -23,6 +23,217 @@ class alembicHolderClass():
         self.data = data
         self.logger = logger
 
+    def findAttributes(self, assignations, attribute):
+        """
+        Args:
+            assignations (dict): dictionary holding assignments
+            attribute (str): attribute string to check
+
+        check if an attribute exists and isnt empty
+        """
+        if self.objExists(attribute):
+            if self.getAttr(attribute):
+                assignations[attribute] = json.loads(self.getAttr(attribute))
+        return assignations
+
+    def addNamespace(self, namespace):
+        """
+        Add a namespace to all assignments
+
+        Args:
+            namespace (str): namespace string to add to assignments        
+        """
+        assignations = {}
+        assignations = self.findAttributes(assignations, 'shadersAssignation')
+        assignations = self.findAttributes(assignations, 'displacementsAssignation')
+        assignations = self.findAttributes(assignations, 'layersOverride')
+        assignations = self.findAttributes(assignations, 'attributes')
+
+        #########################################################################################################################
+        if assignations.has_key('shadersAssignation'):
+            for shader in assignations['shadersAssignation'].keys():
+                nm_values = []
+
+                for value in assignations['shadersAssignation'][shader]:
+                    if value != '/':
+                        splits = value.split('/')
+                        new_namespace = '/%s:' % namespace
+                        nm_values.append(new_namespace.join(splits))
+                    else:
+                        nm_values.append(value)
+
+                assignations['shadersAssignation'][shader] = nm_values  
+        
+        #########################################################################################################################
+        if assignations.has_key('displacementsAssignation'):           
+            for shader in assignations['displacementsAssignation']:
+                nm_values = []
+
+                for value in assignations['displacementsAssignation'][shader]:
+                    if value != '/':
+                        splits = value.split('/')
+                        new_namespace = '/%s:' % namespace
+                        nm_values.append(new_namespace.join(splits))
+                    else:
+                        nm_values.append(value)
+
+                assignations['displacementsAssignation'][shader] = nm_values  
+
+        #########################################################################################################################
+        if assignations.has_key('attributes'):
+            for geo in assignations['attributes'].keys():
+                if geo != '/':
+                    splits = geo.split('/')
+                    new_namespace = '/%s:' % namespace
+                    assignations['attributes'][new_namespace.join(splits)] = assignations['attributes'].pop(geo)
+                else:
+                    assignations['attributes'][geo] = assignations['attributes'].pop(geo)
+
+        #########################################################################################################################
+        if assignations.has_key('layersOverride'):           
+            for layer in assignations['layersOverride']:
+                layer = assignations['layersOverride'][layer]
+
+                # displacements
+                if layer.has_key('displacements'):
+                    disp = layer['displacements']
+
+                    for key in disp.keys():
+                        nm_values = []
+                        
+                        for value in disp[key]:
+                            if value != '/':
+                                splits = value.split('/')
+                                new_namespace = '/%s:' % namespace
+                                nm_values.append(new_namespace.join(splits))
+                            else:
+                                nm_values.append(value)
+                        disp[key] = nm_values
+
+                # shaders
+                if layer.has_key('shaders'):
+                    disp = layer['shaders']
+
+                    for key in disp.keys():
+                        nm_values = []
+
+                        for value in disp[key]:
+                            if value != '/':
+                                splits = value.split('/')
+                                new_namespace = '/%s:' % namespace
+                                nm_values.append(new_namespace.join(splits))
+                            else:
+                                nm_values.append(value)
+
+                        disp[key] = nm_values 
+
+                # properties
+                if layer.has_key('properties'):
+                    disp = layer['properties']
+
+                    for key in disp.keys():
+                        if key != '/':
+                            splits = key.split('/')
+                            new_namespace = '/%s:' % namespace
+                            disp[new_namespace.join(splits)] = disp.pop(key)
+                        else:
+                            disp[key] = disp.pop(key)
+
+        #########################################################################################################################
+        if assignations.has_key('shadersAssignation'):
+            self.setAttr(attr='shadersAssignation', value=json.dumps(assignations['shadersAssignation']))
+        if assignations.has_key('attributes'):
+            self.setAttr(attr='attributes', value=json.dumps(assignations['attributes']))
+        if assignations.has_key('displacementsAssignation'):
+            self.setAttr(attr='displacementsAssignation', value=json.dumps(assignations['displacementsAssignation']))
+        if assignations.has_key('layersOverride'):
+            self.setAttr(attr='layersOverride', value=json.dumps(assignations['layersOverride']))
+
+    def removeNamespace(self, namespace):
+        """
+        Remove a namespace from all assignments
+
+        Args:
+            namespace (str): namespace string to remove from assignments
+        """
+        assignations = {}
+        assignations = self.findAttributes(assignations, 'shadersAssignation')
+        assignations = self.findAttributes(assignations, 'displacementsAssignation')
+        assignations = self.findAttributes(assignations, 'layersOverride')
+        assignations = self.findAttributes(assignations, 'attributes')
+
+        #########################################################################################################################
+        if assignations.has_key('shadersAssignation'):
+            for shader in assignations['shadersAssignation'].keys():
+                nm_values = []
+
+                for value in assignations['shadersAssignation'][shader]:
+                    no_namespace = value.replace('%s:' % namespace, '')
+                    nm_values.append(no_namespace)
+
+                assignations['shadersAssignation'][shader] = nm_values
+
+        #########################################################################################################################
+        if assignations.has_key('displacementsAssignation'):
+            for shader in assignations['displacementsAssignation'].keys():
+                nm_values = []
+
+                for value in assignations['displacementsAssignation'][shader]:
+                    no_namespace = value.replace('%s:' % namespace, '')
+                    nm_values.append(no_namespace)
+
+                assignations['displacementsAssignation'][shader] = nm_values
+
+        #########################################################################################################################
+        if assignations.has_key('attributes'):
+            for geo in assignations['attributes'].keys():
+                no_namespace = geo.replace('%s:' % namespace, '')
+                assignations['attributes'][no_namespace] = assignations['attributes'].pop(geo)
+
+        #########################################################################################################################
+        for layer in assignations['layersOverride']:
+            layer = assignations['layersOverride'][layer]
+
+            if layer.has_key('displacements'):
+                disp = layer['displacements']
+                for key in disp.keys():
+
+                    vals = disp[key]
+                    nm_values = []
+                    for v in vals:
+                        t = v.replace('%s:' % namespace, '')
+                        nm_values.append(t)
+
+                    disp[key] = nm_values
+
+            if layer.has_key('shaders'):
+                disp = layer['shaders']
+                for key in disp.keys():
+
+                    vals = disp[key]
+                    nm_values = []
+                    for v in vals:
+                        t = v.replace('%s:' % namespace, '')
+                        nm_values.append(t)
+
+                    disp[key] = nm_values 
+
+            if layer.has_key('properties'):
+                disp = layer['properties']
+                for key in disp.keys():
+                    t = key.replace('%s:' % namespace, '')
+                    disp[t] = disp.pop(key)
+
+        #########################################################################################################################
+        if assignations.has_key('shadersAssignation'):
+            self.setAttr(attr='shadersAssignation', value=json.dumps(assignations['shadersAssignation']))
+        if assignations.has_key('attributes'):
+            self.setAttr(attr='attributes', value=json.dumps(assignations['attributes']))
+        if assignations.has_key('displacementsAssignation'):
+            self.setAttr(attr='displacementsAssignation', value=json.dumps(assignations['displacementsAssignation']))
+        if assignations.has_key('layersOverride'):
+            self.setAttr(attr='layersOverride', value=json.dumps(assignations['layersOverride']))
+
     def importLookdev(self, namespace=':'):
         """
         Import both json and alembic shaders file. Ensure the imported shaders are connected the alembicHolder node.

@@ -96,137 +96,7 @@ class AEalembicHolderTemplate(BaseTemplate):
             selected = abcToApi.getCurrentSelection()
             cmds.setAttr("%s.cacheFileNames[0]" % selected, ret[0], type="string")
 
-    def _abcImport(self, args):
-        """
-        Import the alembic file via abcToApi
-        """
-        for i in abcToApi.getSelectedAlembicHolder(cls=True):
-            i.importAbc()
-
-    def _jsonWidget(self, json):
-        """
-        Json Path widgets
-        """
-        self.json = json
-
-        cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
-        cmds.columnLayout(adjustableColumn=True)
-        cmds.rowLayout(numberOfColumns=4, adjustableColumn4=2)
-        cmds.text(label="Json Path")
-        cmds.textField("jsonpathNameField", editable=False, enable=False, textChangedCommand=self._refresh)        
-        cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._jsonBrowser)
-        cmds.setParent('..')
-        cmds.setUITemplate(popTemplate=True)
-        cmds.setParent('..')
-        self._jsonConnect(json)
-        cmds.select()
-
-    def _jsonConnect(self, json):
-        """
-        Connect the new control to existing control
-        """
-        cmds.connectControl("jsonpathNameField", self.json)
-
-    def _jsonBrowser(self, args):
-        """
-        Open file dialog and set the jsonFile attribute
-        """
-        ret = cmds.fileDialog2(fileFilter="Json (*.json)", fileMode=1, dialogStyle=2, caption="Select Json File")
-        if ret:
-            selected = abcToApi.getCurrentSelection()
-            cmds.setAttr("%s.jsonFile" % selected, ret[0], type="string")
-            cmds.refreshEditorTemplates()
-
-    def _jsonImport(self, args):
-        """
-        Import the json file via abcToApi
-        """
-        for i in abcToApi.getSelectedAlembicHolder(cls=True):
-            i.importJson()
-
-    def _shadersWidget(self, shaders):
-        """
-        Shaders Path widgets
-        """
-        self.shaders = shaders
-
-        cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
-        cmds.columnLayout(adjustableColumn=True)
-        cmds.rowLayout(numberOfColumns=4, adjustableColumn4=2)
-        cmds.text(label="Shaders Path")
-        cmds.textField("shaderspathNameField", editable=False, enable=False, textChangedCommand=self._refresh)
-        cmds.symbolButton(image="navButtonBrowse.png", width=15, height=15, command=self._shadersBrowser)
-        cmds.setParent('..')
-        cmds.setUITemplate(popTemplate=True)
-        cmds.setParent('..')
-        self._shadersConnect(shaders)
-        cmds.select()
-
-    def _shadersConnect(self, json):
-        """
-        Connect the new control to existing control
-        """
-        cmds.connectControl("shaderspathNameField", self.shaders)
-
-    def _shadersBrowser(self, args):
-        """
-        Open file dialog and set the shaders attribute
-        """
-        ret = cmds.fileDialog2(fileFilter="Alembic (*.abc)", fileMode=1, dialogStyle=2, caption="Select Alembic File")
-        if ret:
-            selected = abcToApi.getCurrentSelection()
-            cmds.setAttr("%s.abcShaders" % selected, ret[0], type="string")
-            cmds.refreshEditorTemplates()
-
-    def _shadersImport(self, args):
-        """
-        Import the shaders file via abcToApi
-        """
-        for i in abcToApi.getSelectedAlembicHolder(cls=True):
-            i.importShaders()
-
-    def _localiseLookdevWidget(self, loader):
-        """
-        """
-
-        self.loader = loader
-        cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
-        cmds.columnLayout(adjustableColumn=True)
-        cmds.rowLayout(numberOfColumns=2, adjustableColumn2=1)
-
-        if not cmds.getAttr("%sjsonFile" % self.loader) or not cmds.getAttr("%sabcShaders" % self.loader):
-            bg_color = RED
-            enable = False
-        else:
-            bg_color = GREEN
-            enable = True
-
-        self.btn = cmds.button(label='Localise Lookdev', command=self._localiseLookdevImport, enableBackground=True, backgroundColor=bg_color, enable=enable)
-        cmds.setParent('..')
-        cmds.setUITemplate(popTemplate=True)
-        cmds.setParent('..')
-        self._localiseLookdevConnect(loader)
-        cmds.select()
-
-    def _localiseLookdevConnect(self, json):
-        """
-        Connect the new control to existing control
-        """
-        pass
-
-    def _localiseLookdevImport(self, args):
-        """
-        """
-        ret = cmds.promptDialog(title='Namespace', message='Enter Name:', button=['Ok', 'Cancel'], defaultButton='Ok', cancelButton='Cancel', dismissString='Cancel', text='root')
-        if ret == 'Ok':
-            namespace = cmds.promptDialog(query=True, text=True)
-            if namespace == 'root':
-                namespace = ':'
-
-            for i in abcToApi.getSelectedAlembicHolder(cls=True):
-                i.importLookdev(namespace)
-
-    def getNamespace(self):
+    def getNamespaceFromCache(self):
 
         cache = cmds.getAttr('%s.cacheFileNames[0]' % abcToApi.getCurrentSelection())
         archive = cask.Archive(str(cache))
@@ -244,36 +114,36 @@ class AEalembicHolderTemplate(BaseTemplate):
     def _menuCommand(self, command):
 
         reload(abcToApi)
-        if command == 'Import Lookdev':
 
-            namespace = self.getNamespace()
+        if command == 'Localise Lookdev':
+            namespace = self.getNamespaceFromCache()
             if namespace:
                 for i in abcToApi.getSelectedAlembicHolder(cls=True):
                     i.importLookdev(namespace)
         
-        elif command in ['Add Namespace to Assignments', 'Remove Namespace from Assignments']:
-            
-            namespace = self.getNamespace()
-            
+        elif command == 'Add Namespace to Assignments':
+            namespace = self.getNamespaceFromCache()
             if namespace:
                 for i in abcToApi.getSelectedAlembicHolder(cls=True):
-                    if command == 'Add Namespace to Assignments':
-                        i.addNamespace(namespace)
-                    elif command == 'Remove Namespace from Assignments':
-                        i.removeNamespace(namespace)
+                    i.addNamespace(namespace)
+
+        elif command == 'Remove Namespace from Assignments':
+            namespace = self.getNamespaceFromCache()
+            if namespace:
+                for i in abcToApi.getSelectedAlembicHolder(cls=True):
+                    i.removeNamespace(namespace)
 
     def _menuWidget(self, loader):
 
-        self.loader = loader
         cmds.setUITemplate('attributeEditorTemplate', pushTemplate=True)
         cmds.columnLayout(adjustableColumn=False)
         cmds.optionMenuGrp(label="Scripts", cc=self._menuCommand)
         cmds.menuItem(label="Add Namespace to Assignments")
-        cmds.menuItem(label="Remove Namespace from Assignments")        
+        cmds.menuItem(label="Remove Namespace from Assignments")
+        cmds.menuItem(label="Localise Lookdev")
         cmds.setParent('..')
         cmds.setUITemplate(popTemplate=True)
         cmds.setParent('..')
-        self._menuConnect(loader)
         cmds.select()
 
     def _menuConnect(self, args):
@@ -283,10 +153,6 @@ class AEalembicHolderTemplate(BaseTemplate):
         """
         Build the body of the attribute editor template according to shotgun context
         """
-        self.beginLayout(name="Utilities", collapse=False)
-        self.callCustom(self._menuWidget, self._menuConnect, "")
-        self.endLayout()
-
         self.beginLayout(name="Cache File", collapse=False)
         self.callCustom(self._abcWidget, self._abcConnect, "cacheFileNames")
         self.addControl(control="updateTransforms", label="Auto update transforms")
@@ -306,14 +172,9 @@ class AEalembicHolderTemplate(BaseTemplate):
         self.addControl(control="geometryNamespace", label="Alembic Namespace")        
         self.endLayout()        
 
-        if get_context().task != None:
-            # if we are in a lighting context, create a section for the attrs to live
-            if get_context().task['name'].lower() == 'lighting':
-                self.beginLayout(name="Published Lookdev", collapse=False)
-                self.callCustom(self._jsonWidget, self._jsonConnect, "jsonFile")
-                self.callCustom(self._shadersWidget, self._shadersConnect, "abcShaders")
-                self.callCustom(self._localiseLookdevWidget, self._localiseLookdevConnect, "")
-                self.endLayout()
+        self.beginLayout(name="Utilities", collapse=False)
+        self.callCustom(self._menuWidget, self._menuConnect, "")
+        self.endLayout()
 
         render_attrs = ["primaryVisibility", "aiSelfShadows", "castsShadows", "aiReceiveShadows", "motionBlur", "aiVisibleInDiffuse", "aiVisibleInGlossy", "visibleInRefractions", "visibleInReflections", "aiOpaque", "aiMatte", "overrideGlobalShader", "aiTraceSets", "aiSssSetname", "aiUserOptions"]
         self.beginLayout(name="Render Stats", collapse=True)

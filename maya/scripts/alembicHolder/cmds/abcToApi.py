@@ -977,7 +977,7 @@ def import_xforms(abcfile, transform_names, parent_under, update):
 
         # this doesnt use the -ct and -crt flags, which will cause the import to fail if root nodes are not present
         if update and update_data != []:
-            cmd = 'AbcImport "%s" -d -rpr "%s" -ft "%s" -eft "Shape"' % (abcfile, parent_under, ' '.join( [ i['transform'] for i in update_data ] ))
+            cmd = 'AbcImport -d -rpr "%s" -ft "%s" -eft "Shape" "%s"' % (parent_under, ' '.join( [ i['transform'] for i in update_data ] ), abcfile)
 
             try:
                 mel.eval(cmd)
@@ -989,7 +989,7 @@ def import_xforms(abcfile, transform_names, parent_under, update):
 
     # conntect type AbcImport
     if update and update_data != []:
-        cmd = 'AbcImport "%s" -d -rpr "%s" -ft "%s" -ct "%s" -crt -eft "Shape"' % (abcfile, parent_under, ' '.join( [ i['transform'] for i in update_data ] ), parent_under)
+        cmd = 'AbcImport -d -rpr "%s" -ft "%s" -ct "%s" -crt -eft "Shape" "%s"' % (parent_under, ' '.join( [ i['transform'] for i in update_data ] ), parent_under, abcfile)
 
         try:
             mel.eval(cmd)
@@ -1038,7 +1038,7 @@ def get_previously_imported_transforms(abcfile, root):
 def update_xforms(abcfile, parent_under):
     """Update previously imported transforms"""
     
-    cmd = 'AbcImport "%s" -d -rpr "%s" -ct "%s" -eft "Shape"' % (abcfile, parent_under, parent_under)
+    cmd = 'AbcImport -d -rpr "%s" -ct "%s" -eft "Shape" "%s"' % (parent_under, parent_under, abcfile)
     try:
         mel.eval(cmd)
         MGlobal.displayInfo(cmd)

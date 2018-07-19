@@ -48,28 +48,17 @@ class Layers(object):
         for layer in layers:
             self.addLayer(layer, layers[layer])
 
-    def  getShaderFromPath(self, path, layer):
-        geometryNamespace = cmds.getAttr('%s.geometryNamespace' % self.gpucache.shape)
-        if geometryNamespace:
-            path = path.replace(geometryNamespace + ':', '')
-
+    def getShaderFromPath(self, path, layer):
         if layer in self.layers:
             return self.layers[layer].getAssignation().getShaderFromPath(path)
         return None
 
-    def  getDisplaceFromPath(self, path, layer):
-        geometryNamespace = cmds.getAttr('%s.geometryNamespace' % self.gpucache.shape)
-        if geometryNamespace:
-            path = path.replace(geometryNamespace + ':', '')        
+    def getDisplaceFromPath(self, path, layer):      
         if layer in self.layers:
             return self.layers[layer].getAssignation().getDisplaceFromPath(path)
         return None
 
     def getOverridesFromPath(self, path, layer, onlyInherited=False):
-        geometryNamespace = cmds.getAttr('%s.geometryNamespace' % self.gpucache.shape)
-        if geometryNamespace:
-            path = path.replace(geometryNamespace + ':', '')
-
         if layer in self.layers:
             return self.layers[layer].getAssignation().getOverridesFromPath(path, onlyInherited=onlyInherited)
         return {}

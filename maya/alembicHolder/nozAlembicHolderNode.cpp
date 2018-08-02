@@ -416,14 +416,14 @@ MStatus nozAlembicHolder::initialize() {
     tAttr.setStorable(true);
     tAttr.setKeyable(true);
 
-    aOpaque = nAttr.create("aiOpaque", "aiop", MFnNumericData::kBoolean, false);
+    aOpaque = nAttr.create("aiOpaque", "aiop", MFnNumericData::kBoolean, true);
     nAttr.setWritable(true);
     nAttr.setReadable(true);
     nAttr.setHidden(false);
     nAttr.setStorable(true);
     nAttr.setKeyable(true);
 
-    aSelfShadows = nAttr.create("aiSelfShadows", "aiss", MFnNumericData::kBoolean, false);
+    aSelfShadows = nAttr.create("aiSelfShadows", "aiss", MFnNumericData::kBoolean, true);
     nAttr.setWritable(true);
     nAttr.setReadable(true);
     nAttr.setHidden(false);
@@ -437,7 +437,7 @@ MStatus nozAlembicHolder::initialize() {
     nAttr.setStorable(true);
     nAttr.setKeyable(true);
 
-    aReceiveShadows = nAttr.create("aiReceiveShadows", "airs", MFnNumericData::kBoolean, false);
+    aReceiveShadows = nAttr.create("aiReceiveShadows", "airs", MFnNumericData::kBoolean, true);
     nAttr.setWritable(true);
     nAttr.setReadable(true);
     nAttr.setHidden(false);

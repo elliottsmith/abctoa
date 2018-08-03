@@ -392,8 +392,7 @@ MStatus nozAlembicHolder::initialize() {
     nAttr.setReadable(false);
     nAttr.setWritable(false);
 
-    aUpdateTransforms = nAttr.create("updateTransforms", "upt", MFnNumericData::kBoolean, false, &stat);
-    nAttr.setDefault(false);
+    aUpdateTransforms = nAttr.create("updateTransforms", "upt", MFnNumericData::kBoolean, true, &stat);
     nAttr.setKeyable(false);
 
     aForceReload = nAttr.create("forceReload", "frel", MFnNumericData::kBoolean, false, &stat);
